@@ -38,7 +38,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1280, 1024, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1280, 1024, "Render Engine", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -112,10 +112,8 @@ int main(void)
 
     BaseObject* cube = mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
 
-    if(!cube)
-    {
-        return -1;
-    }
+    BaseObject* monkey = mainScene.loadObject("resources/monkey.obj");
+    monkey->setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 
     /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 
@@ -133,8 +131,8 @@ int main(void)
     Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
 
-    unsigned meshCount = cube->getChildrenCount();
-    int cameraNumber = 0;
+    Material::getMaterial(1)->setTexture(Texture::textures[0], 0);
+    Material::getMaterial(1)->setTexture(Texture::textures[1], 2);
 
     mainScene.setSelectedObject(cube);
 
