@@ -72,6 +72,7 @@ int main(void)
     mainScene.sceneObjects.addObject(otherCamera);
 
     mainCamera.setFOV(90.0f);
+    mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     otherCamera.setFOV(30.0f);
 
     Camera* currentCamera = &mainCamera;
@@ -109,7 +110,7 @@ int main(void)
     Texture::loadTexture("resources/Brick_Base.jpg");
     Texture::loadTexture("resources/Brick_Normal.jpg");
 
-    BaseObject* cube = mainScene.loadObject("resources/akMat.obj"); // dynamically allocated
+    BaseObject* cube = mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
 
     if(!cube)
     {
