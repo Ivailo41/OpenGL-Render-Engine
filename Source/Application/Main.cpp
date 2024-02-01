@@ -52,11 +52,6 @@ int main(void)
     int windowX, windowY;
     glfwGetWindowSize(window, &windowX, &windowY);
 
-    //function to move the viewport will be adding this to a UI layer
-    //glViewport(0, 0, windowX, windowY);
-
-    //EngineUI engineUI(window);
-
     if(glewInit() != GLEW_OK)
     {
         std::cout << "GLEW ERROR" << std::endl;
@@ -81,12 +76,12 @@ int main(void)
 
     Camera* currentCamera = &mainCamera;
 
-    //Fix allocation of memory
+    //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
     std::vector<Light*> lights;
     for (size_t i = 0; i < 4; i++)
     {
         PointLight light(std::string("PointLight_" + std::to_string(i)));
-        lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i)))); //ERROR HERE READING DELETED MEMOEY WHEN DESTRUCTOR IS CALLED
+        lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
         mainScene.sceneObjects.addObject(lights[i]);
     }
     lights[0]->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -114,10 +109,7 @@ int main(void)
     Texture::loadTexture("resources/Brick_Base.jpg");
     Texture::loadTexture("resources/Brick_Normal.jpg");
 
-    BaseObject* cube = mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
-
-    BaseObject* monkey = mainScene.loadObject("resources/monkey.obj");
-    monkey->setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+    BaseObject* object = mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
 
     /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 
@@ -135,10 +127,7 @@ int main(void)
     Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
 
-    Material::getMaterial(1)->setTexture(Texture::textures[0], 0);
-    Material::getMaterial(1)->setTexture(Texture::textures[1], 2);
-
-    mainScene.setSelectedObject(cube);
+    mainScene.setSelectedObject(object);
 
     glUseProgram(Shader::shaders[0]);
 
