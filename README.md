@@ -18,3 +18,16 @@ When you run the project you will be greated with a black screen. Don't worry, t
 **Hold right click inside the window to enter the camera control <br />
 Move mouse to rotate the camera <br />
 W, A, S, D to move camera around**<br />
+
+
+### User Interface
+I am making use of ImGui for the UI. <br />
+For now it will pop up as separated window from the renderer where you can find a `Scene tree`, `Object Properties` and `Camera Properties`
+
+![Screenshot_2](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/49bf90c2-9e72-4e14-92b0-744536fab3a5)
+
+Here is a screenshot from the renderer <br />
+![Screenshot_1](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/c94ddd9d-745d-4b83-a24d-c2a825d6a27c) 
+
+# Footer
+Not much to be seen, the project is still early in development
