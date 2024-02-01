@@ -74,6 +74,7 @@ int main(void)
     mainCamera.setFOV(90.0f);
     mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     otherCamera.setFOV(30.0f);
+    //dummy comment
 
     Camera* currentCamera = &mainCamera;
 
