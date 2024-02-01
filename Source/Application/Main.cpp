@@ -25,7 +25,8 @@
 #include "Includes/imGuiInclude.h"
 
 #include "UI/EngineUI.h"
-#include "UI/Layers/UIScene.h"
+#include "UI/Layers/UISceneTree.h"
+#include "UI/Layers/UI_Scene/UI_Scene.h"
 #include "UI/Layers/UI_ObjectProperties/UI_ObjectProperties.h"
 #include "UI/Layers/UI_CameraProperties/UI_CameraProperties.h"
 
@@ -51,7 +52,10 @@ int main(void)
     int windowX, windowY;
     glfwGetWindowSize(window, &windowX, &windowY);
 
-    EngineUI engineUI(window);
+    //function to move the viewport will be adding this to a UI layer
+    //glViewport(0, 0, windowX, windowY);
+
+    //EngineUI engineUI(window);
 
     if(glewInit() != GLEW_OK)
     {
@@ -74,7 +78,6 @@ int main(void)
     mainCamera.setFOV(90.0f);
     mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     otherCamera.setFOV(30.0f);
-    //dummy comment
 
     Camera* currentCamera = &mainCamera;
 
@@ -139,15 +142,17 @@ int main(void)
 
     glUseProgram(Shader::shaders[0]);
 
+    EngineUI mainUI(window);
+
     //temp
-    UIScene uiScene;
+    UISceneTree uiScene;
+    UI_Scene uiSceneLayer(window);
     UI_ObjectProperties uiObjectProperties;
     UI_CameraProperties uiCameraProperties(currentCamera);
-
-    EngineUI mainUI(window);
     mainUI.addUILayer(&uiScene);
     mainUI.addUILayer(&uiObjectProperties);
     mainUI.addUILayer(&uiCameraProperties);
+    mainUI.addUILayer(&uiSceneLayer);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -167,9 +172,6 @@ int main(void)
         }
 
         mainScene.drawObjects();
-
-        //cube->draw();
-
         mainUI.renderUI();
 
         /* Swap front and back buffers */

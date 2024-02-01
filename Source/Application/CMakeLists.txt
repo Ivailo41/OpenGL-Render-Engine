@@ -41,5 +41,5 @@ target_sources(
         "UI/Layers/UI_ObjectProperties/UI_ObjectProperties.cpp"
         "UI/Elements/UIElement.cpp"
         "UI/Layers/UILayer.cpp"
-        "UI/Layers/UIScene.cpp"
-        "UI/Elements/UISceneNode.cpp")
+        "UI/Layers/UISceneTree.cpp"
+        "UI/Elements/UISceneNode.cpp" "UI/Layers/UI_Scene/UI_Scene.h" "UI/Layers/UI_Scene/UI_Scene.cpp")
