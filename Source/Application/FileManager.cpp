@@ -180,7 +180,9 @@ Object* FileManager::readOBJ(std::string fileName)
 			mesh.setName(currentMesh);
 			mesh.setMaterial(currentMaterial);
 
-			mesh.attachTo(*object);
+			//mesh.attachTo(*object);
+			object->addChild(mesh);
+
 			delete[] isIndexInList;
 
 			currentMesh = line.substr(2);
@@ -213,7 +215,9 @@ Object* FileManager::readOBJ(std::string fileName)
 	Mesh mesh(vertices, vtIndices);
 	mesh.setName(currentMesh);
 	mesh.setMaterial(currentMaterial);
-	mesh.attachTo(*object);
+
+	//mesh.attachTo(*object);
+	object->addChild(mesh);
 
 	delete[] isIndexInList;
 

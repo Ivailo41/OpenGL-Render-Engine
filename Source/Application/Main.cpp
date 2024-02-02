@@ -93,7 +93,7 @@ int main(void)
     Shader shader("Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
     unsigned shaderProgram = Shader::shaders[0];
 
-    /*Texture::loadTexture("resources/Set1_base.png");
+    Texture::loadTexture("resources/Set1_base.png");
     Texture::loadTexture("resources/Set1_Normal.png");
     Texture::loadTexture("resources/Set2_base.png");
     Texture::loadTexture("resources/Set2_Normal.png");
@@ -104,14 +104,14 @@ int main(void)
     Texture::loadTexture("resources/Set1_ORM.png");
     Texture::loadTexture("resources/Set2_ORM.png");
     Texture::loadTexture("resources/Set3_ORM.png");
-    Texture::loadTexture("resources/Set4_ORM.png");*/
+    Texture::loadTexture("resources/Set4_ORM.png");
 
-    Texture::loadTexture("resources/Brick_Base.jpg");
-    Texture::loadTexture("resources/Brick_Normal.jpg");
+    /*Texture::loadTexture("resources/Brick_Base.jpg");
+    Texture::loadTexture("resources/Brick_Normal.jpg");*/
 
-    BaseObject* object = mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
+    BaseObject* object = mainScene.loadObject("resources/akMat.obj"); // dynamically allocated
 
-    /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
+    Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 
     Material::getMaterial(0)->setTexture(Texture::textures[3], 2); 
     Material::getMaterial(2)->setTexture(Texture::textures[0], 0); 
@@ -122,10 +122,10 @@ int main(void)
     Material::getMaterial(3)->setTexture(Texture::textures[5], 2); 
     Material::getMaterial(1)->setTexture(Texture::textures[6], 0); 
     Material::getMaterial(1)->setTexture(Texture::textures[11],1);
-    Material::getMaterial(1)->setTexture(Texture::textures[7], 2);*/
+    Material::getMaterial(1)->setTexture(Texture::textures[7], 2);
 
-    Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
-    Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
+    /*Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
+    Material::getMaterial(0)->setTexture(Texture::textures[1], 2);*/
 
     mainScene.setSelectedObject(object);
 

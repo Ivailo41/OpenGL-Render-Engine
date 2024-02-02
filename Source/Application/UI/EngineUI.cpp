@@ -66,7 +66,7 @@ void EngineUI::renderUI()
     ImGui::NewFrame();
 
     static bool use_work_area = true;
-    static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+    static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_MenuBar;
 
     // We demonstrate using the full viewport area or the work area (without menu-bars, task-bars etc.)
     // Based on your use case you may want one or the other.
@@ -76,7 +76,26 @@ void EngineUI::renderUI()
 
     if (ImGui::Begin("Example: Fullscreen window", nullptr, flags))
     {
-        
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("Menu"))
+            {
+
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Examples"))
+            {
+
+                ImGui::EndMenu();
+            }
+            //if (ImGui::MenuItem("MenuItem")) {} // You can also use MenuItem() inside a menu bar!
+            if (ImGui::BeginMenu("Tools"))
+            {
+
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
     }
 
     ImGui::End();
@@ -86,7 +105,7 @@ void EngineUI::renderUI()
         UIElements[i].renderLayer();
     }
 
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
