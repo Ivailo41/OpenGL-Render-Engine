@@ -13,13 +13,12 @@ UISceneTree::UISceneTree(const char* layerName) : UILayer(layerName)
 
 void UISceneTree::renderLayer()
 {
-	unsigned childCount = Scene::activeScene->sceneObjects.getSize();
 	ImGui::Begin(layerName.c_str());
 	if (ImGui::TreeNode("Scene Tree"))
 	{
-		for (size_t i = 0; i < childCount; i++)
+		for (size_t i = 0; i < Scene::activeScene->sceneObjects.size(); i++)
 		{
-			BaseObject* child = &Scene::activeScene->sceneObjects[i];
+			BaseObject* child = Scene::activeScene->sceneObjects[i];
 			if (child != nullptr)
 			{
 				UISceneNode* node = new UISceneNode(child->getName(), child);

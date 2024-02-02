@@ -4,11 +4,12 @@
 #include "../Object.h"
 #include "../Lights/Light.h"
 #include <string>
+#include <vector>
 
 class Scene
 {
 public:
-	BaseObject* loadObject(const std::string& path);
+	void loadObject(const std::string& path);
 	void removeObject(BaseObject* object);
 
 	BaseObject* getSelectedObject() const;
@@ -29,7 +30,8 @@ public:
 
 public:
 	static Scene* activeScene;
-	ObjectArray<BaseObject> sceneObjects;
+	//ObjectArray<BaseObject> sceneObjects;
+	std::vector<BaseObject*> sceneObjects;
 
 private:
 	std::string name;

@@ -8,41 +8,14 @@ Scene::Scene()
 	name = "New Scene";
 }
 
-//Scene::Scene(const Scene& other)
-//{
-//	name = other.name;
-//	sceneObjects = other.sceneObjects;
-//}
-//
-//Scene& Scene::operator=(const Scene& other)
-//{
-//	if (this != &other)
-//	{
-//		name = other.name;
-//		sceneObjects = other.sceneObjects;
-//	}
-//	return *this;
-//}
-
-//Scene::~Scene()
-//{
-//	for (size_t i = 0; i < sceneObjects.getSize(); i++)
-//	{
-//		delete& sceneObjects[i];
-//	}
-//}
-
-BaseObject* Scene::loadObject(const std::string& path)
+void Scene::loadObject(const std::string& path)
 {
 	//change later 
 	Object* object = FileManager::readOBJ(path);
 	if (object != nullptr)
 	{
-		BaseObject* loadedObject = sceneObjects.addObject(*object);
-		delete object;
-		return loadedObject;
+		sceneObjects.push_back(object);
 	}
-	return nullptr;
 }
 
 void Scene::setSelectedObject(BaseObject* object)
@@ -52,9 +25,9 @@ void Scene::setSelectedObject(BaseObject* object)
 
 void Scene::drawObjects() const
 {
-	for (size_t i = 0; i < sceneObjects.getSize(); i++)
+	for (size_t i = 0; i < sceneObjects.size(); i++)
 	{
-		sceneObjects[i].draw();
+		sceneObjects[i]->draw();
 	}
 }
 
@@ -81,9 +54,17 @@ void Scene::removeObject(BaseObject* object)
 	{
 		selectedObject = nullptr;
 	}
-	sceneObjects.removeObject(object);
+	for (size_t i = 0; i < sceneObjects.size(); i++)
+	{
+		if(sceneObjects[i] == object)
+		{
+			sceneObjects.erase(sceneObjects.begin() + i);
+			delete object;
+			return;
+		}
+	}
 }
-
+	
 BaseObject* Scene::getSelectedObject() const
 {
 	return selectedObject;

@@ -32,10 +32,17 @@ void UISceneNode::renderElement()
 	{
 		Scene::activeScene->setSelectedObject(object);
 	}
+
 	else if (ImGui::IsItemClicked(1))
 	{
-		//object->getParent()->removeChild(object);
-		//Scene::activeScene->removeObject(object);
+		if (object->getParent() != nullptr)
+		{
+			object->getParent()->removeChild(object);
+		}
+		else
+		{
+			Scene::activeScene->removeObject(object);
+		}
 	}
 
 	if (ImGui::BeginDragDropSource())

@@ -65,24 +65,23 @@ int main(void)
     Object dummyObject;
     BaseObject* dummy = &dummyObject;
 
-    Camera mainCamera;
-    mainScene.sceneObjects.addObject(mainCamera);
-    Camera otherCamera;
-    mainScene.sceneObjects.addObject(otherCamera);
+    Camera* mainCamera = new Camera;
+    mainScene.sceneObjects.push_back(mainCamera);
+    Camera* otherCamera = new Camera;
+    mainScene.sceneObjects.push_back(otherCamera);
 
-    mainCamera.setFOV(90.0f);
-    mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
-    otherCamera.setFOV(30.0f);
+    mainCamera->setFOV(90.0f);
+    mainCamera->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    otherCamera->setFOV(30.0f);
 
-    Camera* currentCamera = &mainCamera;
+    Camera* currentCamera = mainCamera;
 
     //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
     std::vector<Light*> lights;
     for (size_t i = 0; i < 4; i++)
     {
-        PointLight light(std::string("PointLight_" + std::to_string(i)));
         lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
-        mainScene.sceneObjects.addObject(lights[i]);
+        mainScene.sceneObjects.push_back(lights[i]);
     }
     lights[0]->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     lights[1]->setPosition(glm::vec3(0.0f, 10.0f, 0.0f));
@@ -109,7 +108,7 @@ int main(void)
     /*Texture::loadTexture("resources/Brick_Base.jpg");
     Texture::loadTexture("resources/Brick_Normal.jpg");*/
 
-    BaseObject* object = mainScene.loadObject("resources/akMat.obj"); // dynamically allocated
+    mainScene.loadObject("resources/akMat.obj"); // dynamically allocated
 
     Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 
@@ -127,7 +126,7 @@ int main(void)
     /*Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[1], 2);*/
 
-    mainScene.setSelectedObject(object);
+    mainScene.setSelectedObject(nullptr);
 
     glUseProgram(Shader::shaders[0]);
 
