@@ -29,6 +29,24 @@ For now it will pop up as separated window from the renderer where you can find 
 Here is a screenshot from the renderer <br />
 ![Screenshot_1](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/c94ddd9d-745d-4b83-a24d-c2a825d6a27c) 
 
+## Load your own 3D model
+For now the engine only reads `.obj` files. I wrote the parser myself and for now there are a few limitations. <br />
+First you need to export your 3D model `triangulated` as `.obj`. Also make sure that the materials are included. Add the model with its textures to the `resources` folder. <br />
+
+At this point it is not possible to use the UI to load the model so you will need to make little changes in the `main.cpp` file. <br />
+You will need to load the textures, then load the model and finally set the textures in the model material <br />
+```
+Texture::loadTexture("resources/[your texture name]");
+Texture::loadTexture("resources/[your texture name]"); //loads these 2 textures to a texture array
+
+mainScene.loadObject("resources/[your model name]"); //loads the model with the given name
+
+Material::getMaterial(0)->setTexture(Texture::textures[0], 0); //gets the material with index 0 and sets the first texture to the 0th slot (0th slot is for base texture)
+Material::getMaterial(0)->setTexture(Texture::textures[1], 2); //gets the material with index 0 and sets the second texture to the 2nd slot (2nd slot is for normal texture)
+```
+Depending on how many materials your model has, this much will be created to the material array, with the last 2 lines you can add textures to the materials by specifying the texture and the material slot. <br />
+the 1st material slot is for Occolusion, Roughness, Metallic texture which is combined.
+
 ## Footer
 Not much to be seen, the project is still early in development <br />
 I made use of these libraries:
