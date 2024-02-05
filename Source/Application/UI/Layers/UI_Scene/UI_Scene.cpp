@@ -10,25 +10,22 @@ UI_Scene::~UI_Scene()
 
 }
 
-UI_Scene::UI_Scene(GLFWwindow* window) : window(window)
+UI_Scene::UI_Scene(GLFWwindow* window, unsigned texture) : window(window), texture(texture)
 {
 	layerName = "Scene";
 }
 
 void UI_Scene::renderLayer()
 {
-	int width, height, posX, posY;
-	glfwGetWindowSize(window, &width, &height);
-	glfwGetWindowPos(window, &posX, &posY);
+	ImGui::Begin(layerName.c_str());
 
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoBackground;
+    ImGui::Image(
+        (ImTextureID)texture,
+        ImGui::GetContentRegionAvail(),
+        ImVec2(0, 1),
+        ImVec2(1, 0)
+    );
 
-	ImGui::Begin(layerName.c_str(), nullptr, window_flags);
-
-	ImVec2 windowSize = ImGui::GetWindowSize();
-	ImVec2 windowPos = ImGui::GetWindowPos();
-	glViewport(windowPos.x - posX, height - windowPos.y + posY - windowSize.y, windowSize.x, windowSize.y);
 	ImGui::End();
 }
 

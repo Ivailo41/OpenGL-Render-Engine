@@ -20,6 +20,9 @@ public:
 	void setName(const std::string& name);
 	std::string getName() const;
 
+	void setActiveCamera(Camera* camera);
+	Camera* getActiveCamera() const { return activeCamera; }
+
 	void clear();
 
 public:

@@ -41,6 +41,11 @@ std::string Scene::getName() const
 	return name;
 }
 
+void Scene::setActiveCamera(Camera* camera)
+{
+	activeCamera = camera;
+}
+
 //OLD CODE
 
 //void Scene::removeObject(unsigned index)
