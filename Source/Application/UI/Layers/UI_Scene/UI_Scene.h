@@ -15,4 +15,5 @@ public:
 private:
 	GLFWwindow* window;
 	unsigned texture;
+	ImVec2 windowSpace;
 };

@@ -107,20 +107,17 @@ void Camera::cameraController(GLFWwindow* window, int winX, int winY)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		transform.position += glm::cross(viewDirection, glm::vec3(0, 1, 0)) * cameraSpeed;
 	}
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
-	{
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
 
-		glfwSetCursorPos(window, winX / 2, winY / 2);
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
 
-		float horizontalAngle = 0.001f * float(winX / 2 - xpos);
-		float verticalAngle = 0.001f * float(winY / 2 - ypos);
+	glfwSetCursorPos(window, winX / 2, winY / 2);
 
-		rotateCam(glm::vec3(verticalAngle, horizontalAngle, 0));
-		updateCamera();
+	float horizontalAngle = 0.001f * float(winX / 2 - xpos);
+	float verticalAngle = 0.001f * float(winY / 2 - ypos);
 
-	}
+	rotateCam(glm::vec3(verticalAngle, horizontalAngle, 0));
+	updateCamera();
 }
 
 void Camera::setSpeed(float speed)

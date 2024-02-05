@@ -19,9 +19,15 @@ void UI_Scene::renderLayer()
 {
 	ImGui::Begin(layerName.c_str());
 
+    windowSpace = ImGui::GetContentRegionAvail();
+    if(ImGui::IsMouseDown(1) && ImGui::IsWindowHovered())
+    {
+        Scene::activeScene->getActiveCamera()->cameraController(window, windowSpace.x, windowSpace.y);
+    }
+
     ImGui::Image(
         (ImTextureID)texture,
-        ImGui::GetContentRegionAvail(),
+        windowSpace,
         ImVec2(0, 1),
         ImVec2(1, 0)
     );

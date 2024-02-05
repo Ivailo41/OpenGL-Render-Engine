@@ -77,8 +77,6 @@ int main(void)
     mainCamera->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     otherCamera->setFOV(30.0f);
 
-    Camera* currentCamera = mainCamera;
-
     //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
     std::vector<Light*> lights;
     for (size_t i = 0; i < 4; i++)
@@ -87,9 +85,9 @@ int main(void)
         mainScene.sceneObjects.push_back(lights[i]);
     }
     lights[0]->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    lights[1]->setPosition(glm::vec3(0.0f, 10.0f, 0.0f));
-    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
-    lights[3]->setPosition(glm::vec3(-10.0f, 0.0f, 0.0f));
+    lights[1]->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+    lights[3]->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 
     //CREATE SHADER
     Shader shader("Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
@@ -160,11 +158,11 @@ int main(void)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    //temp
+    //temp UI creation
     UISceneTree uiScene;
     UI_Scene uiSceneLayer(window, texture);
     UI_ObjectProperties uiObjectProperties;
-    UI_CameraProperties uiCameraProperties(currentCamera);
+    UI_CameraProperties uiCameraProperties(mainScene.getActiveCamera());
     mainUI.addUILayer(&uiScene);
     mainUI.addUILayer(&uiObjectProperties);
     mainUI.addUILayer(&uiCameraProperties);
@@ -179,8 +177,6 @@ int main(void)
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
-
-        currentCamera->cameraController(window, windowX, windowY);
 
         //PASS LIGHTS TO SHADER
         for(unsigned i = 0; i < lights.size(); i++)
