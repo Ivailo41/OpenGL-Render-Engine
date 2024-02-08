@@ -9,9 +9,11 @@ public:
 	virtual UI_Scene* clone() override;
 
 public:
-	UI_Scene(GLFWwindow* window);
+	UI_Scene(GLFWwindow* window, unsigned texture);
 	~UI_Scene() override;
 
 private:
 	GLFWwindow* window;
+	unsigned texture;
+	ImVec2 windowSpace;
 };
