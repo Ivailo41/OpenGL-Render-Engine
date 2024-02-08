@@ -35,16 +35,17 @@
 
         vec3 CalcPointLight(PointLight light, vec3 normal)
         {
-            vec3 lightDir = normalize(fs_in.TanMatrix * (light.position - fs_in.FragPos));
+            vec3 lightDir = fs_in.TanMatrix * normalize(light.position - fs_in.FragPos);
+            //vec3 lightDir = normalize(light.position - fs_in.FragPos);
 
             //shadows
             float diff = max(dot(normal, lightDir), 0.0); // CALCULATE IT IN TANGENT SPACE
 
             vec3 reflectDir = reflect(-lightDir, normal);
 
-            // float specularStrength = 0.5;
-            // float spec = pow(max(dot(lightDir, reflectDir), 0.0), 32);
-            // float specular = specularStrength * spec;
+            float specularStrength = 0.5;
+            float spec = pow(max(dot(lightDir, reflectDir), 0.0), 32);
+            float specular = specularStrength * spec;
 
             float distance = length(light.position - fs_in.FragPos);
             float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
@@ -54,7 +55,7 @@
 
             ambient *= attenuation;
             diffuse *= attenuation;
-            //specular *= attenuation;
+            specular *= attenuation;
 
             return (diffuse * diff + ambient); //+specular
         }
@@ -99,22 +100,29 @@
         void main()
         {
             vec3 normal = texture(normalTexture, fs_in.TexCoord).rgb;
+
+            // transform normal vector to range [-1,1]
             normal = normalize(normal * 2.0 - 1.0);
 
-            vec3 V = normalize(fs_in.TanMatrix * (camPos - fs_in.FragPos));
+            vec3 V = fs_in.TanMatrix * normalize(camPos - fs_in.FragPos);
 
             vec3 ORM = texture(ORMTexture, fs_in.TexCoord).rgb; 
 
             vec3 diffuseTexture = vec3(texture(diffTexture, fs_in.TexCoord));
-            vec3 result = vec3(0.0f);
+            vec3 lightResult = vec3(0.0f);
+
+            
+            vec3 F0 = vec3(0.24); 
+            F0 = mix(F0, diffuseTexture, ORM.b);  
 
            for(int i = 0; i < MAX_POINT_LIGHTS; i++)
            {
-                vec3 L = normalize(pointLights[i].position - fs_in.FragPos);
+                vec3 L = fs_in.TanMatrix * normalize(pointLights[i].position - fs_in.FragPos);
                 vec3 H = normalize(V + L);
 
-                vec3 F0 = vec3(0.04); 
-                F0 = mix(F0, diffuseTexture, ORM.b);   
+                float distance    = length(pointLights[i].position - fs_in.FragPos);
+                float attenuation = 100.0 / (distance * distance);
+                vec3 radiance     = pointLights[i].diffuse * attenuation; 
 
                 // cook-torrance brdf
                 float NDF = DistributionGGX(normal, H, ORM.g);        
@@ -129,8 +137,15 @@
                 float denominator = 4.0 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.0001;
                 vec3 specular = numerator / denominator;
 
-                result += CalcPointLight(pointLights[i], normal);
-                result += specular;
+                float NdotL = max(dot(normal, L), 0.0);
+                lightResult += (kD * diffuseTexture / PI + specular) * attenuation * NdotL;
+                //lightResult += (kD * diffuseTexture / PI + specular) * CalcPointLight(pointLights[i], normal);
            }
-           FragColor = vec4(diffuseTexture * result, 1.0f);
+            vec3 ambient = vec3(0.03) * diffuseTexture * ORM.r;
+            vec3 color = ambient * lightResult;
+
+            color = color / (color + vec3(1.0));
+            color = pow(color, vec3(1.0/2.2));
+
+            FragColor = vec4(color, 1.0f);
         }

@@ -110,6 +110,11 @@ int main(void)
 
     Texture::loadTexture("resources/Brick_Base.jpg");
     Texture::loadTexture("resources/Brick_Normal.jpg");
+    Texture::loadTexture("resources/Marble_ORM5.jpg");
+
+    /*Texture::loadTexture("resources/Marble_Albedo.jpg");
+    Texture::loadTexture("resources/Marble_Normal.jpg");
+    Texture::loadTexture("resources/Marble_ORM.png");*/
 
     mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
 
@@ -128,6 +133,7 @@ int main(void)
 
     Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
+    Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
 
     mainScene.setSelectedObject(nullptr);
 
@@ -177,6 +183,10 @@ int main(void)
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
+
+        //TEMPORARY FIX FOR THE LIGHTING BECAUSE I WAS NOT PASSING THE CAMERA POSITION INTO THE SHADER AND I WANT TO KMS
+        unsigned int camPos = glGetUniformLocation(Shader::shaders[0], "camPos");
+        glUniform3f(camPos, mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
 
         //PASS LIGHTS TO SHADER
         for(unsigned i = 0; i < lights.size(); i++)
