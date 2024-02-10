@@ -60,3 +60,9 @@ I made use of these libraries:
 ## New viewport
 Working on making the viewport as a UI layer that can be dragged and doced on the main window.
 ![engine_preview](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/7820df2c-25a3-482b-a4ad-b10b6f536ec0)
+
+## Shader corrections
+Fixing some issues with the shaders which were calculating the reflections incorrectly
+![renderEngine1](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/4c395c17-dd62-4126-a725-81590ad9c492)
+![renderEngine2](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/2982ac31-47ed-46fd-a1ee-87ca07619335)
+
