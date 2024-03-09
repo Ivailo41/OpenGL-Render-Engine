@@ -226,6 +226,17 @@ Object* FileManager::readOBJ(std::string fileName)
 	return object;
 }
 
+void FileManager::createDirectory(const std::string path)
+{
+	struct stat info;
+	int statRC = stat(path.c_str(), &info);
+	if (statRC != 0)
+	{
+		std::filesystem::create_directory(path);
+		std::cout << "Directory created: " << path << std::endl;
+	}
+}
+
 std::string FileManager::loadShader(const std::string shaderPath, unsigned type)
 {
 	std::ifstream shaderFile(shaderPath, std::ios::in);
