@@ -34,20 +34,40 @@ int main(void)
 {
     GLFWwindow* window;
 
+    // create a default directory for the resources
+    FileManager::createDirectory("resources");
+    
+
     /* Initialize the library */
     if (!glfwInit())
         return -1;
+ 
 
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1280, 1024, "Render Engine", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "Render Engine", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
         return -1;
     }
+    
+    // Getting the primary monitor and setting the window to be fullscreen
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (monitor) {
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        int monitorX, monitorY;
+        glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+        int monitorWidth = mode->width;
+        int monitorHeight = mode->height;
+
+        glfwSetWindowPos(window, monitorX, monitorY);
+        glfwSetWindowSize(window, monitorWidth, monitorHeight);
+
+        std::cout << "Monitor: " << monitorWidth << ", " << monitorHeight << std::endl;
+    }
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSetWindowUserPointer(window, nullptr);
 
     int windowX, windowY;
     glfwGetWindowSize(window, &windowX, &windowY);
@@ -108,15 +128,22 @@ int main(void)
     Texture::loadTexture("resources/Set3_ORM.png");
     Texture::loadTexture("resources/Set4_ORM.png");*/
 
-    Texture::loadTexture("resources/Brick_Base.jpg");
+    /*Texture::loadTexture("resources/Brick_Base.jpg");
     Texture::loadTexture("resources/Brick_Normal.jpg");
     Texture::loadTexture("resources/Marble_ORM5.jpg");
+    */
 
-    /*Texture::loadTexture("resources/Marble_Albedo.jpg");
+    Texture::loadTexture("resources/Marble_Albedo.jpg");
     Texture::loadTexture("resources/Marble_Normal.jpg");
-    Texture::loadTexture("resources/Marble_ORM.png");*/
-
-    mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
+    Texture::loadTexture("resources/Marble_ORM.png");
+       
+    // dynamically load object
+    try {
+        mainScene.loadObject("resources/cube.obj");
+    }
+    catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
 
     /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 
@@ -131,9 +158,14 @@ int main(void)
     Material::getMaterial(1)->setTexture(Texture::textures[11],1);
     Material::getMaterial(1)->setTexture(Texture::textures[7], 2);*/
 
-    Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
-    Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
-    Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
+    try {
+        Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
+        Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
+        Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
+    }
+    catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
 
     mainScene.setSelectedObject(nullptr);
 
