@@ -9,7 +9,12 @@ Object* FileManager::readOBJ(std::string fileName)
 	}
 	std::string line;
 
-	Object* object = new Object();
+	//Get the name of the file without its extention to name the object
+	size_t substrStart = fileName.find_last_of('/') + 1;
+	size_t substrEnd = fileName.find_last_of('.');
+	std::string objectName = fileName.substr(substrStart, substrEnd - substrStart);
+
+	Object* object = new Object(objectName);
 
 	Material* currentMaterial = nullptr;
 

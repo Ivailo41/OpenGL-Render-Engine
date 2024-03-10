@@ -3,7 +3,7 @@
 
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(GLFWwindow* window)
+EngineUI::EngineUI(GLFWwindow* window) : uiSceneLayer(window)
 {
     if(isUIOpen)
     {
@@ -27,6 +27,15 @@ EngineUI::EngineUI(GLFWwindow* window)
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
+
+    //Create default UI layers
+    UISceneTree uiSceneTree;
+    UI_ObjectProperties uiObjectProperties;
+    UI_CameraProperties uiCameraProperties(Scene::activeScene->getActiveCamera());
+    addUILayer(&uiSceneTree);
+    addUILayer(&uiObjectProperties);
+    addUILayer(&uiCameraProperties);
+    addUILayer(&uiSceneLayer);
 }
 
 EngineUI::~EngineUI()
@@ -105,7 +114,7 @@ void EngineUI::renderUI()
         UIElements[i].renderLayer();
     }
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

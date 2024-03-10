@@ -33,7 +33,6 @@ public:
 
 public:
 	static Scene* activeScene;
-	//ObjectArray<BaseObject> sceneObjects;
 	std::vector<BaseObject*> sceneObjects;
 
 private:

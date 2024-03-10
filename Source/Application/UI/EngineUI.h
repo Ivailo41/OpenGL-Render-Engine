@@ -1,6 +1,10 @@
 #pragma once
 #include "../ObjectArray.h"
 #include "Layers/UILayer.h"
+#include "Layers/UISceneTree.h"
+#include "Layers/UI_Scene/UI_Scene.h"
+#include "Layers/UI_ObjectProperties/UI_ObjectProperties.h"
+#include "Layers/UI_CameraProperties/UI_CameraProperties.h"
 #include <GLFW/glfw3.h>
 
 class EngineUI
@@ -13,6 +17,8 @@ public:
 
 	void renderUI();
 
+	const UI_Scene& getSceneLayer() const { return uiSceneLayer; }
+
 public:
 	EngineUI(GLFWwindow* window);
 	EngineUI() = delete;
@@ -23,5 +29,6 @@ public:
 private:
 	ObjectArray<UILayer> UIElements;
 	static bool isUIOpen;
+	UI_Scene uiSceneLayer;
 };
 

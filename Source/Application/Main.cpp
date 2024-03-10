@@ -112,57 +112,57 @@ int main(void)
     unsigned shaderProgram = Shader::shaders[0];
 
     //Loading textures and setting materials untill I make it through the UI
-
-    /*Texture::loadTexture("resources/Set1_base.png");
-    Texture::loadTexture("resources/Set1_Normal.png");
-    Texture::loadTexture("resources/Set2_base.png");
-    Texture::loadTexture("resources/Set2_Normal.png");
-    Texture::loadTexture("resources/Set3_base.png");
-    Texture::loadTexture("resources/Set3_Normal.png");
-    Texture::loadTexture("resources/Set4_base.png");
-    Texture::loadTexture("resources/Set4_Normal.png");
-    Texture::loadTexture("resources/Set1_ORM.png");
-    Texture::loadTexture("resources/Set2_ORM.png");
-    Texture::loadTexture("resources/Set3_ORM.png");
-    Texture::loadTexture("resources/Set4_ORM.png");*/
-
-    /*Texture::loadTexture("resources/Brick_Base.jpg");
-    Texture::loadTexture("resources/Brick_Normal.jpg");
-    Texture::loadTexture("resources/Marble_ORM5.jpg");
-    */
-
-    Texture::loadTexture("resources/Marble_Albedo.jpg");
-    Texture::loadTexture("resources/Marble_Normal.jpg");
-    Texture::loadTexture("resources/Marble_ORM.png");
-       
-    // dynamically load object
-    if(!mainScene.loadObject("resources/sphere.obj"))
     {
-        std::cout << "Could not load object" << std::endl;;
+        /*Texture::loadTexture("resources/Set1_base.png");
+        Texture::loadTexture("resources/Set1_Normal.png");
+        Texture::loadTexture("resources/Set2_base.png");
+        Texture::loadTexture("resources/Set2_Normal.png");
+        Texture::loadTexture("resources/Set3_base.png");
+        Texture::loadTexture("resources/Set3_Normal.png");
+        Texture::loadTexture("resources/Set4_base.png");
+        Texture::loadTexture("resources/Set4_Normal.png");
+        Texture::loadTexture("resources/Set1_ORM.png");
+        Texture::loadTexture("resources/Set2_ORM.png");
+        Texture::loadTexture("resources/Set3_ORM.png");
+        Texture::loadTexture("resources/Set4_ORM.png");*/
+
+        /*Texture::loadTexture("resources/Brick_Base.jpg");
+        Texture::loadTexture("resources/Brick_Normal.jpg");
+        Texture::loadTexture("resources/Marble_ORM5.jpg");
+        */
+
+        Texture::loadTexture("resources/Marble_Albedo.jpg");
+        Texture::loadTexture("resources/Marble_Normal.jpg");
+        Texture::loadTexture("resources/Marble_ORM.png");
+
+        // dynamically load object
+        if (!mainScene.loadObject("resources/sphere.obj"))
+        {
+            std::cout << "Could not load object" << std::endl;;
+        }
+
+        /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
+        Material::getMaterial(0)->setTexture(Texture::textures[9], 1);
+        Material::getMaterial(0)->setTexture(Texture::textures[3], 2);
+        Material::getMaterial(2)->setTexture(Texture::textures[0], 0);
+        Material::getMaterial(2)->setTexture(Texture::textures[8], 1);
+        Material::getMaterial(2)->setTexture(Texture::textures[1], 2);
+        Material::getMaterial(3)->setTexture(Texture::textures[4], 0);
+        Material::getMaterial(3)->setTexture(Texture::textures[10],1);
+        Material::getMaterial(3)->setTexture(Texture::textures[5], 2);
+        Material::getMaterial(1)->setTexture(Texture::textures[6], 0);
+        Material::getMaterial(1)->setTexture(Texture::textures[11],1);
+        Material::getMaterial(1)->setTexture(Texture::textures[7], 2);*/
+
+        try {
+            Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
+            Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
+            Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
+        }
+        catch (const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
-
-
-    /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
-    Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 
-    Material::getMaterial(0)->setTexture(Texture::textures[3], 2); 
-    Material::getMaterial(2)->setTexture(Texture::textures[0], 0); 
-    Material::getMaterial(2)->setTexture(Texture::textures[8], 1);
-    Material::getMaterial(2)->setTexture(Texture::textures[1], 2);
-    Material::getMaterial(3)->setTexture(Texture::textures[4], 0);
-    Material::getMaterial(3)->setTexture(Texture::textures[10],1);
-    Material::getMaterial(3)->setTexture(Texture::textures[5], 2); 
-    Material::getMaterial(1)->setTexture(Texture::textures[6], 0); 
-    Material::getMaterial(1)->setTexture(Texture::textures[11],1);
-    Material::getMaterial(1)->setTexture(Texture::textures[7], 2);*/
-
-    try {
-        Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
-        Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
-        Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
-    }
-    catch (const std::exception& e) {
-		std::cout << e.what() << std::endl;
-	}
 
     mainScene.setSelectedObject(nullptr);
 
@@ -170,45 +170,13 @@ int main(void)
 
     EngineUI mainUI(window);
 
-    //temp - frameBuffer
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
-
-    unsigned fbo;
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    unsigned texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-
-    unsigned int rbo;
-
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-    //temp UI creation
-    UISceneTree uiScene;
-    UI_Scene uiSceneLayer(window, texture);
-    UI_ObjectProperties uiObjectProperties;
-    UI_CameraProperties uiCameraProperties(mainScene.getActiveCamera());
-    mainUI.addUILayer(&uiScene);
-    mainUI.addUILayer(&uiObjectProperties);
-    mainUI.addUILayer(&uiCameraProperties);
-    mainUI.addUILayer(&uiSceneLayer);
-
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, mainUI.getSceneLayer().getFBO()); //might change later the way of getting the frame buffer
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.15, 0.15, 0.15, 1);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
