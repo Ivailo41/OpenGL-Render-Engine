@@ -77,6 +77,10 @@ int main(void)
     }
     //End of initialization
 
+    //CREATE SHADER
+    Shader shader("Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
+    unsigned shaderProgram = Shader::shaders[0];
+
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
     Scene::activeScene = &mainScene;
@@ -102,14 +106,10 @@ int main(void)
         lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
         mainScene.sceneObjects.push_back(lights[i]);
     }
-    lights[0]->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    lights[0]->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
     lights[1]->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
-    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     lights[3]->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
-
-    //CREATE SHADER
-    Shader shader("Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
-    unsigned shaderProgram = Shader::shaders[0];
 
     //Loading textures and setting materials untill I make it through the UI
     {
@@ -165,6 +165,7 @@ int main(void)
     }
 
     mainScene.setSelectedObject(nullptr);
+    mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
     glUseProgram(Shader::shaders[0]);
 
@@ -180,10 +181,6 @@ int main(void)
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
-
-        //TEMPORARY FIX FOR THE LIGHTING BECAUSE I WAS NOT PASSING THE CAMERA POSITION INTO THE SHADER AND I WANT TO KMS
-        unsigned int camPos = glGetUniformLocation(Shader::shaders[0], "camPos");
-        glUniform3f(camPos, mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
 
         //PASS LIGHTS TO SHADER
         for(unsigned i = 0; i < lights.size(); i++)

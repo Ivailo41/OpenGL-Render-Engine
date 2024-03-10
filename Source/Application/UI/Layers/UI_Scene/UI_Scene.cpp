@@ -12,6 +12,7 @@ UI_Scene::~UI_Scene()
 
 UI_Scene::UI_Scene(GLFWwindow* window) : window(window)
 {
+    //create framebuffer that will project the context from the main window to the UI window
     int width, height;
     glfwGetWindowSize(window, &width, &height);
 
@@ -39,7 +40,11 @@ void UI_Scene::renderLayer()
 {
 	ImGui::Begin(layerName.c_str());
 
+    //Fix for the stretching when resizing the window problem, but the camera updates every frame, no idea if I would want that
     windowSpace = ImGui::GetContentRegionAvail();
+    Scene::activeScene->getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
+    Scene::activeScene->getActiveCamera()->updateCamera();
+
     if(ImGui::IsMouseDown(1) && ImGui::IsWindowHovered())
     {
         Scene::activeScene->getActiveCamera()->cameraController(window, windowSpace.x, windowSpace.y);

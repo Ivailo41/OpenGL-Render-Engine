@@ -9,18 +9,18 @@ void Camera::setFOV(float fov)
 		fov = 180;
 	FOV = fov;
 
-	perspectiveMat = glm::perspective(glm::radians(FOV), 4.0f / 3.0f, 0.1f, 100.0f);
+	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far); //FIX ASPECT RATIO
 }
 
-Camera::Camera() : BaseObject("New Camera")
+Camera::Camera() : BaseObject("New Camera"), near(0.1f), far(100.0f), aspectRatio(4.0f/3.0f)
 {
 	setFOV(45.0f);
 	viewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 	rightVector = glm::vec3(1.0f, 0.0f, 0.0f);
-	perspectiveMat = glm::perspective(glm::radians(FOV), 4.0f / 3.0f, 0.1f, 100.0f);
+	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
 }
 
-Camera::Camera(const Camera& other) : BaseObject(other)
+Camera::Camera(const Camera& other) : BaseObject(other), near(other.near), far(other.far), aspectRatio(other.aspectRatio)
 {
 	viewDirection = other.viewDirection;
 	viewMat = other.viewMat;
@@ -39,6 +39,10 @@ Camera& Camera::operator=(const Camera& other)
 		rightVector = other.rightVector;
 		perspectiveMat = other.perspectiveMat;
 		FOV = other.FOV;
+
+		near = other.near;
+		far = other.far;
+		aspectRatio = other.aspectRatio;
 	}
 	return *this;
 }
@@ -64,7 +68,7 @@ void Camera::rotateCam(const glm::vec3& rotation)
 		sin(verticalAngle),
 		cos(verticalAngle) * cos(horizontalAngle));
 
-	updateCamera();
+	//updateCamera();
 }
 
 void Camera::updateCamera()
@@ -79,6 +83,9 @@ void Camera::updateCamera()
 
 	unsigned int perspectiveMatLoc = glGetUniformLocation(Shader::shaders[0], "perspectiveMat");
 	glUniformMatrix4fv(perspectiveMatLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMat));
+
+	unsigned int camPos = glGetUniformLocation(Shader::shaders[0], "camPos");
+	glUniform3f(camPos, getPosition().x, getPosition().y, getPosition().z);
 }
 
 void Camera::draw() const
@@ -88,7 +95,7 @@ void Camera::draw() const
 void Camera::setViewDirection(const glm::vec3& viewDirection)
 {
 	this->viewDirection = viewDirection;
-	updateCamera();
+	//updateCamera();
 }
 
 void Camera::cameraController(GLFWwindow* window, int winX, int winY)
@@ -117,10 +124,28 @@ void Camera::cameraController(GLFWwindow* window, int winX, int winY)
 	float verticalAngle = 0.001f * float(winY / 2 - ypos);
 
 	rotateCam(glm::vec3(verticalAngle, horizontalAngle, 0));
-	updateCamera();
+	//updateCamera();
 }
 
 void Camera::setSpeed(float speed)
 {
 	cameraSpeed = speed;
+}
+
+void Camera::setNear(float near)
+{
+	this->near = near;
+	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
+}
+
+void Camera::setFar(float far)
+{
+	this->far = far;
+	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
+}
+
+void Camera::setAspectRatio(float width, float heigth)
+{
+	aspectRatio = width / heigth;
+	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
 }

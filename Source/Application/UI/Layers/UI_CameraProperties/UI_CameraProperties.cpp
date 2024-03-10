@@ -24,11 +24,21 @@ void UI_CameraProperties::renderLayer()
     if (ImGui::SliderFloat("camera FOV", &FOV, 0.0f, 180.0f))
     {
         currentCamera->setFOV(FOV);
-        currentCamera->updateCamera();
+        //currentCamera->updateCamera();
     }
     if (ImGui::SliderFloat("camera Speed", &camSpeed, 0.01f, 2.0f))
     {
         currentCamera->setSpeed(camSpeed);
+    }
+    if (ImGui::SliderFloat("Near plane", &near, 0.01f, 100.0f))
+    {
+        currentCamera->setNear(near);
+        //currentCamera->updateCamera();
+    }
+    if (ImGui::SliderFloat("Far plane", &far, 0.01f, 100.0f))
+    {
+        currentCamera->setFar(far);
+        //currentCamera->updateCamera();
     }
     
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

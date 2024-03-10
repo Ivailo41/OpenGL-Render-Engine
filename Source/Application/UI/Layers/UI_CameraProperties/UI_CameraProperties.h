@@ -16,6 +16,8 @@ public:
 private:
 	float FOV = 50.0f;
 	float camSpeed = 0.01f;
+	float near = 0.1f;
+	float far = 100.0f;
 	int counter = 0;
 
 	Camera* currentCamera;
