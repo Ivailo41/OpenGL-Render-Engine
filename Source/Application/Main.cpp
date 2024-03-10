@@ -50,6 +50,10 @@ int main(void)
         return -1;
     }
     
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+    glfwSetWindowUserPointer(window, nullptr);
+
     // Getting the primary monitor and setting the window to be fullscreen
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     if (monitor) {
@@ -61,16 +65,10 @@ int main(void)
 
         glfwSetWindowPos(window, monitorX, monitorY);
         glfwSetWindowSize(window, monitorWidth, monitorHeight);
+        glViewport(0, 0, monitorWidth, monitorHeight);
 
         std::cout << "Monitor: " << monitorWidth << ", " << monitorHeight << std::endl;
     }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-    glfwSetWindowUserPointer(window, nullptr);
-
-    int windowX, windowY;
-    glfwGetWindowSize(window, &windowX, &windowY);
 
     if(glewInit() != GLEW_OK)
     {
@@ -138,12 +136,11 @@ int main(void)
     Texture::loadTexture("resources/Marble_ORM.png");
        
     // dynamically load object
-    try {
-        mainScene.loadObject("resources/cube.obj");
+    if(!mainScene.loadObject("resources/sphere.obj"))
+    {
+        std::cout << "Could not load object" << std::endl;;
     }
-    catch (const std::exception& e) {
-		std::cout << e.what() << std::endl;
-	}
+
 
     /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
     Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 

@@ -118,6 +118,10 @@ bool Material::removeMaterial(const std::string name)
 
 Material* const Material::getMaterial(unsigned index)
 {
+	if(index >= materials.size())
+	{
+		throw std::runtime_error("No material with that index");
+	}
 	return materials[index];
 }
 

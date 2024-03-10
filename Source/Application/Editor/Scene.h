@@ -9,7 +9,7 @@
 class Scene
 {
 public:
-	void loadObject(const std::string& path);
+	bool loadObject(const std::string& path);
 	void removeObject(BaseObject* object);
 
 	BaseObject* getSelectedObject() const;

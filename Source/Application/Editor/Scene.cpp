@@ -8,14 +8,17 @@ Scene::Scene()
 	name = "New Scene";
 }
 
-void Scene::loadObject(const std::string& path)
+bool Scene::loadObject(const std::string& path)
 {
-	//change later 
+
 	Object* object = FileManager::readOBJ(path);
-	if (object != nullptr)
+	if (object == nullptr)
 	{
-		sceneObjects.push_back(object);
+		return false;
 	}
+
+	sceneObjects.push_back(object);
+	return true;
 }
 
 void Scene::setSelectedObject(BaseObject* object)
