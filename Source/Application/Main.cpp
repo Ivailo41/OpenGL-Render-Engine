@@ -25,7 +25,8 @@
 #include "Includes/imGuiInclude.h"
 
 #include "UI/EngineUI.h"
-#include "UI/Layers/UIScene.h"
+#include "UI/Layers/UISceneTree.h"
+#include "UI/Layers/UI_Scene/UI_Scene.h"
 #include "UI/Layers/UI_ObjectProperties/UI_ObjectProperties.h"
 #include "UI/Layers/UI_CameraProperties/UI_CameraProperties.h"
 
@@ -33,25 +34,41 @@ int main(void)
 {
     GLFWwindow* window;
 
+    // create a default directory for the resources
+    FileManager::createDirectory("resources");
+    
+
     /* Initialize the library */
     if (!glfwInit())
         return -1;
+ 
 
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1280, 1024, "Render Engine", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "Render Engine", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
         return -1;
     }
-
+    
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSetWindowUserPointer(window, nullptr);
 
-    int windowX, windowY;
-    glfwGetWindowSize(window, &windowX, &windowY);
+    // Getting the primary monitor and setting the window to be fullscreen
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (monitor) {
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        int monitorX, monitorY;
+        glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+        int monitorWidth = mode->width;
+        int monitorHeight = mode->height;
 
-    EngineUI engineUI(window);
+        glfwSetWindowPos(window, monitorX, monitorY);
+        glfwSetWindowSize(window, monitorWidth, monitorHeight);
+        glViewport(0, 0, monitorWidth, monitorHeight);
+
+        std::cout << "Monitor: " << monitorWidth << ", " << monitorHeight << std::endl;
+    }
 
     if(glewInit() != GLEW_OK)
     {
@@ -60,104 +77,113 @@ int main(void)
     }
     //End of initialization
 
+    //Hardcoding scene objects untill I make a factory
     Scene mainScene;
     Scene::activeScene = &mainScene;
 
     Object dummyObject;
     BaseObject* dummy = &dummyObject;
 
-    Camera mainCamera;
-    mainScene.sceneObjects.addObject(mainCamera);
-    Camera otherCamera;
-    mainScene.sceneObjects.addObject(otherCamera);
+    Camera* mainCamera = new Camera;
+    mainScene.sceneObjects.push_back(mainCamera);
+    mainScene.setActiveCamera(mainCamera);
 
-    mainCamera.setFOV(90.0f);
-    mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
-    otherCamera.setFOV(30.0f);
+    Camera* otherCamera = new Camera;
+    mainScene.sceneObjects.push_back(otherCamera);
 
-    Camera* currentCamera = &mainCamera;
+    mainCamera->setFOV(90.0f);
+    mainCamera->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    otherCamera->setFOV(30.0f);
 
-    //Fix allocation of memory
+    //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
     std::vector<Light*> lights;
     for (size_t i = 0; i < 4; i++)
     {
-        PointLight light(std::string("PointLight_" + std::to_string(i)));
-        lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i)))); //ERROR HERE READING DELETED MEMOEY WHEN DESTRUCTOR IS CALLED
-        mainScene.sceneObjects.addObject(lights[i]);
+        lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
+        mainScene.sceneObjects.push_back(lights[i]);
     }
     lights[0]->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    lights[1]->setPosition(glm::vec3(0.0f, 10.0f, 0.0f));
-    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
-    lights[3]->setPosition(glm::vec3(-10.0f, 0.0f, 0.0f));
+    lights[1]->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+    lights[3]->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 
     //CREATE SHADER
     Shader shader("Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
     unsigned shaderProgram = Shader::shaders[0];
 
-    /*Texture::loadTexture("resources/Set1_base.png");
-    Texture::loadTexture("resources/Set1_Normal.png");
-    Texture::loadTexture("resources/Set2_base.png");
-    Texture::loadTexture("resources/Set2_Normal.png");
-    Texture::loadTexture("resources/Set3_base.png");
-    Texture::loadTexture("resources/Set3_Normal.png");
-    Texture::loadTexture("resources/Set4_base.png");
-    Texture::loadTexture("resources/Set4_Normal.png");
-    Texture::loadTexture("resources/Set1_ORM.png");
-    Texture::loadTexture("resources/Set2_ORM.png");
-    Texture::loadTexture("resources/Set3_ORM.png");
-    Texture::loadTexture("resources/Set4_ORM.png");*/
+    //Loading textures and setting materials untill I make it through the UI
+    {
+        /*Texture::loadTexture("resources/Set1_base.png");
+        Texture::loadTexture("resources/Set1_Normal.png");
+        Texture::loadTexture("resources/Set2_base.png");
+        Texture::loadTexture("resources/Set2_Normal.png");
+        Texture::loadTexture("resources/Set3_base.png");
+        Texture::loadTexture("resources/Set3_Normal.png");
+        Texture::loadTexture("resources/Set4_base.png");
+        Texture::loadTexture("resources/Set4_Normal.png");
+        Texture::loadTexture("resources/Set1_ORM.png");
+        Texture::loadTexture("resources/Set2_ORM.png");
+        Texture::loadTexture("resources/Set3_ORM.png");
+        Texture::loadTexture("resources/Set4_ORM.png");*/
 
-    Texture::loadTexture("resources/Brick_Base.jpg");
-    Texture::loadTexture("resources/Brick_Normal.jpg");
+        /*Texture::loadTexture("resources/Brick_Base.jpg");
+        Texture::loadTexture("resources/Brick_Normal.jpg");
+        Texture::loadTexture("resources/Marble_ORM5.jpg");
+        */
 
-    BaseObject* cube = mainScene.loadObject("resources/sphere.obj"); // dynamically allocated
+        Texture::loadTexture("resources/Marble_Albedo.jpg");
+        Texture::loadTexture("resources/Marble_Normal.jpg");
+        Texture::loadTexture("resources/Marble_ORM.png");
 
-    BaseObject* monkey = mainScene.loadObject("resources/monkey.obj");
-    monkey->setPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+        // dynamically load object
+        if (!mainScene.loadObject("resources/sphere.obj"))
+        {
+            std::cout << "Could not load object" << std::endl;;
+        }
 
-    /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
-    Material::getMaterial(0)->setTexture(Texture::textures[9], 1); 
-    Material::getMaterial(0)->setTexture(Texture::textures[3], 2); 
-    Material::getMaterial(2)->setTexture(Texture::textures[0], 0); 
-    Material::getMaterial(2)->setTexture(Texture::textures[8], 1);
-    Material::getMaterial(2)->setTexture(Texture::textures[1], 2);
-    Material::getMaterial(3)->setTexture(Texture::textures[4], 0);
-    Material::getMaterial(3)->setTexture(Texture::textures[10],1);
-    Material::getMaterial(3)->setTexture(Texture::textures[5], 2); 
-    Material::getMaterial(1)->setTexture(Texture::textures[6], 0); 
-    Material::getMaterial(1)->setTexture(Texture::textures[11],1);
-    Material::getMaterial(1)->setTexture(Texture::textures[7], 2);*/
+        /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
+        Material::getMaterial(0)->setTexture(Texture::textures[9], 1);
+        Material::getMaterial(0)->setTexture(Texture::textures[3], 2);
+        Material::getMaterial(2)->setTexture(Texture::textures[0], 0);
+        Material::getMaterial(2)->setTexture(Texture::textures[8], 1);
+        Material::getMaterial(2)->setTexture(Texture::textures[1], 2);
+        Material::getMaterial(3)->setTexture(Texture::textures[4], 0);
+        Material::getMaterial(3)->setTexture(Texture::textures[10],1);
+        Material::getMaterial(3)->setTexture(Texture::textures[5], 2);
+        Material::getMaterial(1)->setTexture(Texture::textures[6], 0);
+        Material::getMaterial(1)->setTexture(Texture::textures[11],1);
+        Material::getMaterial(1)->setTexture(Texture::textures[7], 2);*/
 
-    Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
-    Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
+        try {
+            Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
+            Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
+            Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
+        }
+        catch (const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
+    }
 
-    Material::getMaterial(1)->setTexture(Texture::textures[0], 0);
-    Material::getMaterial(1)->setTexture(Texture::textures[1], 2);
-
-    mainScene.setSelectedObject(cube);
+    mainScene.setSelectedObject(nullptr);
 
     glUseProgram(Shader::shaders[0]);
 
-    //temp
-    UIScene uiScene;
-    UI_ObjectProperties uiObjectProperties;
-    UI_CameraProperties uiCameraProperties(currentCamera);
-
     EngineUI mainUI(window);
-    mainUI.addUILayer(&uiScene);
-    mainUI.addUILayer(&uiObjectProperties);
-    mainUI.addUILayer(&uiCameraProperties);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        glBindFramebuffer(GL_FRAMEBUFFER, mainUI.getSceneLayer().getFBO()); //might change later the way of getting the frame buffer
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.15, 0.15, 0.15, 1);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
 
-        currentCamera->cameraController(window, windowX, windowY);
+        //TEMPORARY FIX FOR THE LIGHTING BECAUSE I WAS NOT PASSING THE CAMERA POSITION INTO THE SHADER AND I WANT TO KMS
+        unsigned int camPos = glGetUniformLocation(Shader::shaders[0], "camPos");
+        glUniform3f(camPos, mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
 
         //PASS LIGHTS TO SHADER
         for(unsigned i = 0; i < lights.size(); i++)
@@ -166,8 +192,7 @@ int main(void)
         }
 
         mainScene.drawObjects();
-
-        //cube->draw();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         mainUI.renderUI();
 

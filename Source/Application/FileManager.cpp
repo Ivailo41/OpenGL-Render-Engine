@@ -9,7 +9,12 @@ Object* FileManager::readOBJ(std::string fileName)
 	}
 	std::string line;
 
-	Object* object = new Object();
+	//Get the name of the file without its extention to name the object
+	size_t substrStart = fileName.find_last_of('/') + 1;
+	size_t substrEnd = fileName.find_last_of('.');
+	std::string objectName = fileName.substr(substrStart, substrEnd - substrStart);
+
+	Object* object = new Object(objectName);
 
 	Material* currentMaterial = nullptr;
 
@@ -180,7 +185,9 @@ Object* FileManager::readOBJ(std::string fileName)
 			mesh.setName(currentMesh);
 			mesh.setMaterial(currentMaterial);
 
-			mesh.attachTo(*object);
+			//mesh.attachTo(*object);
+			object->addChild(mesh);
+
 			delete[] isIndexInList;
 
 			currentMesh = line.substr(2);
@@ -213,13 +220,26 @@ Object* FileManager::readOBJ(std::string fileName)
 	Mesh mesh(vertices, vtIndices);
 	mesh.setName(currentMesh);
 	mesh.setMaterial(currentMaterial);
-	mesh.attachTo(*object);
+
+	//mesh.attachTo(*object);
+	object->addChild(mesh);
 
 	delete[] isIndexInList;
 
 	objFile.close();
 
 	return object;
+}
+
+void FileManager::createDirectory(const std::string path)
+{
+	struct stat info;
+	int statRC = stat(path.c_str(), &info);
+	if (statRC != 0)
+	{
+		std::filesystem::create_directory(path);
+		std::cout << "Directory created: " << path << std::endl;
+	}
 }
 
 std::string FileManager::loadShader(const std::string shaderPath, unsigned type)
