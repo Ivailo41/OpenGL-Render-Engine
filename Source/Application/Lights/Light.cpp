@@ -14,24 +14,24 @@ Light::Light(const std::string name) : BaseObject(name)
 	ambientStrength = 0.1f;
 }
 
-Light::Light(const Light& other) : BaseObject(other)
-{
-	lightColor = other.lightColor;
-	intensity = other.intensity;
-	ambientStrength = other.ambientStrength;
-}
-
-Light& Light::operator=(const Light& other)
-{
-	if(this != &other)
-	{
-		BaseObject::operator=(other);
-		lightColor = other.lightColor;
-		intensity = other.intensity;
-		ambientStrength = other.ambientStrength;
-	}
-	return *this;
-}
+//Light::Light(const Light& other) : BaseObject(other)
+//{
+//	lightColor = other.lightColor;
+//	intensity = other.intensity;
+//	ambientStrength = other.ambientStrength;
+//}
+//
+//Light& Light::operator=(const Light& other)
+//{
+//	if(this != &other)
+//	{
+//		BaseObject::operator=(other);
+//		lightColor = other.lightColor;
+//		intensity = other.intensity;
+//		ambientStrength = other.ambientStrength;
+//	}
+//	return *this;
+//}
 
 Light::~Light()
 {
@@ -62,11 +62,6 @@ void Light::setLightColor(char r, char g, char b)
 }
 
 void Light::draw() const
-{
-
-}
-
-void Light::sendToShader(unsigned shaderProgram, unsigned lightIndex)const
 {
 
 }

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "ObjectArray.h"
+#include "Debug/LinesContainer.h"
 
 class BaseObject
 {
@@ -22,6 +23,8 @@ public:
 	void scale(const glm::vec3& scale);
 
 	void setPosition(const glm::vec3& position);
+	void setPosition(float, float, float);
+
 	void setRotation(const glm::vec3& rotation);
 	void setScale(const glm::vec3& scale);
 
@@ -49,8 +52,8 @@ public:
 public:
 	BaseObject();
 	BaseObject(const std::string& name);
-	BaseObject(const BaseObject& other);
-	BaseObject& operator=(const BaseObject& other);
+	//BaseObject(const BaseObject& other);
+	//BaseObject& operator=(const BaseObject& other);
 	virtual ~BaseObject();
 
 public:
@@ -59,6 +62,11 @@ public:
 
 	void removeChild(unsigned index);
 	void removeChild(BaseObject* object);
+
+	//test
+	void drawDebug() const;
+
+	LinesContainer debugLinesContainer;
 
 protected:
 	std::string name;

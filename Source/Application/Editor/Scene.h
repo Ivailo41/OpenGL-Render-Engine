@@ -10,6 +10,8 @@ class Scene
 {
 public:
 	bool loadObject(const std::string& path);
+
+	void addObject(BaseObject* object);
 	void removeObject(BaseObject* object);
 
 	BaseObject* getSelectedObject() const;
@@ -23,7 +25,7 @@ public:
 	void setActiveCamera(Camera* camera);
 	Camera* getActiveCamera() const { return activeCamera; }
 
-	void clear();
+	//void clear();
 
 public:
 	Scene();
@@ -34,6 +36,9 @@ public:
 public:
 	static Scene* activeScene;
 	std::vector<BaseObject*> sceneObjects;
+
+	//add container for cameras
+	//add container for lights
 
 private:
 	std::string name;

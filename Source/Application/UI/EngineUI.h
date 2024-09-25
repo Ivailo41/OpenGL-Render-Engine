@@ -3,9 +3,10 @@
 #include "Layers/UILayer.h"
 #include "Layers/UISceneTree.h"
 #include "Layers/UI_Scene/UI_Scene.h"
+#include "Layers/UI_Settings/UI_Settings.h"
 #include "Layers/UI_ObjectProperties/UI_ObjectProperties.h"
 #include "Layers/UI_CameraProperties/UI_CameraProperties.h"
-#include <GLFW/glfw3.h>
+#include "../GL_Objects/Window.h"
 
 class EngineUI
 {
@@ -18,9 +19,10 @@ public:
 	void renderUI();
 
 	const UI_Scene& getSceneLayer() const { return uiSceneLayer; }
+	const UI_Settings& getSettingsLayer() const { return uiSettingsLayer; }
 
 public:
-	EngineUI(GLFWwindow* window);
+	EngineUI(Window* window);
 	EngineUI() = delete;
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
@@ -30,5 +32,6 @@ private:
 	ObjectArray<UILayer> UIElements;
 	static bool isUIOpen;
 	UI_Scene uiSceneLayer;
+	UI_Settings uiSettingsLayer;
 };
 

@@ -75,16 +75,16 @@ void Camera::updateCamera()
 {
 	viewMat = glm::lookAt(transform.position, transform.position + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
 
-	unsigned int directionLoc = glGetUniformLocation(Shader::shaders[0], "viewDirection");
+	unsigned int directionLoc = glGetUniformLocation(Shader::activeShader->getShaderProgram(), "viewDirection");
 	glUniform3f(directionLoc, getViewDirection().x, getViewDirection().y, getViewDirection().z);
 
-	unsigned int viewMatrixLoc = glGetUniformLocation(Shader::shaders[0], "viewMat");
+	unsigned int viewMatrixLoc = glGetUniformLocation(Shader::activeShader->getShaderProgram(), "viewMat");
 	glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(viewMat));
 
-	unsigned int perspectiveMatLoc = glGetUniformLocation(Shader::shaders[0], "perspectiveMat");
+	unsigned int perspectiveMatLoc = glGetUniformLocation(Shader::activeShader->getShaderProgram(), "perspectiveMat");
 	glUniformMatrix4fv(perspectiveMatLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMat));
 
-	unsigned int camPos = glGetUniformLocation(Shader::shaders[0], "camPos");
+	unsigned int camPos = glGetUniformLocation(Shader::activeShader->getShaderProgram(), "camPos");
 	glUniform3f(camPos, getPosition().x, getPosition().y, getPosition().z);
 }
 

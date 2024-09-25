@@ -2,6 +2,8 @@
 //TEMP INCLUDES FOR TESTING
 #include "../../../Object.h"
 
+#include "../../../Material.h"
+
 UI_CameraProperties::UI_CameraProperties(Camera* currentCamera) : UILayer("Camera Properties")
 {
     FOV = 45.0f;
@@ -24,7 +26,6 @@ void UI_CameraProperties::renderLayer()
     if (ImGui::SliderFloat("camera FOV", &FOV, 0.0f, 180.0f))
     {
         currentCamera->setFOV(FOV);
-        //currentCamera->updateCamera();
     }
     if (ImGui::SliderFloat("camera Speed", &camSpeed, 0.01f, 2.0f))
     {
@@ -33,12 +34,20 @@ void UI_CameraProperties::renderLayer()
     if (ImGui::SliderFloat("Near plane", &near, 0.01f, 100.0f))
     {
         currentCamera->setNear(near);
-        //currentCamera->updateCamera();
     }
     if (ImGui::SliderFloat("Far plane", &far, 0.01f, 100.0f))
     {
         currentCamera->setFar(far);
-        //currentCamera->updateCamera();
+    }
+
+    //TEMPORARY
+    if (ImGui::SliderFloat("roughness", &roughness, 0.01f, 1))
+    {
+        Material::getMaterial(0)->setRoughness(roughness);
+    }
+    if (ImGui::SliderFloat("Metalic", &metalic, 0.01f, 1))
+    {
+        Material::getMaterial(0)->setMetalic(metalic);
     }
     
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -47,11 +56,9 @@ void UI_CameraProperties::renderLayer()
     static unsigned counter = 0;
     if(ImGui::Button("Add Dummy"))
     {
-        Object dummyObject;
-		BaseObject* dummy = &dummyObject;
         std::string name = "Dummy_" + std::to_string(counter);
-		dummy->setName(name);
-		Scene::activeScene->getSelectedObject()->addChild(dummyObject);
+        BaseObject* dummy = new Object(name); //dynamically allocating new object, remove that code later
+		Scene::activeScene->getSelectedObject()->addChild(dummy);
         counter++;
     }
     //Implement later

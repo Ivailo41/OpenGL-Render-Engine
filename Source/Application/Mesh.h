@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vertex.h"
+#include "Primitives.h"
 #include <string>
 #include "Object.h"
 #include "Texture.h"
@@ -21,8 +21,8 @@ public:
 
 public:
 	Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned>& indices);
-	Mesh(const Mesh& other);
-	Mesh& operator=(const Mesh& other);
+	//Mesh(const Mesh& other);
+	//Mesh& operator=(const Mesh& other);
 	virtual ~Mesh();
 
 protected:

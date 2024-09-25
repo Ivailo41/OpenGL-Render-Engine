@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Vertex.h"
+#include "Primitives.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "Material.h"
@@ -8,7 +8,7 @@
 #include "Lights/Light.h"
 #include "Lights/PointLight.h"
 #include "ObjectArray.h"
-#include "UI/EngineUI.h"
+#include "Debug/DebugShapes.h"
 
 #include "FileManager.h"
 #include "Editor/Scene.h"
@@ -30,56 +30,33 @@
 #include "UI/Layers/UI_ObjectProperties/UI_ObjectProperties.h"
 #include "UI/Layers/UI_CameraProperties/UI_CameraProperties.h"
 
+#include "GL_Objects/Window.h"
+#include "GL_Objects/FrameQuad.h"
+#include "PostProccess/Bloom.h"
+
+
 int main(void)
 {
-    GLFWwindow* window;
+    //GLFWwindow* window;
+    Window* window = Window::getInstance("Render Engine", 1920, 1080);
 
     // create a default directory for the resources
     FileManager::createDirectory("resources");
-    
-
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
- 
-
-    window = glfwCreateWindow(800, 600, "Render Engine", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
-    
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-    glfwSetWindowUserPointer(window, nullptr);
-
-    // Getting the primary monitor and setting the window to be fullscreen
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    if (monitor) {
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        int monitorX, monitorY;
-        glfwGetMonitorPos(monitor, &monitorX, &monitorY);
-        int monitorWidth = mode->width;
-        int monitorHeight = mode->height;
-
-        glfwSetWindowPos(window, monitorX, monitorY);
-        glfwSetWindowSize(window, monitorWidth, monitorHeight);
-        glViewport(0, 0, monitorWidth, monitorHeight);
-
-        std::cout << "Monitor: " << monitorWidth << ", " << monitorHeight << std::endl;
-    }
-
-    if(glewInit() != GLEW_OK)
-    {
-        std::cout << "GLEW ERROR" << std::endl;
-        return -1;
-    }
-    //End of initialization
 
     //CREATE SHADER
     Shader shader("Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
-    unsigned shaderProgram = Shader::shaders[0];
+
+    //CREATE BLOOM SHADER
+    Shader bloomShader("Shaders/PostProcess/Bloom/bloomVertex.glsl", "Shaders/PostProcess/Bloom/bloomFrag.glsl");
+
+    //CREATE BLUR SHADER
+    Shader blurShader("Shaders/PostProcess/Blur/blurVertex.glsl", "Shaders/PostProcess/Blur/blurFrag.glsl");
+
+    //CREATE DEBUG SHADER
+    Shader debugShader("Shaders/Debug/debugVertex.glsl", "Shaders/Debug/debugFrag.glsl");
+
+    //CREATE FRAMEQUAD SHADER
+    Shader frameQuadShader("Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl");
 
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
@@ -107,9 +84,21 @@ int main(void)
         mainScene.sceneObjects.push_back(lights[i]);
     }
     lights[0]->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+    lights[0]->setIntensity(100);
+
     lights[1]->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+    lights[1]->setIntensity(100);
+
     lights[2]->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    lights[2]->setIntensity(100);
+
     lights[3]->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
+    lights[3]->setIntensity(100);
+
+    lights[0]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
+    lights[1]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
+    lights[2]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
+    lights[3]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
 
     //Loading textures and setting materials untill I make it through the UI
     {
@@ -128,15 +117,15 @@ int main(void)
 
         /*Texture::loadTexture("resources/Brick_Base.jpg");
         Texture::loadTexture("resources/Brick_Normal.jpg");
-        Texture::loadTexture("resources/Marble_ORM5.jpg");
-        */
+        Texture::loadTexture("resources/Marble_ORM5.jpg");*/
+        
 
-        Texture::loadTexture("resources/Marble_Albedo.jpg");
+        /*Texture::loadTexture("resources/Marble_Albedo.jpg");
         Texture::loadTexture("resources/Marble_Normal.jpg");
-        Texture::loadTexture("resources/Marble_ORM.png");
+        Texture::loadTexture("resources/Marble_ORM.png");*/
 
         // dynamically load object
-        if (!mainScene.loadObject("resources/sphere.obj"))
+        if (!mainScene.loadObject("resources/akMat.obj"))
         {
             std::cout << "Could not load object" << std::endl;;
         }
@@ -152,55 +141,108 @@ int main(void)
         Material::getMaterial(3)->setTexture(Texture::textures[5], 2);
         Material::getMaterial(1)->setTexture(Texture::textures[6], 0);
         Material::getMaterial(1)->setTexture(Texture::textures[11],1);
-        Material::getMaterial(1)->setTexture(Texture::textures[7], 2);*/
+        Material::getMaterial(1)->setTexture(Texture::textures[7],2);*/
 
-        try {
+        /*try {
             Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
             Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
             Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
         }
         catch (const std::exception& e) {
             std::cout << e.what() << std::endl;
-        }
+        }*/
     }
-
     mainScene.setSelectedObject(nullptr);
     mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
-    glUseProgram(Shader::shaders[0]);
-
     EngineUI mainUI(window);
 
+    FrameQuad::initFrameQuad(&frameQuadShader);
+
+    FrameBuffer firstPassBuffer(2, true);
+    firstPassBuffer.genFrameBuffer(1920, 1080);
+
+    Bloom bloomPP(blurShader, bloomShader);
+    bloomPP.setSteps(20);
+
+    DebugShapes debugShapes;
+    DebugShapes debugShapes2;
+
+    debugShapes.drawBox(Point(0, 0, 0), Point(1, 1, 1), Color(1,0,0));
+    debugShapes.drawBox(Point(0.2, 0.2, 0.2), Point(0.4, 0.4, 0.4), Color(1,1,0));
+    debugShapes.drawLine(Point(0.2, 0.2, 0.2), Point(0.4, 0.4, 0.4), Color(1,0,0));
+    debugShapes.drawBox(Point(1.2, 0.2, 0.2), Point(0.4, 0.4, 0.0), Color(0,0,1));
+    debugShapes.drawBox(Point(0.5, 0.2, 3.0), Point(0.4, 1.1, 0.1), Color(0,1,1));
+
+    debugShapes2.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5,1,0));
+
+    GLuint resultTexture = firstPassBuffer[0];
+
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (!window->shouldClose())
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, mainUI.getSceneLayer().getFBO()); //might change later the way of getting the frame buffer
+        shader.use();
+        shader.setFloat("threshold", mainUI.getSettingsLayer().getTreshold());
+
+        firstPassBuffer.bind();
+
+        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, attachments);
+
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.15, 0.15, 0.15, 1);
+        glClearColor(0,0,0, 1);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
 
-        //PASS LIGHTS TO SHADER
+        //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
         for(unsigned i = 0; i < lights.size(); i++)
         {
-            lights[i]->sendToShader(Shader::shaders[0], i);
+            lights[i]->sendToShader(shader, i);
         }
 
-        mainScene.drawObjects();
+        mainScene.drawObjects(); //draws object
+
+        glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh
+                              //sinse debug doesnt use VAO and doesnt bind one
+                              
+        //debugShapes.drawDebugShapes(mainScene.getActiveCamera());
+        debugShapes2.drawDebugShapes(mainScene.getActiveCamera());
+
+        lights[0]->drawDebug();
+        lights[1]->drawDebug();
+        lights[2]->drawDebug();
+        lights[3]->drawDebug();
+
+        //mainScene.sceneObjects[6]->drawDebug();
+
+        //apply bloom effect, currently the bloom is performance heavy, search for another approach
+        if(mainUI.getSettingsLayer().getBloom())
+        {
+            resultTexture = bloomPP.applyEffect(firstPassBuffer, mainUI.getSceneLayer().getFrameBuffer());
+            bloomPP.setSteps(mainUI.getSettingsLayer().getSteps());
+        }
+        else
+        {
+            resultTexture = firstPassBuffer[0];
+        }
+
+        //draw the final result to the screne frame buufer
+        FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer());
+
+        //glClearColor(0.15, 0.15, 0.15, 1);
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         mainUI.renderUI();
 
         /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window->getGLWindow());
 
         /* Poll for and process events */
         glfwPollEvents();
     }
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
     return 0;
 }

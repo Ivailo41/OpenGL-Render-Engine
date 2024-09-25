@@ -32,3 +32,13 @@ void Texture::loadTexture(const char* texturePath)
 
 	textures.push_back(texture);
 }
+
+Texture::Texture()
+{
+
+}
+
+Texture::Texture(unsigned id) : id(id)
+{
+
+}

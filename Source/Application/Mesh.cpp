@@ -9,34 +9,36 @@ Mesh::Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned>& indice
 	initialize(verts, indices);
 }
 
-Mesh::Mesh(const Mesh& other) : BaseObject(other)
-{
-	vertices = other.vertices;
-	vIndices = other.vIndices;
-	material = other.material;
-	generateBuffers(VAO, VBO, EBO);
-	initialize(vertices, vIndices);
-}
 
-Mesh& Mesh::operator=(const Mesh& other)
-{
-	if(this != &other)
-	{
-		BaseObject::operator=(other);
-		vertices = other.vertices;
-		vIndices = other.vIndices;
-		material = other.material;
-		generateBuffers(VAO, VBO, EBO);
-		initialize(vertices, vIndices);
-	}
-	return *this;
-}
+//COPY CTOR AND =OPERATOR WERE CREATING NEW BUFFERS, FOR COPIED OBJECTS WE WILL SHARE 1 BUFFER
+//Mesh::Mesh(const Mesh& other) : BaseObject(other)
+//{
+//	vertices = other.vertices;
+//	vIndices = other.vIndices;
+//	material = other.material;
+//	generateBuffers(VAO, VBO, EBO);
+//	initialize(vertices, vIndices);
+//}
+//
+//Mesh& Mesh::operator=(const Mesh& other)
+//{
+//	if(this != &other)
+//	{
+//		BaseObject::operator=(other);
+//		vertices = other.vertices;
+//		vIndices = other.vIndices;
+//		material = other.material;
+//		generateBuffers(VAO, VBO, EBO);
+//		initialize(vertices, vIndices);
+//	}
+//	return *this;
+//}
 
-Mesh::~Mesh()
+Mesh::~Mesh() //EACH COPY WILL SHARE ONE VERTEX BUFFER SO USE A SHARED POINTER AND AFTER ALL INSTANCES ARE DELETED, DELETE THE BUFFER
 {
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	//glDeleteVertexArrays(1, &VAO);
+	//glDeleteBuffers(1, &VBO);
+	//glDeleteBuffers(1, &EBO);
 }
 
 void Mesh::generateBuffers(unsigned& VAO, unsigned& VBO, unsigned& EBO)
@@ -72,7 +74,7 @@ void Mesh::initialize(const std::vector<Vertex>& verts, const std::vector<unsign
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
 	glEnableVertexAttribArray(3);
 
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
 }
 
 void Mesh::draw() const
@@ -85,10 +87,12 @@ void Mesh::draw() const
 	}
 	unsigned shaderProgram = material->getShaderProgram();
 
-	unsigned int transformLoc = glGetUniformLocation(material->getShaderProgram(), "transform");
+	//add function to shader object to set matrices
+	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 	glBindVertexArray(VAO);
+
 	if(material != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE0 + 0);
@@ -99,6 +103,7 @@ void Mesh::draw() const
 		glBindTexture(GL_TEXTURE_2D, material->operator[](2).id);
 	}
 	glDrawElements(GL_TRIANGLES, vIndices.size(), GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
 }
 
 void Mesh::setMaterial(Material* const material)

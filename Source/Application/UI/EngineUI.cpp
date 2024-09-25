@@ -3,7 +3,7 @@
 
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(GLFWwindow* window) : uiSceneLayer(window)
+EngineUI::EngineUI(Window* window) : uiSceneLayer(window)
 {
     if(isUIOpen)
     {
@@ -25,7 +25,7 @@ EngineUI::EngineUI(GLFWwindow* window) : uiSceneLayer(window)
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window->getGLWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
     //Create default UI layers
@@ -36,6 +36,7 @@ EngineUI::EngineUI(GLFWwindow* window) : uiSceneLayer(window)
     addUILayer(&uiObjectProperties);
     addUILayer(&uiCameraProperties);
     addUILayer(&uiSceneLayer);
+    //addUILayer(&uiSettingsLayer);
 }
 
 EngineUI::~EngineUI()
@@ -113,6 +114,7 @@ void EngineUI::renderUI()
     {
         UIElements[i].renderLayer();
     }
+    uiSettingsLayer.renderLayer();
 
     //ImGui::ShowDemoWindow();
 

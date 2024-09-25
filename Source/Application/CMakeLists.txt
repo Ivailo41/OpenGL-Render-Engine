@@ -42,4 +42,8 @@ target_sources(
         "UI/Elements/UIElement.cpp"
         "UI/Layers/UILayer.cpp"
         "UI/Layers/UISceneTree.cpp"
-        "UI/Elements/UISceneNode.cpp" "UI/Layers/UI_Scene/UI_Scene.h" "UI/Layers/UI_Scene/UI_Scene.cpp")
+        "UI/Elements/UISceneNode.cpp" "UI/Layers/UI_Scene/UI_Scene.h" 	"UI/Layers/UI_Scene/UI_Scene.cpp"
+	    "GL_Objects/FrameBuffer.cpp" "GL_Objects/Window.h" "GL_Objects/Window.cpp" 
+        "UI/Layers/UI_Settings/UI_Settings.h" "UI/Layers/UI_Settings/UI_Settings.cpp" 
+        "Debug/DebugShapes.h" "Debug/DebugShapes.cpp" "Debug/LinesContainer.h" "Debug/LinesContainer.cpp" 
+        "PostProccess/Bloom.h" "PostProccess/Bloom.cpp" "GL_Objects/FrameQuad.h" "GL_Objects/FrameQuad.cpp")

@@ -8,8 +8,8 @@ class Light : public BaseObject
 public:
 	Light();
 	Light(const std::string name);
-	Light(const Light& other);
-	Light& operator=(const Light& other);
+	//Light(const Light& other);
+	//Light& operator=(const Light& other);
 	virtual ~Light() override;
 
 	void setIntensity(float intensity);
@@ -23,9 +23,7 @@ public:
 	float* ambientRef() { return &ambientStrength; }
 
 	virtual void draw() const override;
-	virtual BaseObject* clone() const override { return new Light(*this);}
-
-	virtual void sendToShader(unsigned shaderProgram, unsigned lightIndex) const;
+	virtual void sendToShader(unsigned shaderProgram, unsigned lightIndex) const = 0;
 
 protected:
 	float intensity;

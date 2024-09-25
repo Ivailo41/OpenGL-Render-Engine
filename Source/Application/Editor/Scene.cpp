@@ -28,6 +28,8 @@ void Scene::setSelectedObject(BaseObject* object)
 
 void Scene::drawObjects() const
 {
+	activeCamera->updateCamera();
+
 	for (size_t i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i]->draw();
@@ -55,6 +57,11 @@ void Scene::setActiveCamera(Camera* camera)
 //{
 //	sceneObjects.removeObject(index);
 //}
+
+void Scene::addObject(BaseObject* object)
+{
+	sceneObjects.push_back(object);
+}
 
 void Scene::removeObject(BaseObject* object)
 {

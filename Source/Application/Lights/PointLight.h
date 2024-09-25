@@ -7,19 +7,19 @@ public:
 	struct pointLightData
 	{
 		glm::vec3 position;
-		float constant;
+		/*float constant;
 		float linear;
-		float quadratic;
+		float quadratic;*/
 	};
 
 public:
-	void setConstant(float constant);
+	/*void setConstant(float constant);
 	void setLinear(float linear);
-	void setQuadratic(float quadratic);
+	void setQuadratic(float quadratic);*/
 
-	float getConstant() const { return data.constant; }
+	/*float getConstant() const { return data.constant; }
 	float getLinear() const { return data.linear; }
-	float getQuadratic() const { return data.quadratic; }
+	float getQuadratic() const { return data.quadratic; }*/
 
 	const pointLightData* getData() const;
 	void sendToShader(unsigned shaderProgram, unsigned lightIndex) const override;
@@ -28,8 +28,8 @@ public:
 
 	PointLight();
 	PointLight(const std::string name);
-	PointLight(const PointLight& other);
-	PointLight& operator=(const PointLight& other);
+	//PointLight(const PointLight& other);
+	//PointLight& operator=(const PointLight& other);
 	~PointLight();
 
 private:

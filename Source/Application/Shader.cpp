@@ -1,11 +1,12 @@
 #include "Shader.h"
 
-std::vector<unsigned> Shader::shaders;
+std::vector<Shader> Shader::shaders;
+const Shader* Shader::activeShader = nullptr;
 
 Shader::Shader(const std::string vertexPath, const std::string fragmentPath) : shaderProgram(0)
 {
-	std::string vertexSource = FileManager::loadShader(vertexPath, GL_VERTEX_SHADER);
-	std::string fragmentSource = FileManager::loadShader(fragmentPath, GL_FRAGMENT_SHADER);
+	std::string vertexSource = loadShader(vertexPath, GL_VERTEX_SHADER);
+	std::string fragmentSource = loadShader(fragmentPath, GL_FRAGMENT_SHADER);
 
 	if (vertexSource.size() == 0 || fragmentSource.size() == 0)
 	{
@@ -37,6 +38,37 @@ Shader::Shader(const unsigned vertexShader, const unsigned fragmentShader) : sha
 	}
 }
 
+void Shader::use() const
+{
+	glUseProgram(shaderProgram);
+	activeShader = this;
+}
+
+void Shader::deactivate() const
+{
+	glUseProgram(0);
+	activeShader = nullptr;
+}
+
+Shader::operator unsigned() const
+{
+	return shaderProgram;
+}
+
+GLint Shader::setInt(const char* paramName, int value) const
+{
+	GLint location = glGetUniformLocation(shaderProgram, paramName);
+	glUniform1i(location, value);
+	return location;
+}
+
+GLint Shader::setFloat(const char* paramName, float value) const
+{
+	GLint location = glGetUniformLocation(shaderProgram, paramName);
+	glUniform1f(location, value);
+	return location;
+}
+
 unsigned Shader::createShader(const std::string shaderSource, const unsigned type)
 {
 	const char* shaderSourceChar = shaderSource.c_str();
@@ -59,6 +91,27 @@ unsigned Shader::createShader(const std::string shaderSource, const unsigned typ
 	}
 
 	return shader;
+}
+
+std::string Shader::loadShader(const std::string shaderPath, unsigned type)
+{
+	std::ifstream shaderFile(shaderPath, std::ios::in);
+	if (!shaderFile.is_open())
+	{
+		return "";
+	}
+
+	std::string shaderSource;
+	std::string line;
+
+	while (!shaderFile.eof())
+	{
+		std::getline(shaderFile, line);
+		shaderSource += line + "\n";
+	}
+
+	shaderFile.close();
+	return shaderSource;
 }
 
 void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader)
@@ -84,5 +137,5 @@ void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fra
 	glDeleteShader(fragmentShader);
 
 	this->shaderProgram = shaderProgram;
-	shaders.push_back(shaderProgram);
+	shaders.push_back(*this);
 }

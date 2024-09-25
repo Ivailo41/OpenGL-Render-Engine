@@ -184,6 +184,14 @@ Object* FileManager::readOBJ(std::string fileName)
 			mesh.setName(currentMesh);
 			mesh.setMaterial(currentMaterial);
 
+			//Add debug lines to each vertex pointing the normal direction
+			for (size_t i = 0; i < vertices.size(); i++)
+			{
+				mesh.debugLinesContainer.pushLine(Line(
+					Point(vertices[i].x, vertices[i].y, vertices[i].z),
+					Point(vertices[i].x + vertices[i].nx * 0.002, vertices[i].y + vertices[i].ny * 0.002, vertices[i].z + vertices[i].nz * 0.002)));
+			}
+
 			object->addChild(mesh);
 
 			currentMesh = line.substr(2);
@@ -219,6 +227,14 @@ Object* FileManager::readOBJ(std::string fileName)
 	mesh.setName(currentMesh);
 	mesh.setMaterial(currentMaterial);
 
+	//Add debug lines to each vertex pointing the normal direction
+	for (size_t i = 0; i < vertices.size(); i++)
+	{
+		mesh.debugLinesContainer.pushLine(Line(
+			Point(vertices[i].x, vertices[i].y, vertices[i].z),
+			Point(vertices[i].x + vertices[i].nx * 0.002, vertices[i].y + vertices[i].ny * 0.002, vertices[i].z + vertices[i].nz * 0.002)));
+	}
+
 	object->addChild(mesh);
 
 	objFile.close();
@@ -235,25 +251,4 @@ void FileManager::createDirectory(const std::string path)
 		std::filesystem::create_directory(path);
 		std::cout << "Directory created: " << path << std::endl;
 	}
-}
-
-std::string FileManager::loadShader(const std::string shaderPath, unsigned type)
-{
-	std::ifstream shaderFile(shaderPath, std::ios::in);
-	if (!shaderFile.is_open())
-	{
-		return "";
-	}
-
-	std::string shaderSource;
-	std::string line;
-
-	while (!shaderFile.eof())
-	{
-		std::getline(shaderFile, line);
-		shaderSource += line + "\n";
-	}
-
-	shaderFile.close();
-	return shaderSource;
 }

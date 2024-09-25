@@ -20,27 +20,27 @@ BaseObject::BaseObject(const std::string& name) : parentPtr(nullptr)
 	modelMatrix = glm::mat4(1.0f);
 }
 
-BaseObject::BaseObject(const BaseObject& other)
-{
-	name = other.name;
-	transform = other.transform;
-	modelMatrix = other.modelMatrix;
-	children = other.children;
-	parentPtr = other.parentPtr;
-}
-
-BaseObject& BaseObject::operator=(const BaseObject& other)
-{
-	if (this != &other)
-	{
-		name = other.name;
-		transform = other.transform;
-		modelMatrix = other.modelMatrix;
-		children = other.children;
-		parentPtr = other.parentPtr;
-	}
-	return *this;
-}
+//BaseObject::BaseObject(const BaseObject& other)
+//{
+//	name = other.name;
+//	transform = other.transform;
+//	modelMatrix = other.modelMatrix;
+//	children = other.children;
+//	parentPtr = other.parentPtr;
+//}
+//
+//BaseObject& BaseObject::operator=(const BaseObject& other)
+//{
+//	if (this != &other)
+//	{
+//		name = other.name;
+//		transform = other.transform;
+//		modelMatrix = other.modelMatrix;
+//		children = other.children;
+//		parentPtr = other.parentPtr;
+//	}
+//	return *this;
+//}
 
 BaseObject::~BaseObject()
 {
@@ -87,13 +87,27 @@ void BaseObject::scale(const glm::vec3& scale)
 
 void BaseObject::setPosition(const glm::vec3& position)
 {
-	glm::vec3 translation = position - transform.position;
-	transform.position += translation;
+	//glm::vec3 translation = position - transform.position;
+	//transform.position += translation;
+	transform.position = position;
 	updateModelMatrix();
 
 	for (size_t i = 0; i < children.getSize(); i++)
 	{
-		children[i].translate(translation);
+		children[i].setPosition(position);
+	}
+}
+
+void BaseObject::setPosition(float x, float y, float z)
+{
+	transform.position.x = x;
+	transform.position.y = y;
+	transform.position.z = z;
+	updateModelMatrix();
+
+	for (size_t i = 0; i < children.getSize(); i++)
+	{
+		children[i].setPosition(x, y, z);
 	}
 }
 
@@ -172,6 +186,20 @@ void BaseObject::removeChild(unsigned index)
 void BaseObject::removeChild(BaseObject* object)
 {
 	children.removeObject(object);
+}
+
+//test
+void BaseObject::drawDebug() const
+{
+	if(!debugLinesContainer.isEmpty())
+	{
+		debugLinesContainer.drawLines(modelMatrix);
+	}
+
+	for (size_t i = 0; i < children.getSize(); i++)
+	{
+		children[i].drawDebug();
+	}
 }
 
 BaseObject& BaseObject::operator[](unsigned index)

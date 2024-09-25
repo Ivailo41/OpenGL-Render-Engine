@@ -20,6 +20,10 @@ private:
 	float far = 100.0f;
 	int counter = 0;
 
+	//TEMP
+	float roughness = 0.5;
+	float metalic = 0.5;
+
 	Camera* currentCamera;
 };
 

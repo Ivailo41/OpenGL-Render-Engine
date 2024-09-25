@@ -6,52 +6,39 @@ std::vector<Material*> Material::materials;
 
 void Material::setTexture(const Texture& texture, unsigned index)
 {
+	switch (index)
+	{
+	case 0:
+		hasDiffuse = true;
+		break;
+	case 1:
+		useORM = true;
+		break;
+	case 2:
+		useNormalTexture = true;
+		break;
+	default:
+		break;
+	}
+
 	textures[index] = texture;
 	sendToShader();
 }
 
-Material::Material()
+Material::Material() : baseColor(1,1,1), roughness(0.3), metalic(0),
+						hasDiffuse(false), useNormalTexture(false), useORM(false)
 {
 	setName("New_Material");
-	textures.push_back(Texture());
-	textures.push_back(Texture());
-	textures.push_back(Texture());
 	shaderProgram = Shader::shaders[0];
+	sendToShader();
 }
 
-Material::Material(const std::string& name)
+Material::Material(const std::string& name) : baseColor(1, 1, 1), roughness(0.3), metalic(0),
+												hasDiffuse(false), useNormalTexture(false), useORM(false)
 {
 	setName(name);
-	textures.push_back(Texture());
-	textures.push_back(Texture());
-	textures.push_back(Texture());
 	shaderProgram = Shader::shaders[0];
-}
-
-Material::Material(const Material& other)
-{
-	copyFrom(other);
-}
-
-Material& Material::operator=(const Material& other)
-{
-	if (this != &other)
-	{
-		textures.clear();
-		copyFrom(other);
-	}
-	return *this;
-}
-
-void Material::copyFrom(const Material& other)
-{
-	setName(other.name);
-	unsigned texturesCount = other.textures.size();
-	for (size_t i = 0; i < texturesCount; i++)
-	{
-		textures.push_back(other.textures[i]);
-	}
-	shaderProgram = other.shaderProgram;
+	sendToShader();
 }
 
 void Material::setName(const std::string& name)
@@ -127,11 +114,28 @@ Material* const Material::getMaterial(unsigned index)
 
 void Material::sendToShader() const
 {
+	GLint baseColorLoc = glGetUniformLocation(shaderProgram, "baseColor");
+	GLint roughnessLoc = glGetUniformLocation(shaderProgram, "roughness");
+	GLint metalicLoc = glGetUniformLocation(shaderProgram, "metalic");
+
+	GLint hasDiffuseLoc = glGetUniformLocation(shaderProgram, "hasDiffuse");
+	GLint useNormalTextureLoc = glGetUniformLocation(shaderProgram, "useNormalTexture");
+	GLint useORMLoc = glGetUniformLocation(shaderProgram, "useORM");
+
 	GLint baseImageLoc = glGetUniformLocation(shaderProgram, "diffTexture");
 	GLint ORMImageLoc = glGetUniformLocation(shaderProgram, "ORMTexture");      // ORM = Occlusion, Roughness, Metallic
 	GLint normalMapLoc = glGetUniformLocation(shaderProgram, "normalTexture");
 
 	glUseProgram(shaderProgram);
+
+	glUniform3f(baseColorLoc, baseColor.r, baseColor.g, baseColor.b);
+	glUniform1f(roughnessLoc, roughness);
+	glUniform1f(metalicLoc, metalic);
+
+	glUniform1i(hasDiffuseLoc, hasDiffuse);
+	glUniform1i(useNormalTextureLoc, useNormalTexture);
+	glUniform1i(useORMLoc, useORM);
+
 	glUniform1i(baseImageLoc, 0); // Texture unit 0 is for base images.
 	glUniform1i(ORMImageLoc, 1); // Texture unit 1 is for ORM images.
 	glUniform1i(normalMapLoc, 2); // Texture unit 2 is for normal maps.
