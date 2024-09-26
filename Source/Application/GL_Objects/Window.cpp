@@ -63,7 +63,8 @@ Window::Window(const std::string& name, unsigned width, unsigned height) : width
         int monitorWidth = mode->width;
         int monitorHeight = mode->height;
 
-        glfwSetWindowPos(window, monitorX, monitorY);
+        glfwMaximizeWindow(window);
+        //glfwSetWindowPos(window, monitorX, monitorY);
         glfwSetWindowSize(window, monitorWidth, monitorHeight);
         glViewport(0, 0, monitorWidth, monitorHeight);
     }

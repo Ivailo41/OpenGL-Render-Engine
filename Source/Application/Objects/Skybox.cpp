@@ -3,6 +3,7 @@
 void Skybox::render(const Camera* camera) const
 {
     glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
     skyboxShader->use();
 
     glm::mat4 view = glm::mat4(glm::mat3(camera->getViewMat()));
@@ -10,11 +11,13 @@ void Skybox::render(const Camera* camera) const
     skyboxShader->setMat4("projection", camera->getPerspectiveMat());
 
     glBindVertexArray(VAO);
+    glActiveTexture(GL_TEXTURE0);
     cubemap->bind();
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 }
 
 Skybox::Skybox(const Cubemap* cubemap, const Shader* skyboxShader) : cubemap(cubemap), skyboxShader(skyboxShader)

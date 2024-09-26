@@ -116,7 +116,11 @@ void EngineUI::renderUI()
     }
     uiSettingsLayer.renderLayer();
 
+    //ImGui::ShowStyleEditor();
     //ImGui::ShowDemoWindow();
+
+    //ImGuiStyle& style = ImGui::GetStyle();
+    //style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2, 0.2, 0.2, 1);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

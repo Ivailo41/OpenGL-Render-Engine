@@ -230,6 +230,8 @@ int main(void)
     /* Loop until the user closes the window */
     while (!window->shouldClose())
     {
+
+        //START OF SCENE OBJECTS RENDERING
         firstPassBuffer.bind();
 
         unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
@@ -237,12 +239,10 @@ int main(void)
 
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0,0,0, 1);
+        //glClearColor(0,0,0, 1);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
-
-        skybox.render(mainScene.getActiveCamera());
 
         shader.use();
         shader.setFloat("threshold", mainUI.getSettingsLayer().getTreshold());
@@ -257,6 +257,10 @@ int main(void)
 
         glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh
                               //sinse debug doesnt use VAO and doesnt bind one
+
+        //IF WE DONT STOP THE DRAWING TO THE ATTACHMENT1 THE OTHER SHADERS WILL DRAW TO THE BLOOM TEXTURE TOO
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        //END OF SCENE OBJECTS RENDERING - PUT THAT IN THE FUNCTION
                               
         //debugShapes.drawDebugShapes(mainScene.getActiveCamera());
         debugShapes2.drawDebugShapes(mainScene.getActiveCamera());
@@ -266,7 +270,9 @@ int main(void)
         lights[2]->drawDebug();
         lights[3]->drawDebug();
 
-        //mainScene.sceneObjects[6]->drawDebug();
+        mainScene.sceneObjects[6]->drawDebug();
+
+        skybox.render(mainScene.getActiveCamera());
 
         //apply bloom effect, currently the bloom is performance heavy, search for another approach
         if(mainUI.getSettingsLayer().getBloom())
@@ -283,7 +289,6 @@ int main(void)
         FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer());
 
         //glClearColor(0.15, 0.15, 0.15, 1);
-
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         mainUI.renderUI();
