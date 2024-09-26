@@ -14,6 +14,8 @@ public:
 	float getNear() const { return near; }
 	float getFar() const { return far; }
 	float getAspectRatio() const { return aspectRatio; }
+	glm::mat4 getViewMat() const { return viewMat; }
+	glm::mat4 getPerspectiveMat() const { return perspectiveMat; }
 
 	void setFOV(float fov);
 	void setSpeed(float speed);

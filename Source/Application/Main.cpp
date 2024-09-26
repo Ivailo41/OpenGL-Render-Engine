@@ -32,8 +32,10 @@
 
 #include "GL_Objects/Window.h"
 #include "GL_Objects/FrameQuad.h"
+#include "GL_Objects/Cubemap.h"
 #include "PostProccess/Bloom.h"
 
+#include "Objects/Skybox.h"
 
 int main(void)
 {
@@ -58,6 +60,9 @@ int main(void)
     //CREATE FRAMEQUAD SHADER
     Shader frameQuadShader("Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl");
 
+    //CREATE SKYBOX SHADER
+    Shader skyboxShader("Shaders/Skybox/SkyboxVertex.glsl", "Shaders/Skybox/SkyboxFrag.glsl");
+
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
     Scene::activeScene = &mainScene;
@@ -71,6 +76,19 @@ int main(void)
 
     Camera* otherCamera = new Camera;
     mainScene.sceneObjects.push_back(otherCamera);
+
+    std::string cubemapPaths[6] = 
+    { 
+        "resources/Skybox/right.jpg",
+        "resources/Skybox/left.jpg",
+        "resources/Skybox/top.jpg",
+        "resources/Skybox/bottom.jpg",
+        "resources/Skybox/front.jpg",
+        "resources/Skybox/back.jpg" 
+    };
+
+    Cubemap testCubeMap(FileManager::loadCubemap(cubemapPaths));
+    Skybox skybox(&testCubeMap, &skyboxShader);
 
     mainCamera->setFOV(90.0f);
     mainCamera->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
@@ -115,6 +133,18 @@ int main(void)
         Texture::loadTexture("resources/Set3_ORM.png");
         Texture::loadTexture("resources/Set4_ORM.png");*/
 
+        /*Texture set1Base(FileManager::loadTexture("resources/AK74M/1_BaseColor.png"));
+        Texture set1ORM(FileManager::loadTexture("resources/AK74M/1_OcclusionRoughnessMetallic.png"));
+        Texture set1Normal(FileManager::loadTexture("resources/AK74M/1_Normal.png"));
+
+        Texture set2Base(FileManager::loadTexture("resources/AK74M/2_BaseColor.png"));
+        Texture set2ORM(FileManager::loadTexture("resources/AK74M/2_OcclusionRoughnessMetallic.png"));
+        Texture set2Normal(FileManager::loadTexture("resources/AK74M/2_Normal.png"));
+
+        Texture set3Base(FileManager::loadTexture("resources/AK74M/3_BaseColor.png"));
+        Texture set3ORM(FileManager::loadTexture("resources/AK74M/3_OcclusionRoughnessMetallic.png"));
+        Texture set3Normal(FileManager::loadTexture("resources/AK74M/3_Normal.png"));*/
+
         /*Texture::loadTexture("resources/Brick_Base.jpg");
         Texture::loadTexture("resources/Brick_Normal.jpg");
         Texture::loadTexture("resources/Marble_ORM5.jpg");*/
@@ -125,7 +155,7 @@ int main(void)
         Texture::loadTexture("resources/Marble_ORM.png");*/
 
         // dynamically load object
-        if (!mainScene.loadObject("resources/akMat.obj"))
+        if (!mainScene.loadObject("resources/AK74M/AK74M.obj"))
         {
             std::cout << "Could not load object" << std::endl;;
         }
@@ -142,6 +172,25 @@ int main(void)
         Material::getMaterial(1)->setTexture(Texture::textures[6], 0);
         Material::getMaterial(1)->setTexture(Texture::textures[11],1);
         Material::getMaterial(1)->setTexture(Texture::textures[7],2);*/
+
+        /*try
+        {
+            Material::getMaterial(0)->setTexture(set3Base, 0);
+            Material::getMaterial(0)->setTexture(set3ORM, 1);
+            Material::getMaterial(0)->setTexture(set3Normal, 2);
+
+            Material::getMaterial(2)->setTexture(set2Base, 0);
+            Material::getMaterial(2)->setTexture(set2ORM, 1);
+            Material::getMaterial(2)->setTexture(set2Normal, 2);
+
+            Material::getMaterial(1)->setTexture(set1Base, 0);
+            Material::getMaterial(1)->setTexture(set1ORM, 1);
+            Material::getMaterial(1)->setTexture(set1Normal, 2);
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
+        }*/
 
         /*try {
             Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
@@ -181,9 +230,6 @@ int main(void)
     /* Loop until the user closes the window */
     while (!window->shouldClose())
     {
-        shader.use();
-        shader.setFloat("threshold", mainUI.getSettingsLayer().getTreshold());
-
         firstPassBuffer.bind();
 
         unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
@@ -195,6 +241,11 @@ int main(void)
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
+
+        skybox.render(mainScene.getActiveCamera());
+
+        shader.use();
+        shader.setFloat("threshold", mainUI.getSettingsLayer().getTreshold());
 
         //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
         for(unsigned i = 0; i < lights.size(); i++)

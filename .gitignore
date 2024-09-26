@@ -2,3 +2,5 @@ out/*
 .vs/*
 Source/Application/resources/*
 *.exe
+*.pdb
+*.ilk

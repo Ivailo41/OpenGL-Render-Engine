@@ -4,6 +4,8 @@
 #include <fstream>
 #include <vector>
 #include <GL/glew.h>
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 class Shader
 {
@@ -22,6 +24,7 @@ public:
 	//returns location of the parameter
 	GLint setInt(const char* paramName, int value) const;
 	GLint setFloat(const char* paramName, float value) const;
+	GLuint setMat4(const char* paramName, glm::mat4 value) const;
 
 	static std::vector<Shader> shaders;
 	static const Shader* activeShader;

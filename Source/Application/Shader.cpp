@@ -69,6 +69,13 @@ GLint Shader::setFloat(const char* paramName, float value) const
 	return location;
 }
 
+GLuint Shader::setMat4(const char* paramName, glm::mat4 value) const
+{
+	GLuint location = glGetUniformLocation(shaderProgram, paramName);
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+	return location;
+}
+
 unsigned Shader::createShader(const std::string shaderSource, const unsigned type)
 {
 	const char* shaderSourceChar = shaderSource.c_str();

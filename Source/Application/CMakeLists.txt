@@ -46,4 +46,4 @@ target_sources(
 	    "GL_Objects/FrameBuffer.cpp" "GL_Objects/Window.h" "GL_Objects/Window.cpp" 
         "UI/Layers/UI_Settings/UI_Settings.h" "UI/Layers/UI_Settings/UI_Settings.cpp" 
         "Debug/DebugShapes.h" "Debug/DebugShapes.cpp" "Debug/LinesContainer.h" "Debug/LinesContainer.cpp" 
-        "PostProccess/Bloom.h" "PostProccess/Bloom.cpp" "GL_Objects/FrameQuad.h" "GL_Objects/FrameQuad.cpp")
+        "PostProccess/Bloom.h" "PostProccess/Bloom.cpp" "GL_Objects/FrameQuad.h" "GL_Objects/FrameQuad.cpp" "GL_Objects/Cubemap.h" "GL_Objects/Cubemap.cpp" "Objects/Skybox.h" "Objects/Skybox.cpp")

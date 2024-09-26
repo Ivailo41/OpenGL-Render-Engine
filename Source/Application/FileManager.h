@@ -14,5 +14,8 @@ class FileManager //can be an object
 public:
 	static Object* readOBJ(const std::string fileName);
 	static void createDirectory(const std::string path);
+
+	static GLuint loadTexture(std::string texturePath);
+	static GLuint loadCubemap(std::string texturePaths[6]);
 };
 
