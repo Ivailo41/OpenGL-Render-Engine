@@ -13,7 +13,7 @@ public:
     static void drawQuad();
 
     //Draw the drawTexture to the passed frameBuffer
-    static void drawFrameQuad(GLuint drawTexture, const FrameBuffer& frameBuffer);
+    static void drawFrameQuad(GLuint drawTexture, const FrameBuffer& frameBuffer, float gamma, float exposure);
 
 public:
     static GLuint quadVAO, quadVBO;

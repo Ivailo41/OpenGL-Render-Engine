@@ -56,12 +56,15 @@ void FrameQuad::drawQuad()
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void FrameQuad::drawFrameQuad(GLuint drawTexture, const FrameBuffer& frameBuffer)
+void FrameQuad::drawFrameQuad(GLuint drawTexture, const FrameBuffer& frameBuffer, float gamma, float exposure)
 {
     frameBuffer.bind();
 
     frameQuadShader->use();
     frameQuadShader->setInt("scene", 0);
+    frameQuadShader->setFloat("exposure", exposure);
+    frameQuadShader->setFloat("gamma", gamma);
+    //get values for exp and gamma from the UI_Settings layer
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, drawTexture);

@@ -4,18 +4,23 @@
 #include <string>
 #include "Object.h"
 #include <filesystem>
-
 #include "Shader.h"
-//include shader here and use the file manager to return a shader instead of including the file manager header in the shader header
-//which causes the shader to include the object.h and the baseobject.h which I dont want
+
+//for multithreading
+#include <future>
 
 class FileManager //can be an object
 {
 public:
-	static Object* readOBJ(const std::string fileName);
-	static void createDirectory(const std::string path);
+	static Object* readOBJ(const std::string& fileName);
+	static void createDirectory(const std::string& path);
 
-	static GLuint loadTexture(std::string texturePath);
-	static GLuint loadCubemap(std::string texturePaths[6]);
+	static GLuint loadTexture(const std::string& texturePath);
+
+	//Using multithreading to load multiple textures faster
+	static std::vector<Texture> loadTextures(const std::vector<std::string>& texturesPaths);
+
+	static GLuint loadCubemap(const std::string texturePaths[6]);
+	static std::string loadShader(const std::string& shaderPath);
 };
 

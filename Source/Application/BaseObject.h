@@ -73,6 +73,7 @@ protected:
 	Transform transform;
 	glm::mat4 modelMatrix;
 
+	//Consider using vecotr here
 	ObjectArray<BaseObject> children;
 	BaseObject* parentPtr;
 

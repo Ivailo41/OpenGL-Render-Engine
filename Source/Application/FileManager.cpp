@@ -5,7 +5,7 @@
 
 #include <unordered_map>
 
-Object* FileManager::readOBJ(std::string fileName)
+Object* FileManager::readOBJ(const std::string& fileName)
 {
 	std::ifstream objFile(fileName, std::ios::in);
 	if (!objFile.is_open())
@@ -19,6 +19,7 @@ Object* FileManager::readOBJ(std::string fileName)
 	size_t substrEnd = fileName.find_last_of('.');
 	std::string objectName = fileName.substr(substrStart, substrEnd - substrStart);
 
+	//TODO: make use of shared pointers instead using new
 	Object* object = new Object(objectName);
 
 	Material* currentMaterial = nullptr;
@@ -246,7 +247,7 @@ Object* FileManager::readOBJ(std::string fileName)
 	return object;
 }
 
-void FileManager::createDirectory(const std::string path)
+void FileManager::createDirectory(const std::string& path)
 {
 	struct stat info;
 	int statRC = stat(path.c_str(), &info);
@@ -257,22 +258,21 @@ void FileManager::createDirectory(const std::string path)
 	}
 }
 
-GLuint FileManager::loadTexture(std::string texturePath)
+GLuint FileManager::loadTexture(const std::string& texturePath)
 {
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+	GLuint texture = 0;
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
 	if (data)
 	{
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
@@ -281,13 +281,76 @@ GLuint FileManager::loadTexture(std::string texturePath)
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-
 	return texture;
 }
 
-GLuint FileManager::loadCubemap(std::string texturePaths[6])
+std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 {
-	GLuint textureID;
+	std::mutex textureMutex;
+	//will store the API calls to OpenGL that will be executed on the main thread
+	std::vector<std::function<void()>> commandVector;
+
+	std::vector<Texture> textures;
+	//alocating the needed size for the textures
+	textures.resize(texturesPaths.size());
+
+	{
+		std::vector<std::future<void>> futures;
+		for (unsigned i = 0; i < texturesPaths.size(); i++)
+		{
+			//We store the returned future objects in a vector, when they are destructed the program should wait untill the end of the async function
+			futures.push_back(std::async(std::launch::async, [&texturesPaths, i, &textureMutex, &commandVector, &textures]()
+				{
+					//Will carry the i index so we return the textures in order, since they are loaded asynchronous
+					int width, height, nrChannels;
+					unsigned char* data = stbi_load(texturesPaths[i].c_str(), &width, &height, &nrChannels, 0);
+					if (data)
+					{
+
+						std::lock_guard<std::mutex> lock(textureMutex);
+						//OpenGL API calls should be made ONLY on the main thread, so we are storing them in a vector to call them later
+						commandVector.push_back([data, i, width, height, nrChannels, &textures]()
+							{
+								GLuint texture = 0;
+								glGenTextures(1, &texture);
+								glBindTexture(GL_TEXTURE_2D, texture);
+
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+								glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+								glGenerateMipmap(GL_TEXTURE_2D);
+
+								//sets only id of the Texture struct, type and filepath will not be set, consider changing it
+								textures[i].id = texture;
+								stbi_image_free(data);
+							});
+					}
+					else
+					{
+						std::cout << "Failed to load texture" << std::endl;
+						stbi_image_free(data);
+					}
+				}));
+		}
+	}
+	
+	std::lock_guard<std::mutex> lock(textureMutex);
+
+	for(unsigned i = 0; i < commandVector.size(); i++)
+	{
+		auto command = commandVector[i];
+		command();
+	}
+
+	return textures;
+}
+
+GLuint FileManager::loadCubemap(const std::string texturePaths[6])
+{
+	GLuint textureID = 0;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
@@ -297,20 +360,40 @@ GLuint FileManager::loadCubemap(std::string texturePaths[6])
 		unsigned char* data = stbi_load(texturePaths[i].c_str(), &width, &height, &nrChannels, 0);
 		if(data)
 		{
+
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
 		}
 		else
 		{
 			std::cout << "Failed to load cubemap face: " << texturePaths[i] << std::endl;
-			stbi_image_free(data);
 		}
+		stbi_image_free(data);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
 	return textureID;
+}
+
+std::string FileManager::loadShader(const std::string& shaderPath)
+{
+	std::ifstream shaderFile(shaderPath, std::ios::in);
+	if (!shaderFile.is_open())
+	{
+		return "";
+	}
+
+	std::string shaderSource;
+	std::string line;
+
+	while (!shaderFile.eof())
+	{
+		std::getline(shaderFile, line);
+		shaderSource += line + "\n";
+	}
+
+	shaderFile.close();
+	return shaderSource;
 }

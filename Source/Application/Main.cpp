@@ -46,22 +46,22 @@ int main(void)
     FileManager::createDirectory("resources");
 
     //CREATE SHADER
-    Shader shader("Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
+    Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
 
     //CREATE BLOOM SHADER
-    Shader bloomShader("Shaders/PostProcess/Bloom/bloomVertex.glsl", "Shaders/PostProcess/Bloom/bloomFrag.glsl");
+    Shader bloomShader(FileManager::loadShader("Shaders/PostProcess/Bloom/bloomVertex.glsl"), FileManager::loadShader("Shaders/PostProcess/Bloom/bloomFrag.glsl"));
 
     //CREATE BLUR SHADER
-    Shader blurShader("Shaders/PostProcess/Blur/blurVertex.glsl", "Shaders/PostProcess/Blur/blurFrag.glsl");
+    Shader blurShader(FileManager::loadShader("Shaders/PostProcess/Blur/blurVertex.glsl"), FileManager::loadShader("Shaders/PostProcess/Blur/blurFrag.glsl"));
 
     //CREATE DEBUG SHADER
-    Shader debugShader("Shaders/Debug/debugVertex.glsl", "Shaders/Debug/debugFrag.glsl");
+    Shader debugShader(FileManager::loadShader("Shaders/Debug/debugVertex.glsl"), FileManager::loadShader("Shaders/Debug/debugFrag.glsl"));
 
     //CREATE FRAMEQUAD SHADER
-    Shader frameQuadShader("Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl");
+    Shader frameQuadShader(FileManager::loadShader("Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl"), FileManager::loadShader("Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl"));
 
     //CREATE SKYBOX SHADER
-    Shader skyboxShader("Shaders/Skybox/SkyboxVertex.glsl", "Shaders/Skybox/SkyboxFrag.glsl");
+    Shader skyboxShader(FileManager::loadShader("Shaders/Skybox/SkyboxVertex.glsl"), FileManager::loadShader("Shaders/Skybox/SkyboxFrag.glsl"));
 
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
@@ -70,13 +70,16 @@ int main(void)
     Object dummyObject;
     BaseObject* dummy = &dummyObject;
 
-    Camera* mainCamera = new Camera;
-    mainScene.sceneObjects.push_back(mainCamera);
-    mainScene.setActiveCamera(mainCamera);
+    Camera mainCamera;
+    Camera* mainCamera_p = &mainCamera;
+    mainScene.sceneObjects.push_back(mainCamera_p);
+    mainScene.setActiveCamera(mainCamera_p);
 
-    Camera* otherCamera = new Camera;
-    mainScene.sceneObjects.push_back(otherCamera);
+    Camera otherCamera;
+    Camera* otherCamera_p = &otherCamera;
+    mainScene.sceneObjects.push_back(otherCamera_p);
 
+    //Could go to a JSON file that wil be used to load the scene
     std::string cubemapPaths[6] = 
     { 
         "resources/Skybox/right.jpg",
@@ -90,9 +93,9 @@ int main(void)
     Cubemap testCubeMap(FileManager::loadCubemap(cubemapPaths));
     Skybox skybox(&testCubeMap, &skyboxShader);
 
-    mainCamera->setFOV(90.0f);
-    mainCamera->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
-    otherCamera->setFOV(30.0f);
+    mainCamera_p->setFOV(90.0f);
+    mainCamera_p->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    otherCamera_p->setFOV(30.0f);
 
     //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
     std::vector<Light*> lights;
@@ -101,16 +104,16 @@ int main(void)
         lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
         mainScene.sceneObjects.push_back(lights[i]);
     }
-    lights[0]->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+    lights[0]->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
     lights[0]->setIntensity(100);
 
-    lights[1]->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+    lights[1]->setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
     lights[1]->setIntensity(100);
 
-    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, -1.0f));
     lights[2]->setIntensity(100);
 
-    lights[3]->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
+    lights[3]->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
     lights[3]->setIntensity(100);
 
     lights[0]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
@@ -120,30 +123,48 @@ int main(void)
 
     //Loading textures and setting materials untill I make it through the UI
     {
-        /*Texture::loadTexture("resources/Set1_base.png");
-        Texture::loadTexture("resources/Set1_Normal.png");
-        Texture::loadTexture("resources/Set2_base.png");
-        Texture::loadTexture("resources/Set2_Normal.png");
-        Texture::loadTexture("resources/Set3_base.png");
-        Texture::loadTexture("resources/Set3_Normal.png");
-        Texture::loadTexture("resources/Set4_base.png");
-        Texture::loadTexture("resources/Set4_Normal.png");
-        Texture::loadTexture("resources/Set1_ORM.png");
-        Texture::loadTexture("resources/Set2_ORM.png");
-        Texture::loadTexture("resources/Set3_ORM.png");
-        Texture::loadTexture("resources/Set4_ORM.png");*/
 
-        /*Texture set1Base(FileManager::loadTexture("resources/AK74M/1_BaseColor.png"));
-        Texture set1ORM(FileManager::loadTexture("resources/AK74M/1_OcclusionRoughnessMetallic.png"));
-        Texture set1Normal(FileManager::loadTexture("resources/AK74M/1_Normal.png"));
+//Testing multithread loading textures versus one thread
+#define ASYNC 1
 
-        Texture set2Base(FileManager::loadTexture("resources/AK74M/2_BaseColor.png"));
-        Texture set2ORM(FileManager::loadTexture("resources/AK74M/2_OcclusionRoughnessMetallic.png"));
-        Texture set2Normal(FileManager::loadTexture("resources/AK74M/2_Normal.png"));
+#if ASYNC
+        std::vector<std::string> texturePaths = { 
+                                            "resources/AK203/Set1_Base.png",
+                                            "resources/AK203/Set1_ORM.png",
+                                            "resources/AK203/Set1_Normal.png",
+                                            "resources/AK203/Set2_Base.png",
+                                            "resources/AK203/Set2_ORM.png",
+                                            "resources/AK203/Set2_Normal.png",
+                                            "resources/AK203/Set3_Base.png",
+                                            "resources/AK203/Set3_ORM.png",
+                                            "resources/AK203/Set3_Normal.png",
+                                            "resources/AK203/Set4_Base.png",
+                                            "resources/AK203/Set4_ORM.png",
+                                            "resources/AK203/Set4_Normal.png" };
 
-        Texture set3Base(FileManager::loadTexture("resources/AK74M/3_BaseColor.png"));
-        Texture set3ORM(FileManager::loadTexture("resources/AK74M/3_OcclusionRoughnessMetallic.png"));
-        Texture set3Normal(FileManager::loadTexture("resources/AK74M/3_Normal.png"));*/
+        std::vector<Texture> testTextures = FileManager::loadTextures(texturePaths);
+
+#else //Single thread texture loading
+
+        Texture set1Base2(FileManager::loadTexture("resources/AK203/Set1_Base.png" ));
+        Texture set1ORM2(FileManager::loadTexture("resources/AK203/Set1_ORM.png"));
+        Texture set1Normal2(FileManager::loadTexture("resources/AK203/Set1_Normal.png"));
+
+        Texture set2Base2(FileManager::loadTexture("resources/AK203/Set2_Base.png"));
+        Texture set2ORM2(FileManager::loadTexture("resources/AK203/Set2_ORM.png"));
+        Texture set2Normal2(FileManager::loadTexture("resources/AK203/Set2_Normal.png"));
+
+        Texture set3Base2(FileManager::loadTexture("resources/AK203/Set3_Base.png"));
+        Texture set3ORM2(FileManager::loadTexture("resources/AK203/Set3_ORM.png"));
+        Texture set3Normal2(FileManager::loadTexture("resources/AK203/Set3_Normal.png"));
+
+        Texture set4Base2(FileManager::loadTexture("resources/AK203/Set4_Base.png"));
+        Texture set4ORM2(FileManager::loadTexture("resources/AK203/Set4_ORM.png"));
+        Texture set4Normal2(FileManager::loadTexture("resources/AK203/Set4_Normal.png"));
+
+
+#endif
+
 
         /*Texture::loadTexture("resources/Brick_Base.jpg");
         Texture::loadTexture("resources/Brick_Normal.jpg");
@@ -154,43 +175,35 @@ int main(void)
         Texture::loadTexture("resources/Marble_Normal.jpg");
         Texture::loadTexture("resources/Marble_ORM.png");*/
 
-        // dynamically load object
-        if (!mainScene.loadObject("resources/AK74M/AK74M.obj"))
+        // dynamically loaded object
+        if (!mainScene.loadObject("resources/AK203/AK203.obj"))
         {
             std::cout << "Could not load object" << std::endl;;
         }
 
-        /*Material::getMaterial(0)->setTexture(Texture::textures[2], 0);
-        Material::getMaterial(0)->setTexture(Texture::textures[9], 1);
-        Material::getMaterial(0)->setTexture(Texture::textures[3], 2);
-        Material::getMaterial(2)->setTexture(Texture::textures[0], 0);
-        Material::getMaterial(2)->setTexture(Texture::textures[8], 1);
-        Material::getMaterial(2)->setTexture(Texture::textures[1], 2);
-        Material::getMaterial(3)->setTexture(Texture::textures[4], 0);
-        Material::getMaterial(3)->setTexture(Texture::textures[10],1);
-        Material::getMaterial(3)->setTexture(Texture::textures[5], 2);
-        Material::getMaterial(1)->setTexture(Texture::textures[6], 0);
-        Material::getMaterial(1)->setTexture(Texture::textures[11],1);
-        Material::getMaterial(1)->setTexture(Texture::textures[7],2);*/
-
-        /*try
+        //setting the materials of the AK203
+        try
         {
-            Material::getMaterial(0)->setTexture(set3Base, 0);
-            Material::getMaterial(0)->setTexture(set3ORM, 1);
-            Material::getMaterial(0)->setTexture(set3Normal, 2);
+            Material::getMaterial(2)->setTexture(testTextures[0], 0);
+            Material::getMaterial(2)->setTexture(testTextures[1], 1);
+            Material::getMaterial(2)->setTexture(testTextures[2], 2);
 
-            Material::getMaterial(2)->setTexture(set2Base, 0);
-            Material::getMaterial(2)->setTexture(set2ORM, 1);
-            Material::getMaterial(2)->setTexture(set2Normal, 2);
+            Material::getMaterial(0)->setTexture(testTextures[3], 0);
+            Material::getMaterial(0)->setTexture(testTextures[4], 1);
+            Material::getMaterial(0)->setTexture(testTextures[5], 2);
 
-            Material::getMaterial(1)->setTexture(set1Base, 0);
-            Material::getMaterial(1)->setTexture(set1ORM, 1);
-            Material::getMaterial(1)->setTexture(set1Normal, 2);
+            Material::getMaterial(3)->setTexture(testTextures[6], 0);
+            Material::getMaterial(3)->setTexture(testTextures[7], 1);
+            Material::getMaterial(3)->setTexture(testTextures[8], 2);
+
+            Material::getMaterial(1)->setTexture(testTextures[9], 0);
+            Material::getMaterial(1)->setTexture(testTextures[10], 1);
+            Material::getMaterial(1)->setTexture(testTextures[11], 2);
         }
         catch (const std::exception& e)
         {
             std::cout << e.what() << std::endl;
-        }*/
+        }
 
         /*try {
             Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
@@ -201,10 +214,13 @@ int main(void)
             std::cout << e.what() << std::endl;
         }*/
     }
+
+
     mainScene.setSelectedObject(nullptr);
     mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
     EngineUI mainUI(window);
+    const UI_Settings& settingsLayer = mainUI.getSettingsLayer();
 
     FrameQuad::initFrameQuad(&frameQuadShader);
 
@@ -244,8 +260,9 @@ int main(void)
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
 
+        //The PBR shader
         shader.use();
-        shader.setFloat("threshold", mainUI.getSettingsLayer().getTreshold());
+        shader.setFloat("threshold", settingsLayer.getTreshold());
 
         //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
         for(unsigned i = 0; i < lights.size(); i++)
@@ -270,23 +287,23 @@ int main(void)
         lights[2]->drawDebug();
         lights[3]->drawDebug();
 
-        mainScene.sceneObjects[6]->drawDebug();
+        //mainScene.sceneObjects[6]->drawDebug();
 
         skybox.render(mainScene.getActiveCamera());
 
         //apply bloom effect, currently the bloom is performance heavy, search for another approach
-        if(mainUI.getSettingsLayer().getBloom())
+        if(settingsLayer.isUsingBloom())
         {
             resultTexture = bloomPP.applyEffect(firstPassBuffer, mainUI.getSceneLayer().getFrameBuffer());
-            bloomPP.setSteps(mainUI.getSettingsLayer().getSteps());
+            bloomPP.setSteps(settingsLayer.getSteps());
         }
         else
         {
             resultTexture = firstPassBuffer[0];
         }
 
-        //draw the final result to the screne frame buufer
-        FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer());
+        //draw the final result to the screne frame buufer, TODO: change the way of gettting gamma and exposure
+        FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer(), settingsLayer.getGamma(), settingsLayer.getExposure());
 
         //glClearColor(0.15, 0.15, 0.15, 1);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

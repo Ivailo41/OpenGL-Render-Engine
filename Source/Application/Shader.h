@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <fstream>
 #include <vector>
 #include <GL/glew.h>
 #include "glm/gtc/matrix_transform.hpp"
@@ -13,7 +12,7 @@ public:
 	unsigned getShaderProgram() const { return shaderProgram; }
 
 public:
-	Shader(const std::string vertexPath, const std::string fragmentPath);
+	Shader(const std::string& vertexSource, const std::string& fragmentSource);
 	Shader(const unsigned vertexShader, const unsigned fragmentShader);
 
 	void use() const;
@@ -31,9 +30,7 @@ public:
 
 protected:
 	void createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader);
-	unsigned createShader(const std::string shaderSource, const unsigned type);
-
-	std::string loadShader(const std::string shaderPath, unsigned type);
+	unsigned createShader(const std::string& shaderSource, const unsigned type);
 
 private:
 	unsigned shaderProgram;

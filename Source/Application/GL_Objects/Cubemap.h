@@ -12,6 +12,7 @@ public:
 
 public:
 	Cubemap(GLuint texture);
+	Cubemap(unsigned char* data);
 
 private:
 	GLuint textureID;

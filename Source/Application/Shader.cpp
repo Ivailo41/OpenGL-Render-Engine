@@ -3,11 +3,8 @@
 std::vector<Shader> Shader::shaders;
 const Shader* Shader::activeShader = nullptr;
 
-Shader::Shader(const std::string vertexPath, const std::string fragmentPath) : shaderProgram(0)
+Shader::Shader(const std::string& vertexSource, const std::string& fragmentSource) : shaderProgram(0)
 {
-	std::string vertexSource = loadShader(vertexPath, GL_VERTEX_SHADER);
-	std::string fragmentSource = loadShader(fragmentPath, GL_FRAGMENT_SHADER);
-
 	if (vertexSource.size() == 0 || fragmentSource.size() == 0)
 	{
 		throw std::exception("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
@@ -76,7 +73,7 @@ GLuint Shader::setMat4(const char* paramName, glm::mat4 value) const
 	return location;
 }
 
-unsigned Shader::createShader(const std::string shaderSource, const unsigned type)
+unsigned Shader::createShader(const std::string& shaderSource, const unsigned type)
 {
 	const char* shaderSourceChar = shaderSource.c_str();
 
@@ -98,27 +95,6 @@ unsigned Shader::createShader(const std::string shaderSource, const unsigned typ
 	}
 
 	return shader;
-}
-
-std::string Shader::loadShader(const std::string shaderPath, unsigned type)
-{
-	std::ifstream shaderFile(shaderPath, std::ios::in);
-	if (!shaderFile.is_open())
-	{
-		return "";
-	}
-
-	std::string shaderSource;
-	std::string line;
-
-	while (!shaderFile.eof())
-	{
-		std::getline(shaderFile, line);
-		shaderSource += line + "\n";
-	}
-
-	shaderFile.close();
-	return shaderSource;
 }
 
 void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader)

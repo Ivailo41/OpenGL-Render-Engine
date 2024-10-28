@@ -14,3 +14,8 @@ Cubemap::Cubemap(GLuint texture) : textureID(texture)
 {
 	//nothing to do here
 }
+
+Cubemap::Cubemap(unsigned char* data)
+{
+
+}

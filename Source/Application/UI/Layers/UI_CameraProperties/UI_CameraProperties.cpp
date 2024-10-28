@@ -41,6 +41,7 @@ void UI_CameraProperties::renderLayer()
     }
 
     //TEMPORARY
+    ImGui::Text("Controls the default material settings, for test purposes");
     if (ImGui::SliderFloat("roughness", &roughness, 0.01f, 1))
     {
         Material::getMaterial(0)->setRoughness(roughness);
