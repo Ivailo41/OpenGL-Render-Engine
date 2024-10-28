@@ -53,14 +53,18 @@ I made use of these libraries:
 - ImGui
 - glfw
 - glew
+- stbi_image
 
 # Developing branch
 > Here I will put current features that are being worked on
 
+## Skybox
+Now a skybox can be loaded to display in the background.
+![skybox_scrnsht](https://github.com/user-attachments/assets/de4a53cd-184a-42fc-9c49-97c74379af85)
+
 ## Debug lines
 Adding a way to display debug lines that would be usefull for visualising vertex normals, object bounds and so on.
 ![Vertex_Normals](https://github.com/user-attachments/assets/77101e4a-95c5-454e-8250-1cc002df1f7e)
-
 
 ## Post Proccess
 I worked on the code to make it suitable for post proccess effects implementation, so far I got bloom working and will be adding more in the feature
