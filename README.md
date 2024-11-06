@@ -3,6 +3,9 @@
 > At this moment the project is not running like a normal application as it is still early in development. <br />
 > My goal is to achieve something close to the "Marmoset toolbag" rendering software. <br />
 
+`This image is from the latest push in the Developing branch`
+![Render_Engine_preview](https://github.com/user-attachments/assets/b8e241c4-5abd-4f93-830b-802b5dc4a8e6)
+
 ## How to run the project
 The project is build using CMake.
 
@@ -57,6 +60,9 @@ I made use of these libraries:
 
 # Developing branch
 > Here I will put current features that are being worked on
+
+## Multithreaded texture loading
+Multiple textures can now be loaded using multithreading which would result in faster loading of scenes or batch-importing textures
 
 ## Skybox
 Now a skybox can be loaded to display in the background.
