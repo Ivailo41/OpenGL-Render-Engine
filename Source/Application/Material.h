@@ -51,6 +51,7 @@ private:
 protected:
 	std::string name;
 
+	//make this pointers to textures
 	Texture textures[TEXTURES_COUNT];
 	unsigned shaderProgram;
 

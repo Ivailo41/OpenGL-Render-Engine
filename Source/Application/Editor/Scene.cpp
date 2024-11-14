@@ -1,25 +1,30 @@
 #include "Scene.h"
-#include "../FileManager.h"
+//#include "../FileManager.h"
 
 Scene* Scene::activeScene = nullptr;
 
-Scene::Scene()
+Scene::Scene() : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr)
 {
-	name = "New Scene";
+	//nothing to do here
 }
 
-bool Scene::loadObject(const std::string& path)
+Scene::Scene(const std::string& sceneName) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr)
 {
-
-	Object* object = FileManager::readOBJ(path);
-	if (object == nullptr)
-	{
-		return false;
-	}
-
-	sceneObjects.push_back(object);
-	return true;
+	//nothing to do here
 }
+
+//bool Scene::loadObject(const std::string& path)
+//{
+//
+//	Object* object = FileManager::readOBJ(path);
+//	if (object == nullptr)
+//	{
+//		return false;
+//	}
+//
+//	sceneObjects.push_back(object);
+//	return true;
+//}
 
 void Scene::setSelectedObject(BaseObject* object)
 {
@@ -58,9 +63,14 @@ void Scene::setActiveCamera(Camera* camera)
 //	sceneObjects.removeObject(index);
 //}
 
-void Scene::addObject(BaseObject* object)
+//pushes a pointer of the object?
+bool Scene::addObject(BaseObject* object)
 {
+	if (object == nullptr)
+		return false;
+
 	sceneObjects.push_back(object);
+	return true;
 }
 
 void Scene::removeObject(BaseObject* object)

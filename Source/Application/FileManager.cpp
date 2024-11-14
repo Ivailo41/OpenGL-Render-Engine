@@ -5,8 +5,30 @@
 
 #include <unordered_map>
 
+bool FileManager::isRunning = false;
+
+void FileManager::init()
+{
+	if(!isRunning)
+	{
+		isRunning = true;
+		//init code
+	}
+}
+
+void FileManager::stop()
+{
+	if(isRunning)
+	{
+		isRunning = false;
+		//stop code
+	}
+}
+
 Object* FileManager::readOBJ(const std::string& fileName)
 {
+	checkRunState();
+
 	std::ifstream objFile(fileName, std::ios::in);
 	if (!objFile.is_open())
 	{
@@ -249,6 +271,8 @@ Object* FileManager::readOBJ(const std::string& fileName)
 
 void FileManager::createDirectory(const std::string& path)
 {
+	checkRunState();
+
 	struct stat info;
 	int statRC = stat(path.c_str(), &info);
 	if (statRC != 0)
@@ -260,6 +284,8 @@ void FileManager::createDirectory(const std::string& path)
 
 GLuint FileManager::loadTexture(const std::string& texturePath)
 {
+	checkRunState();
+
 	GLuint texture = 0;
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
@@ -278,7 +304,7 @@ GLuint FileManager::loadTexture(const std::string& texturePath)
 	}
 	else
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Failed to load texture: " << texturePath << std::endl;
 	}
 	stbi_image_free(data);
 	return texture;
@@ -286,6 +312,8 @@ GLuint FileManager::loadTexture(const std::string& texturePath)
 
 std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 {
+	checkRunState();
+
 	std::mutex textureMutex;
 	//will store the API calls to OpenGL that will be executed on the main thread
 	std::vector<std::function<void()>> commandVector;
@@ -350,6 +378,8 @@ std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& t
 
 GLuint FileManager::loadCubemap(const std::string texturePaths[6])
 {
+	checkRunState();
+
 	GLuint textureID = 0;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
@@ -377,8 +407,11 @@ GLuint FileManager::loadCubemap(const std::string texturePaths[6])
 	return textureID;
 }
 
+//Change it to create Shader object that will be put in a hashmap, make other function that will return the wanted shader from the map
 std::string FileManager::loadShader(const std::string& shaderPath)
 {
+	checkRunState();
+
 	std::ifstream shaderFile(shaderPath, std::ios::in);
 	if (!shaderFile.is_open())
 	{
@@ -396,4 +429,41 @@ std::string FileManager::loadShader(const std::string& shaderPath)
 
 	shaderFile.close();
 	return shaderSource;
+}
+
+bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath)
+{
+	checkRunState();
+
+	//check if shader exists in map and return it if so
+
+	const std::string* paths[] = { &vertexShaderPath , &fragShaderPath };
+	std::string result[2];
+
+	for (size_t i = 0; i < 2; i++)
+	{
+		std::ifstream saderFile(*paths[i], std::ios::in);
+		if (!saderFile.is_open())
+		{
+			return false;
+		}
+
+		std::string line;
+
+		while (!saderFile.eof())
+		{
+			std::getline(saderFile, line);
+			result[i] += line + "\n";
+		}
+
+		saderFile.close();
+	}
+
+	std::pair<std::string, Shader> shaderPair(shaderName, Shader(result[0], result[1]));
+	return Shader::shadersList.insert(shaderPair).second;
+}
+
+void FileManager::checkRunState()
+{
+	assert(isRunning); //Call the initialisation function init() before calling functions
 }

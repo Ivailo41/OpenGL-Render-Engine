@@ -42,26 +42,31 @@ int main(void)
     //GLFWwindow* window;
     Window* window = Window::getInstance("Render Engine", 1920, 1080);
 
+    FileManager fileManager;
+    fileManager.init();
+
     // create a default directory for the resources
-    FileManager::createDirectory("resources");
+    fileManager.createDirectory("resources");
 
     //CREATE SHADER
-    Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
+    //Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
+    fileManager.loadShader("PBRShader", "Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
+    Shader& shader = Shader::shadersList.find("PBRShader").operator*().second;
 
     //CREATE BLOOM SHADER
-    Shader bloomShader(FileManager::loadShader("Shaders/PostProcess/Bloom/bloomVertex.glsl"), FileManager::loadShader("Shaders/PostProcess/Bloom/bloomFrag.glsl"));
+    Shader bloomShader(fileManager.loadShader("Shaders/PostProcess/Bloom/bloomVertex.glsl"), fileManager.loadShader("Shaders/PostProcess/Bloom/bloomFrag.glsl"));
 
     //CREATE BLUR SHADER
-    Shader blurShader(FileManager::loadShader("Shaders/PostProcess/Blur/blurVertex.glsl"), FileManager::loadShader("Shaders/PostProcess/Blur/blurFrag.glsl"));
+    Shader blurShader(fileManager.loadShader("Shaders/PostProcess/Blur/blurVertex.glsl"), fileManager.loadShader("Shaders/PostProcess/Blur/blurFrag.glsl"));
 
     //CREATE DEBUG SHADER
-    Shader debugShader(FileManager::loadShader("Shaders/Debug/debugVertex.glsl"), FileManager::loadShader("Shaders/Debug/debugFrag.glsl"));
+    Shader debugShader(fileManager.loadShader("Shaders/Debug/debugVertex.glsl"), fileManager.loadShader("Shaders/Debug/debugFrag.glsl"));
 
     //CREATE FRAMEQUAD SHADER
-    Shader frameQuadShader(FileManager::loadShader("Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl"), FileManager::loadShader("Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl"));
+    Shader frameQuadShader(fileManager.loadShader("Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl"), fileManager.loadShader("Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl"));
 
     //CREATE SKYBOX SHADER
-    Shader skyboxShader(FileManager::loadShader("Shaders/Skybox/SkyboxVertex.glsl"), FileManager::loadShader("Shaders/Skybox/SkyboxFrag.glsl"));
+    Shader skyboxShader(fileManager.loadShader("Shaders/Skybox/SkyboxVertex.glsl"), fileManager.loadShader("Shaders/Skybox/SkyboxFrag.glsl"));
 
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
@@ -90,7 +95,7 @@ int main(void)
         "resources/Skybox/back.jpg" 
     };
 
-    Cubemap testCubeMap(FileManager::loadCubemap(cubemapPaths));
+    Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
     Skybox skybox(&testCubeMap, &skyboxShader);
 
     mainCamera_p->setFOV(90.0f);
@@ -142,7 +147,7 @@ int main(void)
                                             "resources/AK203/Set4_ORM.png",
                                             "resources/AK203/Set4_Normal.png" };
 
-        std::vector<Texture> testTextures = FileManager::loadTextures(texturePaths);
+        std::vector<Texture> testTextures = fileManager.loadTextures(texturePaths);
 
 #else //Single thread texture loading
 
@@ -176,7 +181,7 @@ int main(void)
         Texture::loadTexture("resources/Marble_ORM.png");*/
 
         // dynamically loaded object
-        if (!mainScene.loadObject("resources/AK203/AK203.obj"))
+        if (!mainScene.addObject(fileManager.readOBJ("resources/AK203/AK203.obj")))
         {
             std::cout << "Could not load object" << std::endl;;
         }
@@ -219,6 +224,7 @@ int main(void)
     mainScene.setSelectedObject(nullptr);
     mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
+    //Initing ImGUI here
     EngineUI mainUI(window);
     const UI_Settings& settingsLayer = mainUI.getSettingsLayer();
 
@@ -289,6 +295,7 @@ int main(void)
 
         //mainScene.sceneObjects[6]->drawDebug();
 
+        //make skybox member of scene
         skybox.render(mainScene.getActiveCamera());
 
         //apply bloom effect, currently the bloom is performance heavy, search for another approach
@@ -316,6 +323,8 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
+
+    fileManager.stop();
 
     return 0;
 }

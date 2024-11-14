@@ -1,5 +1,6 @@
 #include "Shader.h"
 
+std::unordered_map<std::string, Shader> Shader::shadersList;
 std::vector<Shader> Shader::shaders;
 const Shader* Shader::activeShader = nullptr;
 

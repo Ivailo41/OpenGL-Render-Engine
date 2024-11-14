@@ -4,3 +4,4 @@ Source/Application/resources/*
 *.exe
 *.pdb
 *.ilk
+Source/Application/Application.ilk

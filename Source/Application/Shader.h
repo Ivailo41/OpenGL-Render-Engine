@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <GL/glew.h>
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -25,6 +26,8 @@ public:
 	GLint setFloat(const char* paramName, float value) const;
 	GLuint setMat4(const char* paramName, glm::mat4 value) const;
 
+	//make this a map
+	static std::unordered_map<std::string, Shader> shadersList;
 	static std::vector<Shader> shaders;
 	static const Shader* activeShader;
 

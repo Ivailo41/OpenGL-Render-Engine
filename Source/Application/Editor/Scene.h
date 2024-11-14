@@ -9,9 +9,9 @@
 class Scene
 {
 public:
-	bool loadObject(const std::string& path);
+	//bool loadObject(const std::string& path);
 
-	void addObject(BaseObject* object);
+	bool addObject(BaseObject* object);
 	void removeObject(BaseObject* object);
 
 	BaseObject* getSelectedObject() const;
@@ -29,9 +29,7 @@ public:
 
 public:
 	Scene();
-	Scene(const Scene& other) = default;
-	Scene& operator=(const Scene& other) = default;
-	~Scene() = default;
+	Scene(const std::string& sceneName);
 
 public:
 	static Scene* activeScene;
@@ -42,6 +40,8 @@ public:
 
 private:
 	std::string name;
+
+	//might move these pointers elsewhere
 	Camera* activeCamera;
 	BaseObject* selectedObject;
 };

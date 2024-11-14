@@ -22,8 +22,8 @@ public:
 	const UI_Settings& getSettingsLayer() const { return uiSettingsLayer; }
 
 public:
-	EngineUI(Window* window);
-	EngineUI() = delete;
+	EngineUI(Window* window); //Initing ImGUI here
+	//EngineUI() = delete;
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
 	~EngineUI();
@@ -31,6 +31,7 @@ public:
 private:
 	ObjectArray<UILayer> UIElements;
 	static bool isUIOpen;
+
 	UI_Scene uiSceneLayer;
 	UI_Settings uiSettingsLayer;
 };
