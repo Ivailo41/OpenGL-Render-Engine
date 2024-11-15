@@ -35,6 +35,8 @@ public:
 	static Scene* activeScene;
 	std::vector<BaseObject*> sceneObjects;
 
+	std::vector<Texture*> textures;
+	std::vector<Material*> materials;
 	//add container for cameras
 	//add container for lights
 

@@ -25,14 +25,15 @@ void FileManager::stop()
 	}
 }
 
-Object* FileManager::readOBJ(const std::string& fileName)
+bool FileManager::loadOBJ(const std::string& fileName)
 {
 	checkRunState();
 
 	std::ifstream objFile(fileName, std::ios::in);
 	if (!objFile.is_open())
 	{
-		return nullptr;
+		std::cerr << "Could not open mesh file for read" << std::endl;
+		return false;
 	}
 	std::string line;
 
@@ -40,9 +41,6 @@ Object* FileManager::readOBJ(const std::string& fileName)
 	size_t substrStart = fileName.find_last_of('/') + 1;
 	size_t substrEnd = fileName.find_last_of('.');
 	std::string objectName = fileName.substr(substrStart, substrEnd - substrStart);
-
-	//TODO: make use of shared pointers instead using new
-	Object* object = new Object(objectName);
 
 	Material* currentMaterial = nullptr;
 
@@ -68,6 +66,9 @@ Object* FileManager::readOBJ(const std::string& fileName)
 	float X, Y, Z;
 	char prefix[3];
 
+	//TODO: make use of shared pointers instead using new
+	Object* object = new Object(objectName);
+
 	while (!objFile.eof())
 	{
 		std::getline(objFile, line);
@@ -82,7 +83,9 @@ Object* FileManager::readOBJ(const std::string& fileName)
 			{
 				if (inputs != 3)
 				{
-					return nullptr;
+					std::cerr << "Model has incorrect vertex textures" << std::endl;
+					delete object;
+					return false;
 				}
 				verticesTexture.push_back(glm::vec2(X,-Y));
 			}
@@ -90,7 +93,9 @@ Object* FileManager::readOBJ(const std::string& fileName)
 			{
 				if (inputs != 4)
 				{
-					return nullptr;
+					std::cerr << "Model has incorrect vertex normals" << std::endl;
+					delete object;
+					return false;
 				}
 				verticesNormal.push_back(glm::vec3(X, Y, Z));
 			}
@@ -98,7 +103,9 @@ Object* FileManager::readOBJ(const std::string& fileName)
 			{
 				if (inputs != 4)
 				{
-					return nullptr;
+					std::cerr << "Model has incorrect vertex coordinates" << std::endl;
+					delete object;
+					return false;
 				}
 				verticesLoc.push_back(glm::vec3(X, Y, Z));
 			}
@@ -117,7 +124,9 @@ Object* FileManager::readOBJ(const std::string& fileName)
 
 			if (inputs != 10)
 			{
-				return nullptr;
+				std::cerr << "Model has incorrect faces data" << std::endl;
+				delete object;
+				return false;
 			}
 
 			VI1 -= vOffset;
@@ -239,22 +248,25 @@ Object* FileManager::readOBJ(const std::string& fileName)
 		else if (line.find("usemtl") != std::string::npos)
 		{
 			std::string name = line.substr(7);
-			if (Material::isMaterialInList(name))
+			if (isMaterialInList(name))
 			{
-				currentMaterial = Material::getMaterial(name);
+				currentMaterial = getMaterial(name);
 			}
 			else
 			{
-				currentMaterial = Material::addMaterial(name);
+				currentMaterial = addMaterial(name);
 			}
 		}
 	}
+
+	objFile.close();
 	//At the end add the final mesh with the last vertices and close the file
 	Mesh mesh(vertices, indices);
 	mesh.setName(currentMesh);
 	mesh.setMaterial(currentMaterial);
 
 	//Add debug lines to each vertex pointing the normal direction
+	//TODO: Move that feature to the geometry shader 
 	for (size_t i = 0; i < vertices.size(); i++)
 	{
 		mesh.debugLinesContainer.pushLine(Line(
@@ -264,9 +276,8 @@ Object* FileManager::readOBJ(const std::string& fileName)
 
 	object->addChild(mesh);
 
-	objFile.close();
-
-	return object;
+	Scene::activeScene->sceneObjects.push_back(object);
+	return true;
 }
 
 void FileManager::createDirectory(const std::string& path)
@@ -282,6 +293,7 @@ void FileManager::createDirectory(const std::string& path)
 	}
 }
 
+//OLD FUNCTION DO NOT USE
 GLuint FileManager::loadTexture(const std::string& texturePath)
 {
 	checkRunState();
@@ -310,7 +322,7 @@ GLuint FileManager::loadTexture(const std::string& texturePath)
 	return texture;
 }
 
-std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
+void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 {
 	checkRunState();
 
@@ -318,16 +330,18 @@ std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& t
 	//will store the API calls to OpenGL that will be executed on the main thread
 	std::vector<std::function<void()>> commandVector;
 
-	std::vector<Texture> textures;
+	std::vector<Texture*>& textures = Scene::activeScene->textures;
 	//alocating the needed size for the textures
-	textures.resize(texturesPaths.size());
+	unsigned texturesSize = textures.size();
+	unsigned texturesToAdd = texturesPaths.size();
+	textures.resize(texturesSize + texturesToAdd);
 
 	{
 		std::vector<std::future<void>> futures;
-		for (unsigned i = 0; i < texturesPaths.size(); i++)
+		for (unsigned i = 0; i < texturesToAdd; i++)
 		{
 			//We store the returned future objects in a vector, when they are destructed the program should wait untill the end of the async function
-			futures.push_back(std::async(std::launch::async, [&texturesPaths, i, &textureMutex, &commandVector, &textures]()
+			futures.push_back(std::async(std::launch::async, [&texturesPaths, i, &textureMutex, &commandVector, &textures, texturesSize]()
 				{
 					//Will carry the i index so we return the textures in order, since they are loaded asynchronous
 					int width, height, nrChannels;
@@ -337,11 +351,11 @@ std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& t
 
 						std::lock_guard<std::mutex> lock(textureMutex);
 						//OpenGL API calls should be made ONLY on the main thread, so we are storing them in a vector to call them later
-						commandVector.push_back([data, i, width, height, nrChannels, &textures]()
+						commandVector.push_back([data, i, width, height, nrChannels, &textures, texturesSize, &texturesPaths]()
 							{
-								GLuint texture = 0;
-								glGenTextures(1, &texture);
-								glBindTexture(GL_TEXTURE_2D, texture);
+								GLuint textureId = 0;
+								glGenTextures(1, &textureId);
+								glBindTexture(GL_TEXTURE_2D, textureId);
 
 								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -352,7 +366,7 @@ std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& t
 								glGenerateMipmap(GL_TEXTURE_2D);
 
 								//sets only id of the Texture struct, type and filepath will not be set, consider changing it
-								textures[i].id = texture;
+								textures[texturesSize + i] = new Texture(textureId, texturesPaths[i].c_str());
 								stbi_image_free(data);
 							});
 					}
@@ -372,8 +386,6 @@ std::vector<Texture> FileManager::loadTextures(const std::vector<std::string>& t
 		auto command = commandVector[i];
 		command();
 	}
-
-	return textures;
 }
 
 GLuint FileManager::loadCubemap(const std::string texturePaths[6])
@@ -463,7 +475,55 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 	return Shader::shadersList.insert(shaderPair).second;
 }
 
+Material* const FileManager::getMaterial(const std::string& name)
+{
+	unsigned materialsCount = Scene::activeScene->materials.size();
+	for (size_t i = 0; i < materialsCount; i++)
+	{
+		if (Scene::activeScene->materials[i]->name == name)
+		{
+			return Scene::activeScene->materials[i];
+		}
+	}
+}
+
+unsigned FileManager::isMaterialInList(const std::string& name)
+{
+	unsigned timesFound = 0;
+	unsigned materialsCount = Scene::activeScene->materials.size();
+	for (size_t i = 0; i < materialsCount; i++)
+	{
+		if (Scene::activeScene->materials[i]->name.substr(0, Scene::activeScene->materials[i]->name.find_last_of('_') - 1) == name)
+		{
+			timesFound++;
+		}
+	}
+	return timesFound;
+}
+
+Material* FileManager::addMaterial(const std::string name)
+{
+	Material* material = new Material(name);
+	Scene::activeScene->materials.push_back(material);
+	return material;
+}
+
+bool FileManager::removeMaterial(const std::string name)
+{
+	unsigned materialsCount = Scene::activeScene->materials.size();
+	for (size_t i = 0; i < materialsCount; i++)
+	{
+		if (Scene::activeScene->materials[i]->name == name)
+		{
+			delete Scene::activeScene->materials[i];
+			Scene::activeScene->materials.erase(Scene::activeScene->materials.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
+
 void FileManager::checkRunState()
 {
-	assert(isRunning); //Call the initialisation function init() before calling functions
+	assert(isRunning); //Forgot to call the initialisation function init() before calling functions
 }

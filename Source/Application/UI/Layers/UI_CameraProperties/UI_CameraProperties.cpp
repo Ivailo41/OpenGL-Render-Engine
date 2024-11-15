@@ -44,11 +44,11 @@ void UI_CameraProperties::renderLayer()
     ImGui::Text("Controls the default material settings, for test purposes");
     if (ImGui::SliderFloat("roughness", &roughness, 0.01f, 1))
     {
-        Material::getMaterial(0)->setRoughness(roughness);
+        Scene::activeScene->materials[0]->setRoughness(roughness);
     }
     if (ImGui::SliderFloat("Metalic", &metalic, 0.01f, 1))
     {
-        Material::getMaterial(0)->setMetalic(metalic);
+        Scene::activeScene->materials[0]->setMetalic(metalic);
     }
     
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

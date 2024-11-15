@@ -40,7 +40,15 @@
 int main(void)
 {
     //GLFWwindow* window;
-    Window* window = Window::getInstance("Render Engine", 1920, 1080);
+    try
+    {
+        Window* window = Window::getInstance("Render Engine", 1920, 1080);
+    }
+    catch(const char* err)
+    {
+        std::cerr << err << std::endl;
+        return 1; //Move that to engine class and stop it if the window throws
+    }
 
     FileManager fileManager;
     fileManager.init();
@@ -48,7 +56,8 @@ int main(void)
     // create a default directory for the resources
     fileManager.createDirectory("resources");
 
-    //CREATE SHADER
+    //Move the shader creation to the startup fo an Engine class
+    //CREATE PBR SHADER
     //Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
     fileManager.loadShader("PBRShader", "Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
     Shader& shader = Shader::shadersList.find("PBRShader").operator*().second;
@@ -128,11 +137,6 @@ int main(void)
 
     //Loading textures and setting materials untill I make it through the UI
     {
-
-//Testing multithread loading textures versus one thread
-#define ASYNC 1
-
-#if ASYNC
         std::vector<std::string> texturePaths = { 
                                             "resources/AK203/Set1_Base.png",
                                             "resources/AK203/Set1_ORM.png",
@@ -147,41 +151,15 @@ int main(void)
                                             "resources/AK203/Set4_ORM.png",
                                             "resources/AK203/Set4_Normal.png" };
 
-        std::vector<Texture> testTextures = fileManager.loadTextures(texturePaths);
-
-#else //Single thread texture loading
-
-        Texture set1Base2(FileManager::loadTexture("resources/AK203/Set1_Base.png" ));
-        Texture set1ORM2(FileManager::loadTexture("resources/AK203/Set1_ORM.png"));
-        Texture set1Normal2(FileManager::loadTexture("resources/AK203/Set1_Normal.png"));
-
-        Texture set2Base2(FileManager::loadTexture("resources/AK203/Set2_Base.png"));
-        Texture set2ORM2(FileManager::loadTexture("resources/AK203/Set2_ORM.png"));
-        Texture set2Normal2(FileManager::loadTexture("resources/AK203/Set2_Normal.png"));
-
-        Texture set3Base2(FileManager::loadTexture("resources/AK203/Set3_Base.png"));
-        Texture set3ORM2(FileManager::loadTexture("resources/AK203/Set3_ORM.png"));
-        Texture set3Normal2(FileManager::loadTexture("resources/AK203/Set3_Normal.png"));
-
-        Texture set4Base2(FileManager::loadTexture("resources/AK203/Set4_Base.png"));
-        Texture set4ORM2(FileManager::loadTexture("resources/AK203/Set4_ORM.png"));
-        Texture set4Normal2(FileManager::loadTexture("resources/AK203/Set4_Normal.png"));
-
-
-#endif
-
-
-        /*Texture::loadTexture("resources/Brick_Base.jpg");
-        Texture::loadTexture("resources/Brick_Normal.jpg");
-        Texture::loadTexture("resources/Marble_ORM5.jpg");*/
-        
-
-        /*Texture::loadTexture("resources/Marble_Albedo.jpg");
-        Texture::loadTexture("resources/Marble_Normal.jpg");
-        Texture::loadTexture("resources/Marble_ORM.png");*/
+        fileManager.loadTextures(texturePaths);
 
         // dynamically loaded object
-        if (!mainScene.addObject(fileManager.readOBJ("resources/AK203/AK203.obj")))
+        if (!fileManager.loadOBJ("resources/AK203/AK203.obj"))
+        {
+            std::cout << "Could not load object" << std::endl;;
+        }
+
+        if (!fileManager.loadOBJ("resources/monkey.obj"))
         {
             std::cout << "Could not load object" << std::endl;;
         }
@@ -189,39 +167,29 @@ int main(void)
         //setting the materials of the AK203
         try
         {
-            Material::getMaterial(2)->setTexture(testTextures[0], 0);
-            Material::getMaterial(2)->setTexture(testTextures[1], 1);
-            Material::getMaterial(2)->setTexture(testTextures[2], 2);
+            mainScene.materials[2]->setTexture(mainScene.textures[0], 0);
+            mainScene.materials[2]->setTexture(mainScene.textures[1], 1);
+            mainScene.materials[2]->setTexture(mainScene.textures[2], 2);
 
-            Material::getMaterial(0)->setTexture(testTextures[3], 0);
-            Material::getMaterial(0)->setTexture(testTextures[4], 1);
-            Material::getMaterial(0)->setTexture(testTextures[5], 2);
+            mainScene.materials[0]->setTexture(mainScene.textures[3], 0);
+            mainScene.materials[0]->setTexture(mainScene.textures[4], 1);
+            mainScene.materials[0]->setTexture(mainScene.textures[5], 2);
 
-            Material::getMaterial(3)->setTexture(testTextures[6], 0);
-            Material::getMaterial(3)->setTexture(testTextures[7], 1);
-            Material::getMaterial(3)->setTexture(testTextures[8], 2);
+            mainScene.materials[3]->setTexture(mainScene.textures[6], 0);
+            mainScene.materials[3]->setTexture(mainScene.textures[7], 1);
+            mainScene.materials[3]->setTexture(mainScene.textures[8], 2);
 
-            Material::getMaterial(1)->setTexture(testTextures[9], 0);
-            Material::getMaterial(1)->setTexture(testTextures[10], 1);
-            Material::getMaterial(1)->setTexture(testTextures[11], 2);
+            mainScene.materials[1]->setTexture(mainScene.textures[9], 0);
+            mainScene.materials[1]->setTexture(mainScene.textures[10], 1);
+            mainScene.materials[1]->setTexture(mainScene.textures[11], 2);
         }
         catch (const std::exception& e)
         {
             std::cout << e.what() << std::endl;
         }
-
-        /*try {
-            Material::getMaterial(0)->setTexture(Texture::textures[0], 0);
-            Material::getMaterial(0)->setTexture(Texture::textures[1], 2);
-            Material::getMaterial(0)->setTexture(Texture::textures[2], 1);
-        }
-        catch (const std::exception& e) {
-            std::cout << e.what() << std::endl;
-        }*/
     }
 
-
-    mainScene.setSelectedObject(nullptr);
+    //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
     mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
     //Initing ImGUI here
@@ -261,7 +229,6 @@ int main(void)
 
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glClearColor(0,0,0, 1);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_FRONT);
@@ -312,7 +279,6 @@ int main(void)
         //draw the final result to the screne frame buufer, TODO: change the way of gettting gamma and exposure
         FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer(), settingsLayer.getGamma(), settingsLayer.getExposure());
 
-        //glClearColor(0.15, 0.15, 0.15, 1);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         mainUI.renderUI();
