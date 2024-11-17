@@ -30,6 +30,7 @@ public:
 public:
 	Scene();
 	Scene(const std::string& sceneName);
+	~Scene();
 
 public:
 	static Scene* activeScene;

@@ -36,13 +36,15 @@
 #include "PostProccess/Bloom.h"
 
 #include "Objects/Skybox.h"
+#include <memory>
 
 int main(void)
 {
     //GLFWwindow* window;
+    Window* window;
     try
     {
-        Window* window = Window::getInstance("Render Engine", 1920, 1080);
+        window = Window::getInstance("Render Engine", 1920, 1080);
     }
     catch(const char* err)
     {
@@ -83,7 +85,7 @@ int main(void)
 
     Object dummyObject;
     BaseObject* dummy = &dummyObject;
-
+    
     Camera mainCamera;
     Camera* mainCamera_p = &mainCamera;
     mainScene.sceneObjects.push_back(mainCamera_p);
@@ -159,11 +161,6 @@ int main(void)
             std::cout << "Could not load object" << std::endl;;
         }
 
-        if (!fileManager.loadOBJ("resources/monkey.obj"))
-        {
-            std::cout << "Could not load object" << std::endl;;
-        }
-
         //setting the materials of the AK203
         try
         {
@@ -193,7 +190,7 @@ int main(void)
     mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
     //Initing ImGUI here
-    EngineUI mainUI(window);
+    EngineUI mainUI(window, &fileManager);
     const UI_Settings& settingsLayer = mainUI.getSettingsLayer();
 
     FrameQuad::initFrameQuad(&frameQuadShader);
