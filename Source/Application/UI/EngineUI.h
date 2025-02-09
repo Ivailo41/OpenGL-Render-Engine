@@ -8,6 +8,8 @@
 #include "Layers/UI_CameraProperties/UI_CameraProperties.h"
 #include "../GL_Objects/Window.h"
 
+
+
 class EngineUI
 {
 public:
@@ -22,7 +24,7 @@ public:
 	const UI_Settings& getSettingsLayer() const { return uiSettingsLayer; }
 
 public:
-	EngineUI(Window* window); //Initing ImGUI here
+	EngineUI(Window* window, FileManager* fileman); //Initing ImGUI here
 	//EngineUI() = delete;
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
@@ -31,7 +33,7 @@ public:
 private:
 	ObjectArray<UILayer> UIElements;
 	static bool isUIOpen;
-
+	FileManager* fileman;
 	UI_Scene uiSceneLayer;
 	UI_Settings uiSettingsLayer;
 };

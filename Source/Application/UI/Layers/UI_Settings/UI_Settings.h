@@ -2,6 +2,9 @@
 #include "../UILayer.h"
 #include "../../../Shader.h"
 
+//temp
+#include "../../../FileManager.h"
+
 class UI_Settings : public UILayer
 {
 public:
@@ -15,8 +18,11 @@ public:
 	float getGamma() const { return gamma; }
 	float getExposure() const { return exposure; }
 
+	//temp
+	std::string OpenFolderDialog() const;
+
 public:
-	UI_Settings();
+	UI_Settings(FileManager* fileman);
 
 private:
 	bool useBloom;
@@ -25,4 +31,7 @@ private:
 
 	float gamma;
 	float exposure;
+
+	//temp code for the model importing
+	FileManager* fileman;
 };

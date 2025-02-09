@@ -93,14 +93,18 @@ void Mesh::draw() const
 
 	glBindVertexArray(VAO);
 
+	material->sendToShader();
+
 	if(material != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE0 + 0);
-		glBindTexture(GL_TEXTURE_2D, material->operator[](0).id);
+		glBindTexture(GL_TEXTURE_2D, *material->operator[](0));
+
 		glActiveTexture(GL_TEXTURE0 + 1);
-		glBindTexture(GL_TEXTURE_2D, material->operator[](1).id);
+		glBindTexture(GL_TEXTURE_2D, *material->operator[](1));
+
 		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, material->operator[](2).id);
+		glBindTexture(GL_TEXTURE_2D, *material->operator[](2));
 	}
 	glDrawElements(GL_TRIANGLES, vIndices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);

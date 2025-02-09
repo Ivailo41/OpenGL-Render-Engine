@@ -3,7 +3,7 @@
 
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window) : uiSceneLayer(window)
+EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window), fileman(fileman), uiSettingsLayer(fileman)
 {
     if(isUIOpen)
     {

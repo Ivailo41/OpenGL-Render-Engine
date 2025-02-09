@@ -13,6 +13,16 @@ Scene::Scene(const std::string& sceneName) : name(sceneName), activeCamera(nullp
 	//nothing to do here
 }
 
+Scene::~Scene()
+{
+	unsigned sceneOjectsCount = sceneObjects.size();
+	for (size_t i = 0; i < sceneOjectsCount; i++)
+	{
+		//this will cause error trying to delete objects allocated on the stack
+		//delete sceneObjects[i];
+	}
+}
+
 //bool Scene::loadObject(const std::string& path)
 //{
 //
@@ -63,7 +73,6 @@ void Scene::setActiveCamera(Camera* camera)
 //	sceneObjects.removeObject(index);
 //}
 
-//pushes a pointer of the object?
 bool Scene::addObject(BaseObject* object)
 {
 	if (object == nullptr)

@@ -5,27 +5,38 @@
 #include "Object.h"
 #include <filesystem>
 #include "Shader.h"
+#include "Editor/Scene.h"
 
 //for multithreading
 #include <future>
 
-class FileManager //can be an object that will have init() func
+//Might be better to rename it to ResourceManager since it will handle the recources instead of only opening files
+class FileManager
 {
 public:
+	//Can have System base class that will have start and stop functions, FileManager will inherit it
 	static void init(); //initialises the FileManager system
 	static void stop(); //stops the FileManager system
 
-	Object* readOBJ(const std::string& fileName);
+	bool loadOBJ(const std::string& fileName);
 	void createDirectory(const std::string& path);
 
+
+	//OLD FUNCTION
 	GLuint loadTexture(const std::string& texturePath);
 
 	//Using multithreading to load multiple textures faster
-	std::vector<Texture> loadTextures(const std::vector<std::string>& texturesPaths);
+	void loadTextures(const std::vector<std::string>& texturesPaths);
 
 	GLuint loadCubemap(const std::string texturePaths[6]);
+
 	std::string loadShader(const std::string& shaderPath);
 	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath);
+
+	Material* const getMaterial(const std::string& name);
+	unsigned isMaterialInList(const std::string& name);
+	Material* addMaterial(const std::string name);
+	bool removeMaterial(const std::string name);
 
 	FileManager() {}
 
@@ -33,10 +44,13 @@ public:
 	FileManager(const FileManager& other) = delete;
 
 private:
+	//using assert to check if the system is running
 	void checkRunState();
 	void operator=(const FileManager& other) {}
 
 private:
 	static bool isRunning;
+
+
 };
 
