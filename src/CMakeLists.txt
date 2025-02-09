@@ -1,23 +1,10 @@
-include_directories("../external/glew-2.1.0/include"
-                    "../external/glfw-3.3.8.bin.WIN64/include")
-
-link_directories("../external/glew-2.1.0/lib/Release/x64"
-				 "../external/glfw-3.3.8.bin.WIN64/lib-vc2022")
-
 add_executable(Application)
+
+target_include_directories(Application PRIVATE "../external/glew/include" "../external/glfw/include")
 
 set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-target_link_libraries(
-	Application
-	PRIVATE
-		ImGui_Beta
-        glew32s
-        opengl32
-        glfw3dll
-        glfw3_mt
-        glfw3
-)
+target_link_libraries(Application PRIVATE ImGui_Beta glew_s glfw)
 
 #the target source is Application
 target_sources(
