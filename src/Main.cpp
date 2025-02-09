@@ -156,13 +156,7 @@ int main(void)
         fileManager.loadTextures(texturePaths);
 
         // dynamically loaded object
-        if (!fileManager.loadOBJ("resources/AK203/AK203.obj"))
-        {
-            std::cout << "Could not load object" << std::endl;;
-        }
-
-        //setting the materials of the AK203
-        try
+        if (fileManager.loadOBJ("resources/AK203/AK203.obj"))
         {
             mainScene.materials[2]->setTexture(mainScene.textures[0], 0);
             mainScene.materials[2]->setTexture(mainScene.textures[1], 1);
@@ -180,9 +174,9 @@ int main(void)
             mainScene.materials[1]->setTexture(mainScene.textures[10], 1);
             mainScene.materials[1]->setTexture(mainScene.textures[11], 2);
         }
-        catch (const std::exception& e)
+        else
         {
-            std::cout << e.what() << std::endl;
+            std::cout << "Could not load object" << std::endl;
         }
     }
 

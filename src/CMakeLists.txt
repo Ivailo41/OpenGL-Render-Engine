@@ -1,8 +1,8 @@
-include_directories("../../Libraries/glew-2.1.0/include"
-                    "../../Libraries/glfw-3.3.8.bin.WIN64/include")
+include_directories("../external/glew-2.1.0/include"
+                    "../external/glfw-3.3.8.bin.WIN64/include")
 
-link_directories("../../Libraries/glew-2.1.0/lib/Release/x64"
-				 "../../Libraries/glfw-3.3.8.bin.WIN64/lib-vc2022")
+link_directories("../external/glew-2.1.0/lib/Release/x64"
+				 "../external/glfw-3.3.8.bin.WIN64/lib-vc2022")
 
 add_executable(Application)
 

@@ -1,10 +1,10 @@
 add_library(ImGui_Beta STATIC)
 
-target_include_directories(ImGui_Beta PRIVATE "../../Libraries/glew-2.1.0/include"
-                                        "../../Libraries/glfw-3.3.8.bin.WIN64/include")
+target_include_directories(ImGui_Beta PRIVATE "../glew-2.1.0/include"
+                                        "../glfw-3.3.8.bin.WIN64/include")
 
-target_link_directories(ImGui_Beta PRIVATE "../../Libraries/glew-2.1.0/lib/Release/x64"
-										"../../Libraries/glfw-3.3.8.bin.WIN64/lib-vc2022")
+target_link_directories(ImGui_Beta PRIVATE "../glew-2.1.0/lib/Release/x64"
+										"../glfw-3.3.8.bin.WIN64/lib-vc2022")
 
 target_link_libraries(
 	ImGui_Beta
