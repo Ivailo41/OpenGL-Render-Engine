@@ -1,7 +1,7 @@
 #pragma once
 #include "Texture.h"
 #include <GL/glew.h>
-#include "glm/gtc/type_ptr.hpp"
+#include <gtc/type_ptr.hpp>
 #include <vector>
 
 class Material

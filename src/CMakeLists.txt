@@ -1,8 +1,6 @@
 add_executable(Application)
 
-target_include_directories(Application PRIVATE "../external/glew/include" "../external/glfw/include")
-
-#set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image")
 
 target_link_libraries(Application PRIVATE ImGui_Beta glew_s glfw)
 

@@ -17,9 +17,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 #include <vector>
 #include "Includes/imGuiInclude.h"
@@ -38,7 +38,7 @@
 #include "Objects/Skybox.h"
 #include <memory>
 
-int main(void)
+int main(int argc, char* argv[])
 {
     //GLFWwindow* window;
     Window* window;
@@ -173,10 +173,6 @@ int main(void)
             mainScene.materials[1]->setTexture(mainScene.textures[9], 0);
             mainScene.materials[1]->setTexture(mainScene.textures[10], 1);
             mainScene.materials[1]->setTexture(mainScene.textures[11], 2);
-        }
-        else
-        {
-            std::cout << "Could not load object" << std::endl;
         }
     }
 

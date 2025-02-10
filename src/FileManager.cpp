@@ -32,7 +32,7 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	std::ifstream objFile(fileName, std::ios::in);
 	if (!objFile.is_open())
 	{
-		std::cerr << "Could not open mesh file for read" << std::endl;
+		std::cerr << "Could not open mesh file for read : " << fileName << std::endl;
 		return false;
 	}
 	std::string line;
@@ -493,6 +493,8 @@ Material* const FileManager::getMaterial(const std::string& name)
 			return Scene::activeScene->materials[i];
 		}
 	}
+
+	return nullptr;
 }
 
 unsigned FileManager::isMaterialInList(const std::string& name)

@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseObject.h"
 #include <GLFW/glfw3.h>
-#include "glm/gtc/type_ptr.hpp"
+#include <gtc/type_ptr.hpp>
 
 class Camera : public BaseObject
 {

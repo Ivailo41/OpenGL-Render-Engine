@@ -1,6 +1,6 @@
 #pragma once
 #include "../UILayer.h"
-#include "../../../glm/glm.hpp"
+#include <glm.hpp>
 #include "../../../GL_Objects/FrameBuffer.h"
 #include "../../../GL_Objects/Window.h"
 
