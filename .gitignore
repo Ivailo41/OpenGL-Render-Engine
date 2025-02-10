@@ -1,4 +1,5 @@
 out/*
+!out/imgui.ini
 .vs/*
 assets/*
 !assets/Shaders
