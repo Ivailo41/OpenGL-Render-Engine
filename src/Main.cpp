@@ -13,7 +13,7 @@
 #include "FileManager.h"
 #include "Editor/Scene.h"
 
-#define GLEW_STATIC
+//#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -56,28 +56,28 @@ int main(void)
     fileManager.init();
 
     // create a default directory for the resources
-    fileManager.createDirectory("resources");
+    fileManager.createDirectory("../assets");
 
     //Move the shader creation to the startup fo an Engine class
     //CREATE PBR SHADER
     //Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
-    fileManager.loadShader("PBRShader", "Shaders/Main/vertexShader.glsl", "Shaders/Main/fragShader.glsl");
+    fileManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl");
     Shader& shader = Shader::shadersList.find("PBRShader").operator*().second;
 
     //CREATE BLOOM SHADER
-    Shader bloomShader(fileManager.loadShader("Shaders/PostProcess/Bloom/bloomVertex.glsl"), fileManager.loadShader("Shaders/PostProcess/Bloom/bloomFrag.glsl"));
+    Shader bloomShader(fileManager.loadShader("../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl"), fileManager.loadShader("../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl"));
 
     //CREATE BLUR SHADER
-    Shader blurShader(fileManager.loadShader("Shaders/PostProcess/Blur/blurVertex.glsl"), fileManager.loadShader("Shaders/PostProcess/Blur/blurFrag.glsl"));
+    Shader blurShader(fileManager.loadShader("../assets/Shaders/PostProcess/Blur/blurVertex.glsl"), fileManager.loadShader("../assets/Shaders/PostProcess/Blur/blurFrag.glsl"));
 
     //CREATE DEBUG SHADER
-    Shader debugShader(fileManager.loadShader("Shaders/Debug/debugVertex.glsl"), fileManager.loadShader("Shaders/Debug/debugFrag.glsl"));
+    Shader debugShader(fileManager.loadShader("../assets/Shaders/Debug/debugVertex.glsl"), fileManager.loadShader("../assets/Shaders/Debug/debugFrag.glsl"));
 
     //CREATE FRAMEQUAD SHADER
-    Shader frameQuadShader(fileManager.loadShader("Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl"), fileManager.loadShader("Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl"));
+    Shader frameQuadShader(fileManager.loadShader("../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl"), fileManager.loadShader("../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl"));
 
     //CREATE SKYBOX SHADER
-    Shader skyboxShader(fileManager.loadShader("Shaders/Skybox/SkyboxVertex.glsl"), fileManager.loadShader("Shaders/Skybox/SkyboxFrag.glsl"));
+    Shader skyboxShader(fileManager.loadShader("../assets/Shaders/Skybox/SkyboxVertex.glsl"), fileManager.loadShader("../assets/Shaders/Skybox/SkyboxFrag.glsl"));
 
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
@@ -98,12 +98,12 @@ int main(void)
     //Could go to a JSON file that wil be used to load the scene
     std::string cubemapPaths[6] = 
     { 
-        "resources/Skybox/right.jpg",
-        "resources/Skybox/left.jpg",
-        "resources/Skybox/top.jpg",
-        "resources/Skybox/bottom.jpg",
-        "resources/Skybox/front.jpg",
-        "resources/Skybox/back.jpg" 
+        "../assets/Skybox/right.jpg",
+        "../assets/Skybox/left.jpg",
+        "../assets/Skybox/top.jpg",
+        "../assets/Skybox/bottom.jpg",
+        "../assets/Skybox/front.jpg",
+        "../assets/Skybox/back.jpg" 
     };
 
     Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
@@ -140,23 +140,23 @@ int main(void)
     //Loading textures and setting materials untill I make it through the UI
     {
         std::vector<std::string> texturePaths = { 
-                                            "resources/AK203/Set1_Base.png",
-                                            "resources/AK203/Set1_ORM.png",
-                                            "resources/AK203/Set1_Normal.png",
-                                            "resources/AK203/Set2_Base.png",
-                                            "resources/AK203/Set2_ORM.png",
-                                            "resources/AK203/Set2_Normal.png",
-                                            "resources/AK203/Set3_Base.png",
-                                            "resources/AK203/Set3_ORM.png",
-                                            "resources/AK203/Set3_Normal.png",
-                                            "resources/AK203/Set4_Base.png",
-                                            "resources/AK203/Set4_ORM.png",
-                                            "resources/AK203/Set4_Normal.png" };
+                                            "../assets/AK203/Set1_Base.png",
+                                            "../assets/AK203/Set1_ORM.png",
+                                            "../assets/AK203/Set1_Normal.png",
+                                            "../assets/AK203/Set2_Base.png",
+                                            "../assets/AK203/Set2_ORM.png",
+                                            "../assets/AK203/Set2_Normal.png",
+                                            "../assets/AK203/Set3_Base.png",
+                                            "../assets/AK203/Set3_ORM.png",
+                                            "../assets/AK203/Set3_Normal.png",
+                                            "../assets/AK203/Set4_Base.png",
+                                            "../assets/AK203/Set4_ORM.png",
+                                            "../assets/AK203/Set4_Normal.png" };
 
         fileManager.loadTextures(texturePaths);
 
         // dynamically loaded object
-        if (fileManager.loadOBJ("resources/AK203/AK203.obj"))
+        if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
         {
             mainScene.materials[2]->setTexture(mainScene.textures[0], 0);
             mainScene.materials[2]->setTexture(mainScene.textures[1], 1);
@@ -208,74 +208,77 @@ int main(void)
 
     GLuint resultTexture = firstPassBuffer[0];
 
-    /* Loop until the user closes the window */
+    // Loop until the user closes the window, put it inside application/engine class
     while (!window->shouldClose())
     {
-
-        //START OF SCENE OBJECTS RENDERING
-        firstPassBuffer.bind();
-
-        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-        glDrawBuffers(2, attachments);
-
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_FRONT);
-
-        //The PBR shader
-        shader.use();
-        shader.setFloat("threshold", settingsLayer.getTreshold());
-
-        //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
-        for(unsigned i = 0; i < lights.size(); i++)
+        //this scope should go inside a renderer class
         {
-            lights[i]->sendToShader(shader, i);
-        }
+            //START OF SCENE OBJECTS RENDERING
+            firstPassBuffer.bind();
 
-        mainScene.drawObjects(); //draws object
+            unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+            glDrawBuffers(2, attachments);
 
-        glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh
-                              //sinse debug doesnt use VAO and doesnt bind one
+            /* Render here */
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //IF WE DONT STOP THE DRAWING TO THE ATTACHMENT1 THE OTHER SHADERS WILL DRAW TO THE BLOOM TEXTURE TOO
-        glDrawBuffer(GL_COLOR_ATTACHMENT0);
-        //END OF SCENE OBJECTS RENDERING - PUT THAT IN THE FUNCTION
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_FRONT);
+
+            //The PBR shader
+            shader.use();
+            shader.setFloat("threshold", settingsLayer.getTreshold());
+
+            //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
+            for(unsigned i = 0; i < lights.size(); i++)
+            {
+                lights[i]->sendToShader(shader, i);
+            }
+
+            mainScene.drawObjects(); //draws object
+
+            glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh
+                                  //sinse debug doesnt use VAO and doesnt bind one
+
+            //IF WE DONT STOP THE DRAWING TO THE ATTACHMENT1 THE OTHER SHADERS WILL DRAW TO THE BLOOM TEXTURE TOO
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            //END OF SCENE OBJECTS RENDERING - PUT THAT IN THE FUNCTION
                               
-        //debugShapes.drawDebugShapes(mainScene.getActiveCamera());
-        debugShapes2.drawDebugShapes(mainScene.getActiveCamera());
+            //debugShapes.drawDebugShapes(mainScene.getActiveCamera());
+            debugShapes2.drawDebugShapes(mainScene.getActiveCamera());
 
-        lights[0]->drawDebug();
-        lights[1]->drawDebug();
-        lights[2]->drawDebug();
-        lights[3]->drawDebug();
+            lights[0]->drawDebug();
+            lights[1]->drawDebug();
+            lights[2]->drawDebug();
+            lights[3]->drawDebug();
 
-        //mainScene.sceneObjects[6]->drawDebug();
+            //mainScene.sceneObjects[6]->drawDebug();
 
-        //make skybox member of scene
-        skybox.render(mainScene.getActiveCamera());
+            //make skybox member of scene
+            skybox.render(mainScene.getActiveCamera());
 
-        //apply bloom effect, currently the bloom is performance heavy, search for another approach
-        if(settingsLayer.isUsingBloom())
-        {
-            resultTexture = bloomPP.applyEffect(firstPassBuffer, mainUI.getSceneLayer().getFrameBuffer());
-            bloomPP.setSteps(settingsLayer.getSteps());
+            //apply bloom effect, currently the bloom is performance heavy, search for another approach
+            if(settingsLayer.isUsingBloom())
+            {
+                resultTexture = bloomPP.applyEffect(firstPassBuffer, mainUI.getSceneLayer().getFrameBuffer());
+                bloomPP.setSteps(settingsLayer.getSteps());
+            }
+            else
+            {
+                resultTexture = firstPassBuffer[0];
+            }
+
+            //draw the final result to the screne frame buufer, TODO: change the way of gettting gamma and exposure
+            FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer(), settingsLayer.getGamma(), settingsLayer.getExposure());
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            mainUI.renderUI();
+
+            /* Swap front and back buffers */
+            glfwSwapBuffers(window->getGLWindow());
         }
-        else
-        {
-            resultTexture = firstPassBuffer[0];
-        }
 
-        //draw the final result to the screne frame buufer, TODO: change the way of gettting gamma and exposure
-        FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer(), settingsLayer.getGamma(), settingsLayer.getExposure());
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        mainUI.renderUI();
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window->getGLWindow());
 
         /* Poll for and process events */
         glfwPollEvents();

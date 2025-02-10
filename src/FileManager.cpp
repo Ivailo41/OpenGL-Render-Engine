@@ -372,8 +372,15 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 					}
 					else
 					{
-						std::cout << "Failed to load texture" << std::endl;
-						stbi_image_free(data);
+						std::lock_guard<std::mutex> lock(textureMutex);
+						commandVector.push_back([data, i, &texturesPaths]() 
+							{
+								//Create a logging class that will handle messages
+								std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
+								stbi_image_free(data); 
+							});
+						//std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
+						//stbi_image_free(data);
 					}
 				}));
 		}
@@ -407,6 +414,7 @@ GLuint FileManager::loadCubemap(const std::string texturePaths[6])
 		}
 		else
 		{
+			//create logging class that will handle messages
 			std::cout << "Failed to load cubemap face: " << texturePaths[i] << std::endl;
 		}
 		stbi_image_free(data);

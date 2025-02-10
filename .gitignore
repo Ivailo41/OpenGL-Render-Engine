@@ -1,7 +1,7 @@
 out/*
 .vs/*
-Source/Application/resources/*
+assets/*
+!assets/Shaders
 *.exe
 *.pdb
 *.ilk
-Source/Application/Application.ilk
