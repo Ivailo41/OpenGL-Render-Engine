@@ -15,7 +15,8 @@ public:
 	unsigned getVBO() const { return VBO; }
 	unsigned getEBO() const { return EBO; }
 
-	glm::mat4 getModelMatrix() const { return modelMatrix; }
+	//not used
+	glm::mat4 getModelMatrix() const { return transform.modelMatrix; }
 
 	void setMaterial(Material* const material);
 

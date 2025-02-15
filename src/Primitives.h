@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <glm.hpp>
 
 struct Vertex
 {
@@ -52,6 +53,19 @@ struct Color
 	{
 		return r == other.r && g == other.g && b == other.b;
 	}
+};
+
+struct Transform
+{
+    glm::vec3 position;
+    glm::vec3 rotation;
+    glm::vec3 scale;
+    glm::mat4 modelMatrix;
+
+    Transform() : position(0), rotation(0), scale(1), modelMatrix(1.0f)
+    {
+        //nothing to do here
+    }
 };
 
 namespace PRIMITIVE_SHAPES

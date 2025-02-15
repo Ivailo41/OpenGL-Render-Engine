@@ -334,6 +334,7 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 	//alocating the needed size for the textures
 	unsigned texturesSize = textures.size();
 	unsigned texturesToAdd = texturesPaths.size();
+	//IF PATHS ARE INVALID THE VECTOR WILL STILL RESIZE!!
 	textures.resize(texturesSize + texturesToAdd);
 
 	{
@@ -377,10 +378,8 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 							{
 								//Create a logging class that will handle messages
 								std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
-								stbi_image_free(data); 
+								stbi_image_free(data);
 							});
-						//std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
-						//stbi_image_free(data);
 					}
 				}));
 		}

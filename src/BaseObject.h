@@ -6,7 +6,7 @@
 #include <gtc/matrix_transform.hpp>
 
 #include <string>
-#include "Transfrom.h"
+#include "Primitives.h"
 #include <vector>
 
 #include "ObjectArray.h"
@@ -18,6 +18,7 @@ public:
 	void setName(const std::string& name);
 	std::string getName() const { return name; }
 
+	//later move these into the transform struct
 	void translate(const glm::vec3& translation);
 	void rotate(const glm::vec3& rotation);
 	void scale(const glm::vec3& scale);
@@ -34,6 +35,8 @@ public:
 
 	void setTransform(const Transform& transform);
 	const Transform& getTransform() const;
+
+	const glm::mat4 getModelMatrix();
 
 	void setParent(BaseObject* parent);
 	BaseObject* getParent() const { return parentPtr; }
@@ -71,7 +74,7 @@ public:
 protected:
 	std::string name;
 	Transform transform;
-	glm::mat4 modelMatrix;
+	//glm::mat4 modelMatrix;
 
 	//Consider using vecotr here
 	ObjectArray<BaseObject> children;

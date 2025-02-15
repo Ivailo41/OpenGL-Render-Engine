@@ -17,7 +17,7 @@ EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window),
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-    ImGui::StyleColorsDark();
+    ImGui::StyleColorsGray();
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

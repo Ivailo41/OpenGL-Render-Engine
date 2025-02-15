@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <stb_image.h>
 
 Window* Window::instance = nullptr;
 
@@ -72,6 +73,15 @@ Window::Window(const std::string& name, unsigned width, unsigned height) : width
     if (glewInit() != GLEW_OK)
     {
         throw "GLEW ERROR!";
+    }
+
+    //Test setting window icon
+    GLFWimage icon;
+    icon.pixels = stbi_load("../assets/Icon/icon.png", &icon.width, &icon.height, nullptr, 0);
+    if(icon.pixels)
+    {
+        glfwSetWindowIcon(window, 1, &icon);
+        stbi_image_free(icon.pixels);
     }
     //End of initialization
 }

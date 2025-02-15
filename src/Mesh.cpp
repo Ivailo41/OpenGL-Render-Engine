@@ -89,7 +89,7 @@ void Mesh::draw() const
 
 	//add function to shader object to set matrices
 	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform.modelMatrix));
 
 	glBindVertexArray(VAO);
 
