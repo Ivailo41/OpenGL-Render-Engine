@@ -13,7 +13,7 @@ target_sources(
         "FileManager.cpp"
         "Main.cpp"
         "Material.cpp"
-        "Object.cpp"
+        
         "Shader.cpp"
         "Texture.cpp"
         "UI/EngineUI.cpp"

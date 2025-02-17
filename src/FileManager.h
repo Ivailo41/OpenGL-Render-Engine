@@ -2,7 +2,7 @@
 #include "Mesh.h"
 #include <fstream>
 #include <string>
-#include "Object.h"
+#include "BaseObject.h"
 #include <filesystem>
 #include "Shader.h"
 #include "Editor/Scene.h"
@@ -47,6 +47,8 @@ private:
 	//using assert to check if the system is running
 	void checkRunState();
 	void operator=(const FileManager& other) {}
+	//dynamically allocates mesh by given vertices, indices, name and material
+	Mesh* createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, Material* const currentMaterial);
 
 private:
 	static bool isRunning;

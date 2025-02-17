@@ -1,5 +1,4 @@
 #pragma once
-#include "../ObjectArray.h"
 #include "Layers/UILayer.h"
 #include "Layers/UISceneTree.h"
 #include "Layers/UI_Scene/UI_Scene.h"
@@ -25,16 +24,19 @@ public:
 
 public:
 	EngineUI(Window* window, FileManager* fileman); //Initing ImGUI here
-	//EngineUI() = delete;
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
 	~EngineUI();
 
 private:
-	ObjectArray<UILayer> UIElements;
+	std::vector<UILayer*> UIElements;
 	static bool isUIOpen;
 	FileManager* fileman;
+
 	UI_Scene uiSceneLayer;
 	UI_Settings uiSettingsLayer;
+	UI_SceneTree uiSceneTree;
+	UI_ObjectProperties uiObjectProperties;
+	UI_CameraProperties uiCameraProperties;
 };
 

@@ -1,1 +1,0 @@
-target_sources(UI_CameraProperties PRIVATE "UI_CameraProperties.cpp")

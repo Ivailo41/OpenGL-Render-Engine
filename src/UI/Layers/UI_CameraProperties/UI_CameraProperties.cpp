@@ -1,6 +1,6 @@
 #include "UI_CameraProperties.h"
 //TEMP INCLUDES FOR TESTING
-#include "../../../Object.h"
+#include "../../../BaseObject.h"
 
 #include "../../../Material.h"
 
@@ -58,7 +58,7 @@ void UI_CameraProperties::renderLayer()
     if(ImGui::Button("Add Dummy"))
     {
         std::string name = "Dummy_" + std::to_string(counter);
-        BaseObject* dummy = new Object(name); //dynamically allocating new object, remove that code later
+        BaseObject* dummy = new BaseObject(name); //dynamically allocating new object, remove that code later
 		Scene::activeScene->getSelectedObject()->addChild(dummy);
         counter++;
     }

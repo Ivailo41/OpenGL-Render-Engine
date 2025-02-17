@@ -175,27 +175,34 @@ void BaseObject::updateModelMatrix()
 	transform.modelMatrix = parentPtr ? parentPtr->getModelMatrix() * transform.modelMatrix : transform.modelMatrix;
 }
 
-BaseObject* BaseObject::addChild(BaseObject& child)
+void BaseObject::addChild(BaseObject& child)
 {
-	BaseObject* childPtr = children.addObject(child);
-	childPtr->parentPtr = this;
-	return childPtr;
+	children.push_back(&child);
+	child.parentPtr = this;
 }
 
 void BaseObject::addChild(BaseObject* child)
 {
 	child->parentPtr = this;
-	children.addObject(child);
+	children.push_back(child);
 }
 
 void BaseObject::removeChild(unsigned index)
 {
-	children.removeObject(index);
+	children.erase(children.begin() + index);
 }
 
 void BaseObject::removeChild(BaseObject* object)
 {
-	children.removeObject(object);
+	unsigned childrenCount = children.size();
+	for (size_t i = 0; i < childrenCount; i++)
+	{
+		if(object == children[i])
+		{
+			children.erase(children.begin() + i);
+			break;
+		}
+	}
 }
 
 //test
@@ -206,39 +213,37 @@ void BaseObject::drawDebug() const
 		debugLinesContainer.drawLines(transform.modelMatrix);
 	}
 
-	for (size_t i = 0; i < children.getSize(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
-		children[i].drawDebug();
+		children[i]->drawDebug();
 	}
 }
 
-BaseObject& BaseObject::operator[](unsigned index)
-{
-	return children[index];
-}
+//BaseObject& BaseObject::operator[](unsigned index)
+//{
+//	return children[index];
+//}
+//
+//const BaseObject& BaseObject::operator[](unsigned index) const
+//{
+//	return children[index];
+//}
 
-const BaseObject& BaseObject::operator[](unsigned index) const
+void BaseObject::attachTo(BaseObject* parent)
 {
-	return children[index];
-}
-
-BaseObject* BaseObject::attachTo(BaseObject& parent)
-{
-	BaseObject* childPtr = parent.addChild(*this);
-
-	if (parentPtr != nullptr)
+	if (parentPtr)
 	{
-		parentPtr->removeChild(this); //this is being deleted
+		parentPtr->removeChild(this);
 	}
-	childPtr->parentPtr = &parent;
-	return childPtr;
+	parent->addChild(this);
+	parentPtr = parent;
 }
 
 void BaseObject::draw() const
 {
-	unsigned meshesCount = children.getSize();
+	unsigned meshesCount = children.size();
 	for (size_t i = 0; i < meshesCount; i++)
 	{
-		children[i].draw();
+		children[i]->draw();
 	}
 }

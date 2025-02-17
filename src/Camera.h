@@ -8,6 +8,7 @@ class Camera : public BaseObject
 public:
 	glm::vec3 getViewDirection() { return viewDirection; }
 
+	//might make the camera properties public, there is no need of these getters
 	float getFOV() const { return FOV; }
 	glm::vec3 getViewDirection() const { return viewDirection; }
 	glm::vec3 getRightVector() const { return rightVector; }

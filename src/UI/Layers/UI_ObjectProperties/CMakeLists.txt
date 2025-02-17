@@ -1,1 +1,0 @@
-target_sources(UI_ObjectProperties PRIVATE "UI_ObjectProperties.cpp")

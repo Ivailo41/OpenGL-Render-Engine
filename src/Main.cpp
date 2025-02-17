@@ -7,7 +7,6 @@
 #include "Camera.h"
 #include "Lights/Light.h"
 #include "Lights/PointLight.h"
-#include "ObjectArray.h"
 #include "Debug/DebugShapes.h"
 
 #include "FileManager.h"
@@ -83,7 +82,7 @@ int main(int argc, char* argv[])
     Scene mainScene;
     Scene::activeScene = &mainScene;
 
-    Object dummyObject;
+    BaseObject dummyObject;
     BaseObject* dummy = &dummyObject;
     
     Camera mainCamera;

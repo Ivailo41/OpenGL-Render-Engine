@@ -3,7 +3,7 @@
 
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window), fileman(fileman), uiSettingsLayer(fileman)
+EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window), fileman(fileman), uiSettingsLayer(fileman), uiCameraProperties(Scene::activeScene->getActiveCamera())
 {
     if(isUIOpen)
     {
@@ -29,42 +29,47 @@ EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window),
     ImGui_ImplOpenGL3_Init("#version 130");
 
     //Create default UI layers
-    UISceneTree uiSceneTree;
-    UI_ObjectProperties uiObjectProperties;
-    UI_CameraProperties uiCameraProperties(Scene::activeScene->getActiveCamera());
     addUILayer(&uiSceneTree);
     addUILayer(&uiObjectProperties);
     addUILayer(&uiCameraProperties);
     addUILayer(&uiSceneLayer);
-    //addUILayer(&uiSettingsLayer);
+    addUILayer(&uiSettingsLayer);
 }
 
 EngineUI::~EngineUI()
 {
     isUIOpen = false;
-	/*ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();*/
+	ImGui::DestroyContext();
 }
 
 void EngineUI::addUILayer(UILayer* layer)
 {
-	UIElements.addObject(*layer);
+	UIElements.push_back(layer);
 }
 
 void EngineUI::removeUILayer(unsigned index)
 {
-	UIElements.removeObject(index);
+	UIElements.erase(UIElements.begin() + index);
 }
 
 void EngineUI::removeUILayer(UILayer* layer)
 {
-	UIElements.removeObject(layer);
+    unsigned childrenCount = UIElements.size();
+    for (size_t i = 0; i < childrenCount; i++)
+    {
+        if (layer == UIElements[i])
+        {
+            UIElements.erase(UIElements.begin() + i);
+            break;
+        }
+    }
 }
 
 void EngineUI::clearUILayers()
 {
-	//UIElements.clear();
+	UIElements.clear();
 }
 
 void EngineUI::renderUI()
@@ -110,11 +115,10 @@ void EngineUI::renderUI()
 
     ImGui::End();
 
-    for (size_t i = 0; i < UIElements.getSize(); i++)
+    for (size_t i = 0; i < UIElements.size(); i++)
     {
-        UIElements[i].renderLayer();
+        UIElements[i]->renderLayer();
     }
-    uiSettingsLayer.renderLayer();
 
     //ImGui::ShowStyleEditor();
     //ImGui::ShowDemoWindow();

@@ -13,6 +13,7 @@ void FileManager::init()
 	{
 		isRunning = true;
 		//init code
+		//create an file manager instance
 	}
 }
 
@@ -56,7 +57,7 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	//unordered map that keeps track if we already have added the read vertex and if so use it again
 	std::unordered_map<std::string, unsigned> vertTable;
 
-	std::string currentMesh = "";
+	std::string currentMeshName = "";
 
 	//We will subtract these from the read indices because we clear the vertices container each time we create a new mesh
 	unsigned vOffset = 0;
@@ -67,7 +68,7 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	char prefix[3];
 
 	//TODO: make use of shared pointers instead using new
-	Object* object = new Object(objectName);
+	BaseObject* object = new BaseObject(objectName);
 
 	while (!objFile.eof())
 	{
@@ -209,28 +210,17 @@ bool FileManager::loadOBJ(const std::string& fileName)
 		}
 		else if (prefix[0] == 'o')
 		{
-			if (currentMesh.empty())
+			if (currentMeshName.empty())
 			{
-				currentMesh = line.substr(2);
+				currentMeshName = line.substr(2);
 				continue;
 			}
 
 			//if we read the prefix 'o' we create a new mesh with the vertices we have read.
-			Mesh mesh(vertices, indices);
-			mesh.setName(currentMesh);
-			mesh.setMaterial(currentMaterial);
+			Mesh* mesh = createMesh(vertices, indices, currentMeshName, currentMaterial);
+			mesh->attachTo(object);
 
-			//Add debug lines to each vertex pointing the normal direction
-			for (size_t i = 0; i < vertices.size(); i++)
-			{
-				mesh.debugLinesContainer.pushLine(Line(
-					Point(vertices[i].x, vertices[i].y, vertices[i].z),
-					Point(vertices[i].x + vertices[i].nx * 0.002, vertices[i].y + vertices[i].ny * 0.002, vertices[i].z + vertices[i].nz * 0.002)));
-			}
-
-			object->addChild(mesh);
-
-			currentMesh = line.substr(2);
+			currentMeshName = line.substr(2);
 
 			//increment the offset which will be used to subtract the indices of the next mesh so they begin from 0
 			vOffset += verticesLoc.size();
@@ -261,20 +251,8 @@ bool FileManager::loadOBJ(const std::string& fileName)
 
 	objFile.close();
 	//At the end add the final mesh with the last vertices and close the file
-	Mesh mesh(vertices, indices);
-	mesh.setName(currentMesh);
-	mesh.setMaterial(currentMaterial);
-
-	//Add debug lines to each vertex pointing the normal direction
-	//TODO: Move that feature to the geometry shader 
-	for (size_t i = 0; i < vertices.size(); i++)
-	{
-		mesh.debugLinesContainer.pushLine(Line(
-			Point(vertices[i].x, vertices[i].y, vertices[i].z),
-			Point(vertices[i].x + vertices[i].nx * 0.002, vertices[i].y + vertices[i].ny * 0.002, vertices[i].z + vertices[i].nz * 0.002)));
-	}
-
-	object->addChild(mesh);
+	Mesh* mesh = createMesh(vertices, indices, currentMeshName, currentMaterial);
+	mesh->attachTo(object);
 
 	Scene::activeScene->sceneObjects.push_back(object);
 	return true;
@@ -535,4 +513,21 @@ bool FileManager::removeMaterial(const std::string name)
 void FileManager::checkRunState()
 {
 	assert(isRunning); //Forgot to call the initialisation function init() before calling functions
+}
+
+Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, Material* const currentMaterial)
+{
+	Mesh* mesh = new Mesh(vertices, indices);
+	mesh->setName(name);
+	mesh->setMaterial(currentMaterial);
+
+	//Add debug lines to each vertex pointing the normal direction
+	for (size_t i = 0; i < vertices.size(); i++)
+	{
+		mesh->debugLinesContainer.pushLine(Line(
+			Point(vertices[i].x, vertices[i].y, vertices[i].z),
+			Point(vertices[i].x + vertices[i].nx * 0.002, vertices[i].y + vertices[i].ny * 0.002, vertices[i].z + vertices[i].nz * 0.002)));
+	}
+
+	return mesh;
 }

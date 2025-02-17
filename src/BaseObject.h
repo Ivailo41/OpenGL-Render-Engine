@@ -9,7 +9,6 @@
 #include "Primitives.h"
 #include <vector>
 
-#include "ObjectArray.h"
 #include "Debug/LinesContainer.h"
 
 class BaseObject
@@ -41,26 +40,19 @@ public:
 	void setParent(BaseObject* parent);
 	BaseObject* getParent() const { return parentPtr; }
 
-	virtual void draw() const = 0;
-	virtual BaseObject* clone() const = 0;
+	virtual void draw() const;
+	virtual BaseObject* clone() const { return new BaseObject(*this); }
 
-	//Functions for the children holder
-	BaseObject& operator[](unsigned index);
-	const BaseObject& operator[](unsigned index) const;
-	
-	unsigned getChildrenCount() const { return children.getSize(); }
-	
-	BaseObject* attachTo(BaseObject& parent);
+	unsigned getChildrenCount() const { return children.size(); }
+	void attachTo(BaseObject* parent);
 
 public:
 	BaseObject();
 	BaseObject(const std::string& name);
-	//BaseObject(const BaseObject& other);
-	//BaseObject& operator=(const BaseObject& other);
 	virtual ~BaseObject();
 
 public:
-	BaseObject* addChild(BaseObject& child);
+	void addChild(BaseObject& child);
 	void addChild(BaseObject* child);
 
 	void removeChild(unsigned index);
@@ -70,14 +62,12 @@ public:
 	void drawDebug() const;
 
 	LinesContainer debugLinesContainer;
+	std::vector<BaseObject*> children;
 
 protected:
 	std::string name;
 	Transform transform;
-	//glm::mat4 modelMatrix;
 
-	//Consider using vecotr here
-	ObjectArray<BaseObject> children;
 	BaseObject* parentPtr;
 
 private:

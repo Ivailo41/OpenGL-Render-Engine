@@ -2,15 +2,15 @@
 #include "UILayer.h"
 #include "../../Editor/Scene.h"
 
-class UISceneTree : public UILayer
+class UI_SceneTree : public UILayer
 {
 public:
 	virtual void renderLayer() override;
-	virtual UISceneTree* clone() override;
+	virtual UI_SceneTree* clone() override;
 
 public:
-	UISceneTree();
-	UISceneTree(const char* name);
+	UI_SceneTree();
+	UI_SceneTree(const char* name);
 
 private:
 

@@ -1,17 +1,17 @@
 #include "UISceneTree.h"
 #include "../Elements/UISceneNode.h"
 
-UISceneTree::UISceneTree() : UILayer("Scene Tree")
+UI_SceneTree::UI_SceneTree() : UILayer("Scene Tree")
 {
 
 }
 
-UISceneTree::UISceneTree(const char* layerName) : UILayer(layerName)
+UI_SceneTree::UI_SceneTree(const char* layerName) : UILayer(layerName)
 {
 
 }
 
-void UISceneTree::renderLayer()
+void UI_SceneTree::renderLayer()
 {
 	ImGui::Begin(layerName.c_str());
 
@@ -28,7 +28,7 @@ void UISceneTree::renderLayer()
 
 }
 
-UISceneTree* UISceneTree::clone()
+UI_SceneTree* UI_SceneTree::clone()
 {
-	return new UISceneTree(*this);
+	return new UI_SceneTree(*this);
 }

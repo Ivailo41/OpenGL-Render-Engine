@@ -15,7 +15,7 @@ PointLight::~PointLight()
 
 }
 
-const PointLight::pointLightData* PointLight::getData() const
+const PointLight::PointLightData* PointLight::getData() const
 {
 	return &data;
 }

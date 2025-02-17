@@ -64,7 +64,7 @@ FrameBuffer::FrameBuffer(unsigned buffersCount, bool depth) : buffersCount(buffe
 FrameBuffer::~FrameBuffer()
 {
     glDeleteTextures(buffersCount, &buffers[0]);
-    glDeleteFramebuffers(1, &fbo);
+    deleteFrameBuffer();
 }
 
 void FrameBuffer::deleteFrameBuffer()

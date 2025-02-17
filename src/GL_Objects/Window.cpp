@@ -7,6 +7,7 @@ Window* Window::getInstance(const std::string& name, unsigned width, unsigned he
 {
 	if(instance == nullptr)
 	{
+        //make static instance in engine class
         instance = new Window(name, width, heigth);
 	}
 

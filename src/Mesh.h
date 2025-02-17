@@ -2,7 +2,7 @@
 
 #include "Primitives.h"
 #include <string>
-#include "Object.h"
+#include "BaseObject.h"
 #include "Texture.h"
 #include "Material.h"
 

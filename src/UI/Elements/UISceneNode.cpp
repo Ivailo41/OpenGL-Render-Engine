@@ -31,7 +31,7 @@ void UISceneNode::renderElement()
 	{
 		for (size_t i = 0; i < childCount; i++)
 		{
-			BaseObject* child = &object->operator[](i);
+			BaseObject* child = object->children[i];
 			if (child != nullptr)
 			{
 				UISceneNode node(child->getName(), child);
