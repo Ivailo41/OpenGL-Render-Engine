@@ -1,6 +1,6 @@
 #pragma once
-#include "../GL_Objects/FrameBuffer.h"
-#include "../GL_Objects/FrameQuad.h"
+#include "../FrameBuffer.h"
+#include "../FrameQuad.h"
 #include "../Shader.h"
 
 class Bloom

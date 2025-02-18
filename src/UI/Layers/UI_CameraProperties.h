@@ -1,7 +1,7 @@
 #pragma once
-#include "../UILayer.h"
+#include "UILayer.h"
 #include <glm.hpp>
-#include "../../../Camera.h"
+#include "../../Scene/Camera.h"
 
 class UI_CameraProperties : public UILayer
 {

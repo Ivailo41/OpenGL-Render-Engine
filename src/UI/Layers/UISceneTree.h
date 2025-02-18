@@ -1,6 +1,6 @@
 #pragma once
 #include "UILayer.h"
-#include "../../Editor/Scene.h"
+#include "../../Scene/Scene.h"
 
 class UI_SceneTree : public UILayer
 {

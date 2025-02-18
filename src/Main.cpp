@@ -1,16 +1,16 @@
 #include <iostream>
-#include "Primitives.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "Material.h"
-#include "Texture.h"
-#include "Camera.h"
-#include "Lights/Light.h"
-#include "Lights/PointLight.h"
-#include "Debug/DebugShapes.h"
+#include "Renderer/Primitives.h"
+#include "Scene/Mesh.h"
+#include "Renderer/Shader.h"
+#include "Renderer/Material.h"
+#include "Renderer/Texture.h"
+#include "Scene/Camera.h"
+#include "Scene/Lights/Light.h"
+#include "Scene/Lights/PointLight.h"
+#include "Renderer/DebugShapes.h"
 
 #include "FileManager.h"
-#include "Editor/Scene.h"
+#include "Scene/Scene.h"
 
 //#define GLEW_STATIC
 #include <GL/glew.h>
@@ -21,21 +21,22 @@
 #include <gtc/type_ptr.hpp>
 
 #include <vector>
-#include "Includes/imGuiInclude.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include "UI/EngineUI.h"
 #include "UI/Layers/UISceneTree.h"
-#include "UI/Layers/UI_Scene/UI_Scene.h"
-#include "UI/Layers/UI_ObjectProperties/UI_ObjectProperties.h"
-#include "UI/Layers/UI_CameraProperties/UI_CameraProperties.h"
+#include "UI/Layers/UI_Scene.h"
+#include "UI/Layers/UI_ObjectProperties.h"
+#include "UI/Layers/UI_CameraProperties.h"
 
-#include "GL_Objects/Window.h"
-#include "GL_Objects/FrameQuad.h"
-#include "GL_Objects/Cubemap.h"
-#include "PostProccess/Bloom.h"
+#include "Core/Window.h"
+#include "Renderer/FrameQuad.h"
+#include "Renderer/Cubemap.h"
+#include "Renderer/PostProccess/Bloom.h"
 
-#include "Objects/Skybox.h"
-#include <memory>
+#include "Scene/Skybox.h"
 
 int main(int argc, char* argv[])
 {

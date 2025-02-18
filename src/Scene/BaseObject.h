@@ -6,10 +6,10 @@
 #include <gtc/matrix_transform.hpp>
 
 #include <string>
-#include "Primitives.h"
+#include "../Renderer/Primitives.h"
 #include <vector>
 
-#include "Debug/LinesContainer.h"
+#include "../Renderer/LinesContainer.h"
 
 class BaseObject
 {

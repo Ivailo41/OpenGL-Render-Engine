@@ -1,7 +1,7 @@
 #pragma once
-#include "../Camera.h"
-#include "../BaseObject.h"
-#include "../Lights/Light.h"
+#include "../Scene/Camera.h"
+#include "../Scene/BaseObject.h"
+#include "Lights/Light.h"
 #include <string>
 #include <vector>
 

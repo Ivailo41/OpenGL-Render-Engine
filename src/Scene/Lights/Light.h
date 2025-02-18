@@ -1,7 +1,7 @@
 #pragma once
 #include "../BaseObject.h"
 #include "../Mesh.h"
-#include "../Shader.h"
+#include "../../Renderer/Shader.h"
 
 class Light : public BaseObject
 {

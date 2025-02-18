@@ -1,5 +1,5 @@
 #include "UISceneNode.h"
-#include "../../Editor/Scene.h"
+#include "../../Scene/Scene.h"
 #include <iostream>
 
 UISceneNode::UISceneNode(const std::string& name, BaseObject* object) : UIElement(name), object(object)

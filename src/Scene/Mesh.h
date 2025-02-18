@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Primitives.h"
+#include "../Renderer/Primitives.h"
 #include <string>
 #include "BaseObject.h"
-#include "Texture.h"
-#include "Material.h"
+#include "../Renderer/Texture.h"
+#include "../Renderer/Material.h"
 
 class Mesh : public BaseObject
 {

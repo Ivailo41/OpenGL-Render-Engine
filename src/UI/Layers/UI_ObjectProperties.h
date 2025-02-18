@@ -1,5 +1,5 @@
 #pragma once
-#include "../UILayer.h"
+#include "UILayer.h"
 #include <glm.hpp>
 
 class UI_ObjectProperties : public UILayer

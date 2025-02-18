@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
-#include "../../Includes/imGuiInclude.h"
-#include "../../Editor/Scene.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "../../Scene/Scene.h"
 
 class UILayer
 {

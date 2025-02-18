@@ -84,6 +84,10 @@ Window::Window(const std::string& name, unsigned width, unsigned height) : width
         glfwSetWindowIcon(window, 1, &icon);
         stbi_image_free(icon.pixels);
     }
+    else
+    {
+        //log an error
+    }
     //End of initialization
 }
 

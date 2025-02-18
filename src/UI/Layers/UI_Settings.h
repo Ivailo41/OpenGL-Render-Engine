@@ -1,9 +1,9 @@
 #pragma once
-#include "../UILayer.h"
-#include "../../../Shader.h"
+#include "UILayer.h"
+#include "../../Renderer/Shader.h"
 
 //temp
-#include "../../../FileManager.h"
+#include "../../FileManager.h"
 
 class UI_Settings : public UILayer
 {

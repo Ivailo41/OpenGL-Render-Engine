@@ -1,6 +1,6 @@
 #pragma once
 #include "LinesContainer.h"
-#include "../Camera.h"
+#include "../Scene/Camera.h"
 
 class DebugShapes
 {

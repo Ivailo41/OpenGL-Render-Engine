@@ -1,7 +1,7 @@
 #pragma once
 #include <GL/glew.h>
 #include "FrameBuffer.h"
-#include "../Shader.h"
+#include "../Renderer/Shader.h"
 
 class FrameQuad
 {

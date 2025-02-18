@@ -1,6 +1,6 @@
 #pragma once
 #include "UIElement.h"
-#include "../../BaseObject.h"
+#include "../../Scene/BaseObject.h"
 class UISceneNode : public UIElement
 {
 public:

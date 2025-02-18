@@ -1,8 +1,8 @@
 #pragma once
-#include "../GL_Objects/Cubemap.h"
-#include "../Shader.h"
-#include "../Primitives.h"
-#include "../Camera.h"
+#include "../Renderer/Cubemap.h"
+#include "../Renderer/Shader.h"
+#include "../Renderer/Primitives.h"
+#include "../Scene/Camera.h"
 
 class Skybox
 {

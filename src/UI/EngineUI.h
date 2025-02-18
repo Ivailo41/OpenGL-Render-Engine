@@ -1,11 +1,11 @@
 #pragma once
 #include "Layers/UILayer.h"
 #include "Layers/UISceneTree.h"
-#include "Layers/UI_Scene/UI_Scene.h"
-#include "Layers/UI_Settings/UI_Settings.h"
-#include "Layers/UI_ObjectProperties/UI_ObjectProperties.h"
-#include "Layers/UI_CameraProperties/UI_CameraProperties.h"
-#include "../GL_Objects/Window.h"
+#include "Layers/UI_Scene.h"
+#include "Layers/UI_Settings.h"
+#include "Layers/UI_ObjectProperties.h"
+#include "Layers/UI_CameraProperties.h"
+#include "../Core/Window.h"
 
 
 

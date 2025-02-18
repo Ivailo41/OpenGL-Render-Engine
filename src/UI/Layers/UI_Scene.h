@@ -1,8 +1,8 @@
 #pragma once
-#include "../UILayer.h"
+#include "UILayer.h"
 #include <glm.hpp>
-#include "../../../GL_Objects/FrameBuffer.h"
-#include "../../../GL_Objects/Window.h"
+#include "../../Renderer/FrameBuffer.h"
+#include "../../Core/Window.h"
 
 class UI_Scene : public UILayer
 {

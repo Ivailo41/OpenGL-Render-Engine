@@ -1,8 +1,8 @@
 #include "UI_CameraProperties.h"
 //TEMP INCLUDES FOR TESTING
-#include "../../../BaseObject.h"
+#include "../../Scene/BaseObject.h"
 
-#include "../../../Material.h"
+#include "../../Renderer/Material.h"
 
 UI_CameraProperties::UI_CameraProperties(Camera* currentCamera) : UILayer("Camera Properties")
 {
