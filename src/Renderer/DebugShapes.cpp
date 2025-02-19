@@ -54,7 +54,8 @@ void DebugShapes::drawDebugShapes(Camera* camera)
 
 DebugShapes::DebugShapes()
 {
-	debugShader = &Shader::shaders[3]; //get the debug shader from the public shader list
+	//pass the shader in the constructor 
+	debugShader = &Shader::shadersList.find("DebugShader").operator*().second;
 }
 
 LinesContainer& DebugShapes::getContainerWithColor(const Color& color)

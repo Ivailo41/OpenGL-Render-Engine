@@ -3,19 +3,20 @@
 
 Scene* Scene::activeScene = nullptr;
 
-Scene::Scene() : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr)
+Scene::Scene() : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr),  root("Scene")
 {
 	//nothing to do here
 }
 
-Scene::Scene(const std::string& sceneName) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr)
+Scene::Scene(const std::string& sceneName) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr), root("Scene")
 {
 	//nothing to do here
 }
 
 Scene::~Scene()
 {
-	unsigned sceneOjectsCount = sceneObjects.size();
+	//unsigned sceneOjectsCount = sceneObjects.size();
+	unsigned sceneOjectsCount = root.getChildrenCount();
 	for (size_t i = 0; i < sceneOjectsCount; i++)
 	{
 		//this will cause error trying to delete objects allocated on the stack
@@ -44,11 +45,11 @@ void Scene::setSelectedObject(BaseObject* object)
 void Scene::drawObjects() const
 {
 	activeCamera->updateCamera();
-
-	for (size_t i = 0; i < sceneObjects.size(); i++)
+	root.draw();
+	/*for (size_t i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i]->draw();
-	}
+	}*/
 }
 
 void Scene::setName(const std::string& name)
@@ -78,7 +79,8 @@ bool Scene::addObject(BaseObject* object)
 	if (object == nullptr)
 		return false;
 
-	sceneObjects.push_back(object);
+	//sceneObjects.push_back(object);
+	root.addChild(object);
 	return true;
 }
 
@@ -88,7 +90,9 @@ void Scene::removeObject(BaseObject* object)
 	{
 		selectedObject = nullptr;
 	}
-	for (size_t i = 0; i < sceneObjects.size(); i++)
+
+	root.removeChild(object);
+	/*for (size_t i = 0; i < root.size(); i++)
 	{
 		if(sceneObjects[i] == object)
 		{
@@ -96,7 +100,7 @@ void Scene::removeObject(BaseObject* object)
 			delete object;
 			return;
 		}
-	}
+	}*/
 }
 	
 BaseObject* Scene::getSelectedObject() const

@@ -7,20 +7,22 @@
 
 bool FileManager::isRunning = false;
 
-void FileManager::init()
+bool FileManager::init()
 {
-	if(!isRunning)
-	{
-		isRunning = true;
-		//init code
-		//create an file manager instance
-	}
+	assert(!isRunning);
+
+	std::cout << "Initializing File Manager!" << std::endl;
+	isRunning = true;
+	//init code
+
+	return true;
 }
 
 void FileManager::stop()
 {
 	if(isRunning)
 	{
+		std::cout << "Shutting down File Manager!" << std::endl;
 		isRunning = false;
 		//stop code
 	}
@@ -254,7 +256,8 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	Mesh* mesh = createMesh(vertices, indices, currentMeshName, currentMaterial);
 	mesh->attachTo(object);
 
-	Scene::activeScene->sceneObjects.push_back(object);
+	//Scene::activeScene->sceneObjects.push_back(object);
+	Scene::activeScene->root.addChild(object);
 	return true;
 }
 
@@ -456,8 +459,17 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 		saderFile.close();
 	}
 
-	std::pair<std::string, Shader> shaderPair(shaderName, Shader(result[0], result[1]));
-	return Shader::shadersList.insert(shaderPair).second;
+	//create a shader, if the shader cannot be created print the throw message
+	//the shader constructor adds it to the shader map
+	try
+	{
+		Shader shader(shaderName, result[0], result[1]);
+	}
+	catch(std::exception error)
+	{
+		std::cout << error.what() << std::endl;
+		return false;
+	}
 }
 
 Material* const FileManager::getMaterial(const std::string& name)

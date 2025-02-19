@@ -13,6 +13,7 @@ public:
 	UI_SceneTree(const char* name);
 
 private:
+	void renderElement(BaseObject* object);
 
 };
 

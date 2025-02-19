@@ -1,16 +1,14 @@
 #include "Shader.h"
 
 std::unordered_map<std::string, Shader> Shader::shadersList;
-std::vector<Shader> Shader::shaders;
 const Shader* Shader::activeShader = nullptr;
 
-Shader::Shader(const std::string& vertexSource, const std::string& fragmentSource) : shaderProgram(0)
+Shader::Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource) : shaderProgram(0), name(shaderName)
 {
 	if (vertexSource.size() == 0 || fragmentSource.size() == 0)
 	{
 		throw std::exception("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
 	}
-
 	try
 	{
 		unsigned int vertexShader = createShader(vertexSource, GL_VERTEX_SHADER);
@@ -22,18 +20,8 @@ Shader::Shader(const std::string& vertexSource, const std::string& fragmentSourc
 	{
 		throw e;
 	}
-}
 
-Shader::Shader(const unsigned vertexShader, const unsigned fragmentShader) : shaderProgram(0)
-{
-	try
-	{
-		createShaderProgram(vertexShader, fragmentShader);
-	}
-	catch (std::exception& e)
-	{
-		throw e;
-	}
+	Shader::shadersList.insert(std::pair(shaderName, *this));
 }
 
 void Shader::use() const
@@ -72,6 +60,18 @@ GLuint Shader::setMat4(const char* paramName, glm::mat4 value) const
 	GLuint location = glGetUniformLocation(shaderProgram, paramName);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 	return location;
+}
+
+const Shader* Shader::findShader(const std::string& shaderName)
+{
+	auto shaderItt = shadersList.find(shaderName);
+
+	if(shaderItt == shadersList.end())
+	{
+		return nullptr;
+	}
+
+	return &shaderItt.operator*().second;
 }
 
 unsigned Shader::createShader(const std::string& shaderSource, const unsigned type)
@@ -121,5 +121,4 @@ void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fra
 	glDeleteShader(fragmentShader);
 
 	this->shaderProgram = shaderProgram;
-	shaders.push_back(*this);
 }

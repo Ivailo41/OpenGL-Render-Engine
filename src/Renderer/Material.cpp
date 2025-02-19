@@ -26,14 +26,16 @@ void Material::setTexture(Texture* texture, unsigned index)
 Material::Material() : baseColor(1,1,1), roughness(0.3), metalic(0), name("New_Material"),
 						hasDiffuse(false), useNormalTexture(false), useORM(false), textures()
 {
-	shaderProgram = Shader::shaders[0];
+	//consider assigning shader by passing it as a parameter
+	shaderProgram = *Shader::findShader("PBRShader");
 	sendToShader();
 }
 
 Material::Material(const std::string& name) : baseColor(1, 1, 1), roughness(0.3), metalic(0), name(name),
 												hasDiffuse(false), useNormalTexture(false), useORM(false), textures()
 {
-	shaderProgram = Shader::shaders[0];
+	//consider assigning shader by passing it as a parameter
+	shaderProgram = *Shader::findShader("PBRShader");
 	sendToShader();
 }
 

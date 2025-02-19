@@ -13,8 +13,8 @@ public:
 	unsigned getShaderProgram() const { return shaderProgram; }
 
 public:
-	Shader(const std::string& vertexSource, const std::string& fragmentSource);
-	Shader(const unsigned vertexShader, const unsigned fragmentShader);
+	//Shader(const std::string& vertexSource, const std::string& fragmentSource);
+	//Shader(const unsigned vertexShader, const unsigned fragmentShader);
 
 	void use() const;
 	void deactivate() const;
@@ -28,14 +28,19 @@ public:
 
 	//make this a map
 	static std::unordered_map<std::string, Shader> shadersList;
-	static std::vector<Shader> shaders;
 	static const Shader* activeShader;
+	static const Shader* findShader(const std::string& shaderName);
+
+	friend class FileManager;
 
 protected:
 	void createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader);
 	unsigned createShader(const std::string& shaderSource, const unsigned type);
 
-private:
+	Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource);
+	//Shader(const unsigned vertexShader, const unsigned fragmentShader);
+
+	std::string name;
 	unsigned shaderProgram;
 };
 

@@ -33,7 +33,8 @@ public:
 
 public:
 	static Scene* activeScene;
-	std::vector<BaseObject*> sceneObjects;
+	//std::vector<BaseObject*> sceneObjects;
+	BaseObject root;
 
 	std::vector<Texture*> textures;
 	std::vector<Material*> materials;

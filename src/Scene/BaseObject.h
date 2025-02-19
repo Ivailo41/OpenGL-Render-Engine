@@ -55,6 +55,7 @@ public:
 	void addChild(BaseObject& child);
 	void addChild(BaseObject* child);
 
+	//doesnt delete the object!!!!
 	void removeChild(unsigned index);
 	void removeChild(BaseObject* object);
 

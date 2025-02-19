@@ -219,21 +219,21 @@ void BaseObject::drawDebug() const
 	}
 }
 
-//BaseObject& BaseObject::operator[](unsigned index)
-//{
-//	return children[index];
-//}
-//
-//const BaseObject& BaseObject::operator[](unsigned index) const
-//{
-//	return children[index];
-//}
-
 void BaseObject::attachTo(BaseObject* parent)
 {
+	//make a check if the dragged object is not a parrent of the target
+	if(parentPtr == parent)
+	{
+		return;
+	}
+
 	if (parentPtr)
 	{
 		parentPtr->removeChild(this);
+	}
+	else
+	{
+		//if it has no parent then it is inside the mainscene, either make the root of the main scene an baseobject or think how to delete the object from here
 	}
 	parent->addChild(this);
 	parentPtr = parent;

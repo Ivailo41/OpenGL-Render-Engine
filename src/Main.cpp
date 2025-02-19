@@ -40,20 +40,21 @@
 
 int main(int argc, char* argv[])
 {
-    //GLFWwindow* window;
-    Window* window;
-    try
+    //Put window inside application class
+    Window window;
+    if(!window.init("Render Engine", 1920, 1080))
     {
-        window = Window::getInstance("Render Engine", 1920, 1080);
-    }
-    catch(const char* err)
-    {
-        std::cerr << err << std::endl;
-        return 1; //Move that to engine class and stop it if the window throws
+        std::cout << "Couldn't initialize window!" << std::endl;
+        return 1;
     }
 
+    //Put file manager inside application class
     FileManager fileManager;
-    fileManager.init();
+    if(!fileManager.init())
+    {
+        std::cout << "Couldn't initialize File Manager!" << std::endl;
+        return 1;
+    }
 
     // create a default directory for the resources
     fileManager.createDirectory("../assets");
@@ -62,22 +63,27 @@ int main(int argc, char* argv[])
     //CREATE PBR SHADER
     //Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
     fileManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl");
-    Shader& shader = Shader::shadersList.find("PBRShader").operator*().second;
+    Shader shader = *Shader::findShader("PBRShader");
 
     //CREATE BLOOM SHADER
-    Shader bloomShader(fileManager.loadShader("../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl"), fileManager.loadShader("../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl"));
+    fileManager.loadShader("BloomShader", "../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl", "../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl");
+    Shader bloomShader = *Shader::findShader("BloomShader");
 
     //CREATE BLUR SHADER
-    Shader blurShader(fileManager.loadShader("../assets/Shaders/PostProcess/Blur/blurVertex.glsl"), fileManager.loadShader("../assets/Shaders/PostProcess/Blur/blurFrag.glsl"));
+    fileManager.loadShader("BlurShader", "../assets/Shaders/PostProcess/Blur/blurVertex.glsl", "../assets/Shaders/PostProcess/Blur/blurFrag.glsl");
+    Shader blurShader = *Shader::findShader("BlurShader");
 
     //CREATE DEBUG SHADER
-    Shader debugShader(fileManager.loadShader("../assets/Shaders/Debug/debugVertex.glsl"), fileManager.loadShader("../assets/Shaders/Debug/debugFrag.glsl"));
+    fileManager.loadShader("DebugShader", "../assets/Shaders/Debug/debugVertex.glsl", "../assets/Shaders/Debug/debugFrag.glsl");
+    Shader debugShader = *Shader::findShader("DebugShader");
 
     //CREATE FRAMEQUAD SHADER
-    Shader frameQuadShader(fileManager.loadShader("../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl"), fileManager.loadShader("../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl"));
+    fileManager.loadShader("FramequadShader", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl");
+    Shader frameQuadShader = *Shader::findShader("FramequadShader");
 
     //CREATE SKYBOX SHADER
-    Shader skyboxShader(fileManager.loadShader("../assets/Shaders/Skybox/SkyboxVertex.glsl"), fileManager.loadShader("../assets/Shaders/Skybox/SkyboxFrag.glsl"));
+    fileManager.loadShader("SkyboxShader", "../assets/Shaders/Skybox/SkyboxVertex.glsl", "../assets/Shaders/Skybox/SkyboxFrag.glsl");
+    Shader skyboxShader = *Shader::findShader("SkyboxShader");
 
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
@@ -88,12 +94,14 @@ int main(int argc, char* argv[])
     
     Camera mainCamera;
     Camera* mainCamera_p = &mainCamera;
-    mainScene.sceneObjects.push_back(mainCamera_p);
+    //mainScene.sceneObjects.push_back(mainCamera_p);
+    mainScene.root.addChild(mainCamera_p);
     mainScene.setActiveCamera(mainCamera_p);
 
     Camera otherCamera;
     Camera* otherCamera_p = &otherCamera;
-    mainScene.sceneObjects.push_back(otherCamera_p);
+    //mainScene.sceneObjects.push_back(otherCamera_p);
+    mainScene.root.addChild(otherCamera_p);
 
     //Could go to a JSON file that wil be used to load the scene
     std::string cubemapPaths[6] = 
@@ -118,7 +126,8 @@ int main(int argc, char* argv[])
     for (size_t i = 0; i < 4; i++)
     {
         lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
-        mainScene.sceneObjects.push_back(lights[i]);
+        //mainScene.sceneObjects.push_back(lights[i]);
+        mainScene.root.addChild(lights[i]);
     }
     lights[0]->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
     lights[0]->setIntensity(100);
@@ -180,7 +189,7 @@ int main(int argc, char* argv[])
     mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
     //Initing ImGUI here
-    EngineUI mainUI(window, &fileManager);
+    EngineUI mainUI(&window, &fileManager);
     const UI_Settings& settingsLayer = mainUI.getSettingsLayer();
 
     FrameQuad::initFrameQuad(&frameQuadShader);
@@ -205,7 +214,7 @@ int main(int argc, char* argv[])
     GLuint resultTexture = firstPassBuffer[0];
 
     // Loop until the user closes the window, put it inside application/engine class
-    while (!window->shouldClose())
+    while (!window.shouldClose())
     {
         //this scope should go inside a renderer class
         {
@@ -272,15 +281,15 @@ int main(int argc, char* argv[])
             mainUI.renderUI();
 
             /* Swap front and back buffers */
-            glfwSwapBuffers(window->getGLWindow());
+            glfwSwapBuffers(window.getGLWindow());
         }
-
 
         /* Poll for and process events */
         glfwPollEvents();
     }
 
     fileManager.stop();
+    window.stop();
 
     return 0;
 }

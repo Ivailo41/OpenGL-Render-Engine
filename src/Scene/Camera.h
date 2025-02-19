@@ -6,6 +6,14 @@
 class Camera : public BaseObject
 {
 public:
+	struct CursorData
+	{
+		int winX, winY, winOffsetX, winOffsetY, mouseX, mouseY;
+		CursorData(int winX, int winY, int winOffsetX, int winOffsetY, int mouseX, int mouseY)
+			: winX(winX), winY(winY), winOffsetX(winOffsetX), winOffsetY(winOffsetY), mouseX(mouseX), mouseY(mouseY)
+		{}
+	};
+
 	glm::vec3 getViewDirection() { return viewDirection; }
 
 	//might make the camera properties public, there is no need of these getters
@@ -17,6 +25,8 @@ public:
 	float getAspectRatio() const { return aspectRatio; }
 	glm::mat4 getViewMat() const { return viewMat; }
 	glm::mat4 getPerspectiveMat() const { return perspectiveMat; }
+
+	float getSpeed() const { return cameraSpeed; }
 
 	void setFOV(float fov);
 	void setSpeed(float speed);

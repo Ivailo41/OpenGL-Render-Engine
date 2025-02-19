@@ -3,12 +3,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <iostream>
+#include <cassert>
 
 class Window
 {
 public:
-	static Window* getInstance(const std::string& name, unsigned width, unsigned heigth);
-	static Window* getInstance();
+	bool init(const std::string& name, unsigned width, unsigned heigth);
+	void stop();
+	//static Window* getInstance();
 
 	GLFWwindow* getGLWindow() const { return window; }
 	unsigned getWidth() const;
@@ -17,17 +20,15 @@ public:
 	bool shouldClose() const;
 
 public:
+	Window();
 	Window(const Window& other) = delete;
-	~Window();
 
 private:
-	std::string name;
+	bool isRunning;
 	unsigned width, height;
+	std::string name;
 	GLFWwindow* window;
 
-	static Window* instance;
-
 private:
-	Window(const std::string& name, unsigned width, unsigned heigth);
 	void operator=(const Window& other) = delete;
 };

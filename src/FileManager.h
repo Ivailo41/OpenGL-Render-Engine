@@ -15,8 +15,8 @@ class FileManager
 {
 public:
 	//Can have System base class that will have start and stop functions, FileManager will inherit it
-	static void init(); //initialises the FileManager system
-	static void stop(); //stops the FileManager system
+	bool init(); //initialises the FileManager system
+	void stop(); //stops the FileManager system
 
 	bool loadOBJ(const std::string& fileName);
 	void createDirectory(const std::string& path);

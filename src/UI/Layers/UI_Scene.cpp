@@ -25,12 +25,36 @@ void UI_Scene::renderLayer()
 
     //Fix for the stretching when resizing the window problem, but the camera updates every frame, no idea if I would want that
     windowSpace = ImGui::GetContentRegionAvail();
-    Scene::activeScene->getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
-    Scene::activeScene->getActiveCamera()->updateCamera();
+    //windowSpace = ImGui::GetWindowSize();;
+    Camera* activeCamera = Scene::activeScene->getActiveCamera();
+    activeCamera->setAspectRatio(windowSpace.x, windowSpace.y);
+    activeCamera->updateCamera();
 
     if(ImGui::IsMouseDown(1) && ImGui::IsWindowHovered())
     {
-        Scene::activeScene->getActiveCamera()->cameraController(window->getGLWindow(), windowSpace.x, windowSpace.y);
+        /*if(ImGui::IsKeyPressed(ImGuiKey_W))
+        {
+            activeCamera->translate(activeCamera->getViewDirection() * activeCamera->getSpeed());
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_S))
+        {
+            activeCamera->translate(-activeCamera->getViewDirection() * activeCamera->getSpeed());
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_A))
+        {
+            activeCamera->translate(glm::cross(activeCamera->getViewDirection(), glm::vec3(0, -1, 0)) * activeCamera->getSpeed());
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_D))
+        {
+            activeCamera->translate(glm::cross(activeCamera->getViewDirection(), glm::vec3(0, 1, 0)) * activeCamera->getSpeed());
+        }*/
+        /*ImVec2 cursorPos = ImGui::GetMousePos();
+        ImVec2 offset = ImGui::GetWindowPos();
+        std::cout << "X: " << ImGui::GetWindowSize().x << " Y: " << ImGui::GetWindowSize().y << std::endl;*/
+        //Camera::CursorData data(windowSpace.x, windowSpace.y, offset.x, offset.y, cursorPos.x, cursorPos.y);
+        Camera::CursorData data(windowSpace.x, windowSpace.y, 0,0, 0, 0);
+
+        activeCamera->cameraController(window->getGLWindow(), windowSpace.x, windowSpace.y);
     }
 
     ImGui::Image(
