@@ -2,7 +2,9 @@ add_executable(Application)
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 
-target_link_libraries(Application PRIVATE ImGui_Beta glew_s glfw)
+#target_include_directories(Application PRIVATE Math)
+
+target_link_libraries(Application PUBLIC external glew_s glfw)
 
 #the target source is Application
 target_sources(
@@ -28,4 +30,4 @@ target_sources(
 	    "Renderer/FrameBuffer.cpp" "Core/Window.h" "Core/Window.cpp" 
         "UI/Layers/UI_Settings.h" "UI/Layers/UI_Settings.cpp" 
         "Renderer/DebugShapes.h" "Renderer/DebugShapes.cpp" "Renderer/LinesContainer.h" "Renderer/LinesContainer.cpp" 
-        "Renderer/PostProccess/Bloom.h" "Renderer/PostProccess/Bloom.cpp" "Renderer/FrameQuad.h" "Renderer/FrameQuad.cpp" "Renderer/Cubemap.h" "Renderer/Cubemap.cpp" "Scene/Skybox.h" "Scene/Skybox.cpp")
+        "Renderer/PostProccess/Bloom.h" "Renderer/PostProccess/Bloom.cpp" "Renderer/FrameQuad.h" "Renderer/FrameQuad.cpp" "Renderer/Cubemap.h" "Renderer/Cubemap.cpp" "Scene/Skybox.h" "Scene/Skybox.cpp" "Math/Math.cpp" "Math/Math.h")

@@ -2,19 +2,11 @@
 
 UI_ObjectProperties::UI_ObjectProperties() : UILayer("Object Properties")
 {
-    rotation = glm::vec3(0.0f);
-    position = glm::vec3(0.0f);
-    scale = glm::vec3(0.0f);
-
     moveSpeed = 0.1f;
 }
 
 UI_ObjectProperties::UI_ObjectProperties(const char* layerName) : UILayer(layerName)
 {
-    rotation = glm::vec3(0.0f);
-    position = glm::vec3(0.0f);
-    scale = glm::vec3(0.0f);
-
     moveSpeed = 0.1f;
 }
 
@@ -25,25 +17,23 @@ void UI_ObjectProperties::renderLayer()
 
     if(Scene::activeScene->getSelectedObject() != nullptr)
     {
-        rotation = Scene::activeScene->getSelectedObject()->getRotation();
-        position = Scene::activeScene->getSelectedObject()->getPosition();
-        scale = Scene::activeScene->getSelectedObject()->getScale();
+        transform = Scene::activeScene->getSelectedObject()->getTransform();
 
         ImGui::Text("selected mesh: %s", Scene::activeScene->getSelectedObject()->getName().c_str());
 
         ImGui::SliderFloat("move Speed", &moveSpeed, 0.01f, 2.0f);
 
-        if (ImGui::DragFloat3("Move", &position.x, moveSpeed))
+        if (ImGui::DragFloat3("Move", &transform.position.x, moveSpeed))
         {
-            Scene::activeScene->getSelectedObject()->setPosition(position);
+            Scene::activeScene->getSelectedObject()->setPosition(transform.position);
         }
-        if (ImGui::DragFloat3("Rotate", &rotation.x, moveSpeed))
+        if (ImGui::DragFloat3("Rotate", &transform.rotation.x, moveSpeed))
         {
-            Scene::activeScene->getSelectedObject()->setRotation(rotation);
+            Scene::activeScene->getSelectedObject()->setRotation(transform.rotation);
         }
-        if (ImGui::DragFloat3("Scale", &scale.x, moveSpeed))
+        if (ImGui::DragFloat3("Scale", &transform.scale.x, moveSpeed))
         {
-            Scene::activeScene->getSelectedObject()->setScale(scale);
+            Scene::activeScene->getSelectedObject()->setScale(transform.scale);
         }
     }
     ImGui::End();

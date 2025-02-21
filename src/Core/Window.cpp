@@ -14,20 +14,24 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     }
 
     window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+
     if (!window)
     {
-        this->name = name;
-        this->width = width;
-        this->height = height;
-
         glfwTerminate();
         std::cout << "Could not initialise window!" << std::endl;
         return false;
     }
 
+    this->name = name;
+    this->width = width;
+    this->height = height;
+
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glfwSetWindowUserPointer(window, nullptr);
+
+    //DISABLE VSYNC
+    glfwSwapInterval(0);
 
     // Getting the primary monitor and setting the window to be fullscreen
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();

@@ -13,9 +13,7 @@ public:
 	UI_ObjectProperties(const char*);
 
 private:
-	glm::vec3 rotation;
-	glm::vec3 position;
-	glm::vec3 scale;
+	Transform transform;
 
 	float moveSpeed;
 };

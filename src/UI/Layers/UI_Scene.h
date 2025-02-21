@@ -25,5 +25,10 @@ private:
 	unsigned fbo;
 	ImVec2 windowSpace;
 
+	bool viewMode;
+
 	FrameBuffer fbuffer;
+
+	//gizmo temp variable
+	ImGuizmo::OPERATION operation;
 };

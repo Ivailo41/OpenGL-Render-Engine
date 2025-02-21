@@ -10,8 +10,22 @@ UI_SceneTree::UI_SceneTree(const char* layerName) : UILayer(layerName)
 
 }
 
-void UI_SceneTree::renderElement(BaseObject* object)
+void UI_SceneTree::renderElement(BaseObject* object, const ImGuiTextFilter& filter)
 {
+	//If the object doesnt pass the filter, search for its children
+	if(!filter.PassFilter(object->getName().c_str()))
+	{
+		for (size_t i = 0; i < object->getChildrenCount(); i++)
+		{
+			BaseObject* child = object->children[i];
+			if (child != nullptr)
+			{
+				renderElement(child, filter);
+			}
+		}
+		return;
+	}
+
 	unsigned childCount = object->getChildrenCount();
 	bool isLeaf = !childCount;
 
@@ -36,8 +50,31 @@ void UI_SceneTree::renderElement(BaseObject* object)
 
 		else if (ImGui::IsItemClicked(1))
 		{
+			ImGui::OpenPopup("my_select_popup");
+		}
+
+		if (ImGui::BeginPopup("my_select_popup"))
+		{
+			ImGui::SeparatorText(object->getName().c_str());
+			if(ImGui::MenuItem("Copy"))
+			{
+
+			}
+			if (ImGui::MenuItem("Paste"))
+			{
+
+			}
+			if (ImGui::MenuItem("Select"))
+			{
+				Scene::activeScene->setSelectedObject(object);
+				std::cout << "Selected: " << object->getName() << std::endl;
+			}
+			if(ImGui::MenuItem("Delete"))
+			{
 				object->getParent()->removeChild(object);
 				std::cout << "Removed object: " << object->getName() << std::endl;
+			}
+			ImGui::EndPopup();
 		}
 
 		if (ImGui::BeginDragDropSource())
@@ -53,9 +90,13 @@ void UI_SceneTree::renderElement(BaseObject* object)
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_TREENODE"))
 		{
 			BaseObject** droppedObject = (BaseObject**)payload->Data;
-			std::cout << "Dropped: " << (*droppedObject)->getName() << " On: " << object->getName() << std::endl;
-			//attach the dragged object to the target
-			(*droppedObject)->attachTo(object);
+			//Prevent attaching a parent to its children
+			if(!object->isChildOf(*droppedObject))
+			{
+				std::cout << "Dropped: " << (*droppedObject)->getName() << " On: " << object->getName() << std::endl;
+				//attach the dragged object to the target
+				(*droppedObject)->attachTo(object);
+			}
 		}
 		ImGui::EndDragDropTarget();
 	}
@@ -67,7 +108,7 @@ void UI_SceneTree::renderElement(BaseObject* object)
 			BaseObject* child = object->children[i];
 			if (child != nullptr)
 			{
-				renderElement(child);
+				renderElement(child, filter);
 			}
 		}
 
@@ -79,9 +120,12 @@ void UI_SceneTree::renderLayer()
 {
 	ImGui::Begin(layerName.c_str());
 
+	static ImGuiTextFilter filter;
+	filter.Draw("Seach");
+
 	BaseObject* root = &Scene::activeScene->root;
 	//dont create a node but pass the parameters to the renderElement function
-	renderElement(root);
+	renderElement(root, filter);
 
 	ImGui::End();
 

@@ -7,6 +7,8 @@
 #include "Layers/UI_CameraProperties.h"
 #include "../Core/Window.h"
 
+#include "ImGuizmo.h"
+
 
 
 class EngineUI

@@ -19,6 +19,8 @@ public:
 
 	bool shouldClose() const;
 
+	//GLFWwindow* operator()() { return window; }
+
 public:
 	Window();
 	Window(const Window& other) = delete;

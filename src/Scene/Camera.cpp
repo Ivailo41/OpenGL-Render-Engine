@@ -55,6 +55,16 @@ void Camera::rotateCam(const glm::vec3& rotation)
 {
 	BaseObject::rotate(rotation);
 
+	//locking camera vertical movement, implement quaternions later
+	if(transform.rotation.x >= 1.5)
+	{
+		transform.rotation.x = 1.5;
+	}
+	if(transform.rotation.x <= -1.5)
+	{
+		transform.rotation.x = -1.5;
+	}
+
 	float horizontalAngle = transform.rotation.y;
 	float verticalAngle = transform.rotation.x;
 
@@ -63,10 +73,11 @@ void Camera::rotateCam(const glm::vec3& rotation)
 		sin(verticalAngle),
 		cos(verticalAngle) * cos(horizontalAngle)));
 
-	rightVector += glm::vec3(
-		cos(verticalAngle) * sin(horizontalAngle),
-		sin(verticalAngle),
-		cos(verticalAngle) * cos(horizontalAngle));
+	glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+	rightVector = glm::normalize(glm::cross(viewDirection, upVector));
+
+	// (Optional) Recalculate up vector for orthogonality
+	glm::vec3 recalculatedUpVector = glm::normalize(glm::cross(rightVector, viewDirection));
 
 	//updateCamera();
 }
@@ -102,22 +113,20 @@ void Camera::cameraController(GLFWwindow* window, int winX, int winY)
 {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		translate(getViewDirection() * cameraSpeed);
-		//position += direction * speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		translate(-getViewDirection() * cameraSpeed);
-		//position -= direction * speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		transform.position -= glm::cross(viewDirection, glm::vec3(0, 1, 0)) * cameraSpeed;
+		translate(-rightVector * cameraSpeed);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		transform.position += glm::cross(viewDirection, glm::vec3(0, 1, 0)) * cameraSpeed;
+		translate(rightVector * cameraSpeed);
 	}
 
+	//consider using delta mouse position instead
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
-
 	glfwSetCursorPos(window, winX / 2, winY / 2);
 
 	float horizontalAngle = 0.001f * float(winX / 2 - xpos);
