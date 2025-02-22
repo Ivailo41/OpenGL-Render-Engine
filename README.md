@@ -74,13 +74,12 @@ I made use of these libraries:
 - stbi_image - Image loader
 
 # More Screenshots
-![skybox_scrnsht](https://github.com/user-attachments/assets/de4a53cd-184a-42fc-9c49-97c74379af85)
 
-![Vertex_Normals](https://github.com/user-attachments/assets/77101e4a-95c5-454e-8250-1cc002df1f7e)
+## The AK 3D model is made by me, here is a link to renders done using Marmoset https://www.artstation.com/artwork/9NOP8q
+![RenderEngine2](https://github.com/user-attachments/assets/c78f693a-14a7-4509-8e63-6a446a2dbac6)
+
+![RenderEngine3](https://github.com/user-attachments/assets/692df58e-1ad8-4b80-a145-1503feaf9c13)
 
 ![Bloom2](https://github.com/user-attachments/assets/58929429-59f5-454f-9eb0-49c80a655c56)
 
-![renderEngine1](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/4c395c17-dd62-4126-a725-81590ad9c492)
-
-![renderEngine2](https://github.com/Ivailo41/OpenGL-Render-Engine/assets/115023277/2982ac31-47ed-46fd-a1ee-87ca07619335)
-The AK 3D model is made by me, here is a link to renders done using Marmoset https://www.artstation.com/artwork/9NOP8q
+![RenderEngine4](https://github.com/user-attachments/assets/7fe92eab-8b4a-4869-bc61-7912920bf808)
