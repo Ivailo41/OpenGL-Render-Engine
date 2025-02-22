@@ -27,6 +27,10 @@ fileManager.loadTextures(texturePaths);
 **Hold right click inside the window to enter the camera control <br />
 Move mouse to rotate the camera <br />
 W, A, S, D to move camera around**<br />
+When an object is selected a gizmo will appear: <br />
+W - Translation gizmo <br />
+E - Rotation gizmo <br />
+R - Scale gizmo <br />
 
 # Load your own 3D model
 `The engine uses a parser written by me and it has its' limitations.` <br />
