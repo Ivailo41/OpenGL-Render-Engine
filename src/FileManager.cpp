@@ -2,6 +2,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <sys/stat.h>
 
 #include <unordered_map>
 
@@ -274,33 +275,10 @@ void FileManager::createDirectory(const std::string& path)
 	}
 }
 
-//OLD FUNCTION DO NOT USE
-GLuint FileManager::loadTexture(const std::string& texturePath)
+inline bool FileManager::checkFileExistance(const std::string& name)
 {
-	checkRunState();
-
-	GLuint texture = 0;
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture: " << texturePath << std::endl;
-	}
-	stbi_image_free(data);
-	return texture;
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
 }
 
 void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
@@ -314,8 +292,22 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 	std::vector<Texture*>& textures = Scene::activeScene->textures;
 	//alocating the needed size for the textures
 	unsigned texturesSize = textures.size();
-	unsigned texturesToAdd = texturesPaths.size();
-	//IF PATHS ARE INVALID THE VECTOR WILL STILL RESIZE!!
+	unsigned texturesToAdd = 0;
+
+	//Check if the paths are valid files before resizing the vector to avoid creating invalid textures
+	for (size_t i = 0; i < texturesPaths.size(); i++)
+	{
+		if(checkFileExistance(texturesPaths[i]))
+		{
+			texturesToAdd++;
+		}
+		else
+		{
+			//Create a logging class that will handle messages
+			std::cout << "Texture not found! : " << texturesPaths[i] << std::endl;
+		}
+	}
+
 	textures.resize(texturesSize + texturesToAdd);
 
 	{
@@ -333,34 +325,21 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 
 						std::lock_guard<std::mutex> lock(textureMutex);
 						//OpenGL API calls should be made ONLY on the main thread, so we are storing them in a vector to call them later
-						commandVector.push_back([data, i, width, height, nrChannels, &textures, texturesSize, &texturesPaths]()
-							{
-								GLuint textureId = 0;
-								glGenTextures(1, &textureId);
-								glBindTexture(GL_TEXTURE_2D, textureId);
-
-								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-								glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-								glGenerateMipmap(GL_TEXTURE_2D);
-
-								//sets only id of the Texture struct, type and filepath will not be set, consider changing it
-								textures[texturesSize + i] = new Texture(textureId, texturesPaths[i].c_str());
-								stbi_image_free(data);
-							});
+						commandVector.push_back([data, i, width, height, &textures, texturesSize, &texturesPaths]()
+						{
+							textures[texturesSize + i] = new Texture(data, width, height, texturesPaths[i].c_str());
+							stbi_image_free(data);
+						});
 					}
 					else
 					{
 						std::lock_guard<std::mutex> lock(textureMutex);
 						commandVector.push_back([data, i, &texturesPaths]() 
-							{
-								//Create a logging class that will handle messages
-								std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
-								stbi_image_free(data);
-							});
+						{
+							//Create a logging class that will handle messages
+							std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
+							stbi_image_free(data);
+						});
 					}
 				}));
 		}
@@ -373,38 +352,6 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 		auto command = commandVector[i];
 		command();
 	}
-}
-
-GLuint FileManager::loadCubemap(const std::string texturePaths[6])
-{
-	checkRunState();
-
-	GLuint textureID = 0;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	int width, height, nrChannels;
-	for(size_t i = 0; i < 6; i++)
-	{
-		unsigned char* data = stbi_load(texturePaths[i].c_str(), &width, &height, &nrChannels, 0);
-		if(data)
-		{
-
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}
-		else
-		{
-			//create logging class that will handle messages
-			std::cout << "Failed to load cubemap face: " << texturePaths[i] << std::endl;
-		}
-		stbi_image_free(data);
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	return textureID;
 }
 
 //Change it to create Shader object that will be put in a hashmap, make other function that will return the wanted shader from the map
