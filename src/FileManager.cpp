@@ -2,8 +2,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
 #include <unordered_map>
+#include <sstream>
 
 bool FileManager::isRunning = false;
 
@@ -48,9 +48,9 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	Material* currentMaterial = nullptr;
 
 	//Storages for the coords of each vertex, texture coordinate and normal vector
-	std::vector<glm::vec3> verticesLoc;
-	std::vector<glm::vec2> verticesTexture;
-	std::vector<glm::vec3> verticesNormal;
+	std::vector<glm::vec3> vertPosList;
+	std::vector<glm::vec2> vertTextureList;
+	std::vector<glm::vec3> vertNormalList;
 
 	//final combined vertices that will be passed to the mesh construction
 	std::vector<Vertex> vertices;
@@ -90,7 +90,7 @@ bool FileManager::loadOBJ(const std::string& fileName)
 					delete object;
 					return false;
 				}
-				verticesTexture.push_back(glm::vec2(X,-Y));
+				vertTextureList.push_back(glm::vec2(X,-Y));
 			}
 			else if (prefix[1] == 'n')
 			{
@@ -100,7 +100,7 @@ bool FileManager::loadOBJ(const std::string& fileName)
 					delete object;
 					return false;
 				}
-				verticesNormal.push_back(glm::vec3(X, Y, Z));
+				vertNormalList.push_back(glm::vec3(X, Y, Z));
 			}
 			else
 			{
@@ -110,105 +110,145 @@ bool FileManager::loadOBJ(const std::string& fileName)
 					delete object;
 					return false;
 				}
-				verticesLoc.push_back(glm::vec3(X, Y, Z));
+				vertPosList.push_back(glm::vec3(X, Y, Z));
 			}
 		}
 		else if (prefix[0] == 'f')
 		{
-			unsigned VI1, VI2, VI3, VT1, VT2, VT3, VN1, VN2, VN3;
+			//Split the face line into tokens
+			std::vector<std::string> tokens;
+			unsigned faceVertsCount = tokenizeOBJFaceLine(tokens, line);
 
-			inputs = sscanf_s(line.c_str(), "%2s %u/%u/%u %u/%u/%u %u/%u/%u", prefix, 3, &VI1, &VT1, &VN1, &VI2, &VT2, &VN2, &VI3, &VT3, &VN3);
+			//for each token (a single token is one vertex data) we will parse that vertex data based on what information we are given for the vertex.
+			//the possible variations are to have vertexPos/vertexTextures/vertexData or some of them to be absent as seen in the formats below.
 
-			//Convert the indices to a string of type VI1/VT1/VN1 that will be passed to the unordered map to be hashed.
-			//Could use some optimisation in future or make custom hash function that hashes vector of 3 coordinates.
-			std::string face1(std::to_string(VI1) + '/' + std::to_string(VT1) + '/' + std::to_string(VN1));
-			std::string face2(std::to_string(VI2) + '/' + std::to_string(VT2) + '/' + std::to_string(VN2));
-			std::string face3(std::to_string(VI3) + '/' + std::to_string(VT3) + '/' + std::to_string(VN3));
+			bool hasNormalData = false;
+			bool hasTextureData = false;
 
-			if (inputs != 10)
+			//each token is a vertex data
+			std::vector<unsigned> faceVertIndices(faceVertsCount);
+			for (size_t i = 0; i < tokens.size(); i++)
 			{
-				std::cerr << "Model has incorrect faces data" << std::endl;
-				delete object;
-				return false;
+				unsigned v = 0;
+				unsigned vt = 0;
+				unsigned vn = 0;
+
+				if (sscanf(tokens[i].c_str(), "%d/%d/%d", &v, &vt, &vn) == 3) {
+					// v/vt/vn
+				}
+				else if (sscanf(tokens[i].c_str(), "%d//%d", &v, &vn) == 2) {
+					// v//vn
+				}
+				else if (sscanf(tokens[i].c_str(), "%d/%d", &v, &vt) == 2) {
+					// v/vt
+				}
+				else if (sscanf(tokens[i].c_str(), "%d", &v) == 1) {
+					// v
+				}
+
+				std::string face(std::to_string(v) + '/' + std::to_string(vt) + '/' + std::to_string(vn));
+
+				glm::vec3 vertPos;
+				glm::vec2 vertTexture(1, 1);
+				glm::vec3 vertNormal(0, 0, 1);
+
+				if(v != 0)
+				{
+					vertPos = vertPosList[v - vOffset - 1];
+				}
+				if(vt != 0)
+				{
+					vertTexture = vertTextureList[vt - vtOffset - 1];
+					hasTextureData = true;
+				}
+				if(vn != 0)
+				{
+					vertNormal = vertNormalList[vn - vnOffset - 1];
+					hasNormalData = true;
+				}
+
+				//Add the vertices
+				unsigned Indx;
+				if (vertTable.find(face) == vertTable.end())
+				{
+					vertTable[face] = vertices.size();
+					vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
+				}
+				Indx = vertTable[face];
+				//indices.push_back(Indx);
+				faceVertIndices[i] = Indx;
 			}
 
-			VI1 -= vOffset;
-			VI2 -= vOffset;
-			VI3 -= vOffset;
-			VT1 -= vtOffset;
-			VT2 -= vtOffset;
-			VT3 -= vtOffset;
-			VN1 -= vnOffset;
-			VN2 -= vnOffset;
-			VN3 -= vnOffset;
-
-			//check if we have already added the read vertex
-			unsigned I1;
-			if(vertTable.find(face1) == vertTable.end())
+			//Here we need to triangulate if we have an ngon and do the steps below for each triangle
+			for (size_t i = 1; i <= faceVertsCount - 2; i++)
 			{
-				vertTable[face1] = vertices.size();
-				vertices.push_back(Vertex(verticesLoc[VI1 - 1].x, verticesLoc[VI1 - 1].y, verticesLoc[VI1 - 1].z, verticesTexture[VT1 - 1].x, verticesTexture[VT1 - 1].y,
-					verticesNormal[VN1 - 1].x, verticesNormal[VN1 - 1].y, verticesNormal[VN1 - 1].z, 0, 0, 0));
+				unsigned I1 = faceVertIndices[0];
+				unsigned I2 = faceVertIndices[i];
+				unsigned I3 = faceVertIndices[i+1];
+
+				//check if we miss normal data, if so, calculate flat normal
+				if (!hasNormalData)
+				{
+					glm::vec3 p0 = vertices[I1].getPos();
+					glm::vec3 p1 = vertices[I2].getPos();
+					glm::vec3 p2 = vertices[I3].getPos();
+
+					glm::vec3 edge1 = p1 - p0;
+					glm::vec3 edge2 = p2 - p0;
+
+					glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
+
+					// Assign the same normal to all three vertices
+					vertices[I1].setNormal(faceNormal);
+					vertices[I2].setNormal(faceNormal);
+					vertices[I3].setNormal(faceNormal);
+				}
+
+				//Calculate tangent if the 3D model is unwraped (has texture data)
+				//if all vertices share the same point on the UV plane, then the delta1 and delta2 variables will be 0 resulting division by 0
+				if (hasTextureData)
+				{
+					glm::vec2 delta1, delta2;
+					glm::vec3 tangent, edge1, edge2;
+
+
+					edge1 = glm::vec3(vertices[I2].x - vertices[I1].x,
+						vertices[I2].y - vertices[I1].y,
+						vertices[I2].z - vertices[I1].z);
+
+					edge2 = glm::vec3(vertices[I3].x - vertices[I1].x,
+						vertices[I3].y - vertices[I1].y,
+						vertices[I3].z - vertices[I1].z);
+
+					delta1 = glm::vec2(vertices[I2].u - vertices[I1].u,
+						vertices[I2].v - vertices[I1].v);
+
+					delta2 = glm::vec2(vertices[I3].u - vertices[I1].u,
+						vertices[I3].v - vertices[I1].v);
+
+					float f = 1.0f / (delta1.x * delta2.y - delta2.x * delta1.y);
+					tangent.x = f * (delta2.y * edge1.x - delta1.y * edge2.x);
+					tangent.y = f * (delta2.y * edge1.y - delta1.y * edge2.y);
+					tangent.z = f * (delta2.y * edge1.z - delta1.y * edge2.z);
+
+					vertices[I1].tx += tangent.x;
+					vertices[I1].ty += tangent.y;
+					vertices[I1].tz += tangent.z;
+
+					vertices[I2].tx += tangent.x;
+					vertices[I2].ty += tangent.y;
+					vertices[I2].tz += tangent.z;
+
+					vertices[I3].tx += tangent.x;
+					vertices[I3].ty += tangent.y;
+					vertices[I3].tz += tangent.z;
+				}
+
+				//push the triangle
+				indices.push_back(I1);
+				indices.push_back(I2);
+				indices.push_back(I3);
 			}
-			I1 = vertTable[face1];
-			indices.push_back(I1);
-
-			unsigned I2;
-			if (vertTable.find(face2) == vertTable.end())
-			{
-				vertTable[face2] = vertices.size();
-				vertices.push_back(Vertex(verticesLoc[VI2 - 1].x, verticesLoc[VI2 - 1].y, verticesLoc[VI2 - 1].z, verticesTexture[VT2 - 1].x, verticesTexture[VT2 - 1].y,
-					verticesNormal[VN2 - 1].x, verticesNormal[VN2 - 1].y, verticesNormal[VN2 - 1].z, 0, 0, 0));
-			}
-			I2 = vertTable[face2];
-			indices.push_back(I2);
-
-			unsigned I3;
-			if (vertTable.find(face3) == vertTable.end())
-			{
-				vertTable[face3] = vertices.size();
-				vertices.push_back(Vertex(verticesLoc[VI3 - 1].x, verticesLoc[VI3 - 1].y, verticesLoc[VI3 - 1].z, verticesTexture[VT3 - 1].x, verticesTexture[VT3 - 1].y,
-					verticesNormal[VN3 - 1].x, verticesNormal[VN3 - 1].y, verticesNormal[VN3 - 1].z, 0, 0, 0));
-			}
-			I3 = vertTable[face3];
-			indices.push_back(I3);
-
-			//Calculate tangent vector of the vertex based on the face, it is necessary to calculate normal maps in tangent space. 
-			glm::vec2 delta1, delta2;
-			glm::vec3 tangent, edge1, edge2;
-
-			edge1 = glm::vec3(vertices[I2].x - vertices[I1].x,
-				vertices[I2].y - vertices[I1].y,
-				vertices[I2].z - vertices[I1].z);
-
-			edge2 = glm::vec3(vertices[I3].x - vertices[I1].x,
-				vertices[I3].y - vertices[I1].y,
-				vertices[I3].z - vertices[I1].z);
-
-			delta1 = glm::vec2(vertices[I2].u - vertices[I1].u,
-				vertices[I2].v - vertices[I1].v);
-
-			delta2 = glm::vec2(vertices[I3].u - vertices[I1].u,
-				vertices[I3].v - vertices[I1].v);
-
-
-			float f = 1.0f / (delta1.x * delta2.y - delta2.x * delta1.y);
-			tangent.x = f * (delta2.y * edge1.x - delta1.y * edge2.x);
-			tangent.y = f * (delta2.y * edge1.y - delta1.y * edge2.y);
-			tangent.z = f * (delta2.y * edge1.z - delta1.y * edge2.z);
-
-			vertices[I1].tx += tangent.x;
-			vertices[I1].ty += tangent.y;
-			vertices[I1].tz += tangent.z;
-
-			vertices[I2].tx += tangent.x;
-			vertices[I2].ty += tangent.y;
-			vertices[I2].tz += tangent.z;
-
-			vertices[I3].tx += tangent.x;
-			vertices[I3].ty += tangent.y;
-			vertices[I3].tz += tangent.z;
-
 		}
 		else if (prefix[0] == 'o')
 		{
@@ -225,17 +265,17 @@ bool FileManager::loadOBJ(const std::string& fileName)
 			currentMeshName = line.substr(2);
 
 			//increment the offset which will be used to subtract the indices of the next mesh so they begin from 0
-			vOffset += verticesLoc.size();
-			vtOffset += verticesTexture.size();
-			vnOffset += verticesNormal.size();
+			vOffset += vertPosList.size();
+			vtOffset += vertTextureList.size();
+			vnOffset += vertNormalList.size();
 
 			//clear the used vertices and indices
 			vertices.clear();
 			indices.clear();
 
-			verticesLoc.clear();
-			verticesTexture.clear();
-			verticesNormal.clear();
+			vertPosList.clear();
+			vertTextureList.clear();
+			vertNormalList.clear();
 		}
 		else if (line.find("usemtl") != std::string::npos)
 		{
@@ -542,4 +582,16 @@ Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::ve
 	}
 
 	return mesh;
+}
+
+unsigned FileManager::tokenizeOBJFaceLine(std::vector<std::string>& tokens, const std::string& line)
+{
+	std::istringstream iss(line);
+	std::string word;
+	iss >> word; // Skip the leading 'f'
+	while (iss >> word) {
+		tokens.push_back(word);
+	}
+
+	return tokens.size();
 }

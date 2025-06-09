@@ -6,6 +6,7 @@
 #include <filesystem>
 #include "Renderer/Shader.h"
 #include "Scene/Scene.h"
+#include <sstream>
 
 //for multithreading
 #include <future>
@@ -49,6 +50,8 @@ private:
 	void operator=(const FileManager& other) {}
 	//dynamically allocates mesh by given vertices, indices, name and material
 	Mesh* createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, Material* const currentMaterial);
+
+	unsigned FileManager::tokenizeOBJFaceLine(std::vector<std::string>& tokens, const std::string& line);
 
 private:
 	static bool isRunning;

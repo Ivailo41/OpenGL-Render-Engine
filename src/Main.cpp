@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
                                             "../assets/AK203/Set4_ORM.png",
                                             "../assets/AK203/Set4_Normal.png" };
 
-        fileManager.loadTextures(texturePaths);
+        //fileManager.loadTextures(texturePaths);
 
         // dynamically loaded object
         if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))

@@ -29,6 +29,5 @@
             vs_out.TexCoord = aTexCoord;
             vs_out.TanMatrix = TBN;
 
-
             gl_Position = perspectiveMat * viewMat * transform * vec4(aPos.x, aPos.y, aPos.z, 1.0);
         }
