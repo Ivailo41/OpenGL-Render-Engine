@@ -1,12 +1,13 @@
+
 #include "Bloom.h"
 #include <iostream>
 
 GLuint Bloom::applyEffect(const FrameBuffer& firstPass, const FrameBuffer& sceneBuffer)
 {
-	bool horizontal = true;
-	bool first_iteration = true;
+    bool horizontal = true;
+    bool first_iteration = true;
 
-    FrameBuffer *pingpongFBO[] = { &pp1,&pp2 };
+    FrameBuffer* pingpongFBO[] = { &pp1,&pp2 };
     blurShader.use();
 
     FrameQuad::bindQuadVAO();
@@ -55,8 +56,8 @@ void Bloom::setSteps(unsigned steps)
 }
 
 Bloom::Bloom(const Shader& blurShader, const Shader& bloomShader) : pp1(1, false), pp2(1, false), steps(10),
-																	blurShader(blurShader), bloomShader(bloomShader)
+blurShader(blurShader), bloomShader(bloomShader)
 {
-	pp1.genFrameBuffer(1920, 1080);
-	pp2.genFrameBuffer(1920, 1080);
+    pp1.genFrameBuffer(1920, 1080);
+    pp2.genFrameBuffer(1920, 1080);
 }

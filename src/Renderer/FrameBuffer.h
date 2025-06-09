@@ -1,6 +1,7 @@
 #pragma once
 #include <GL/glew.h>
 #include <vector>
+#include "Cubemap.h"
 
 class FrameBuffer
 {
@@ -14,21 +15,32 @@ public:
 	unsigned operator[](unsigned index) { return buffers[index]; }
 	const unsigned operator[](unsigned index) const { return buffers[index]; }
 
-	operator unsigned() const { return fbo; }
+	operator unsigned() const { return frameBufferID; }
 
 public:
 	FrameBuffer(unsigned buffersCount, bool depth);
 	~FrameBuffer();
 
-private:
+protected:
 	void deleteFrameBuffer();
 
-private:
-	unsigned fbo;
+protected:
+	unsigned frameBufferID;
 	std::vector<unsigned> buffers; //can be fixed count
-	unsigned rbo;
+	unsigned depthBufferID;
 	unsigned buffersCount;
 
 	unsigned width, height;
 	bool hasDepth;
+};
+
+class ShadowFrameBuffer : public FrameBuffer
+{
+public:
+	void genFrameBuffer(unsigned width, unsigned heigth);
+
+	ShadowFrameBuffer();
+	~ShadowFrameBuffer();
+
+	Cubemap cubemapTexture;
 };

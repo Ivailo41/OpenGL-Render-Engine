@@ -114,7 +114,8 @@ int main(int argc, char* argv[])
         "../assets/Skybox/back.jpg" 
     };
 
-    Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
+    //Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
+    Cubemap testCubeMap(cubemapPaths);
     Skybox skybox(&testCubeMap, &skyboxShader);
 
     mainCamera_p->setFOV(90.0f);
@@ -160,7 +161,8 @@ int main(int argc, char* argv[])
                                             "../assets/AK203/Set3_Normal.png",
                                             "../assets/AK203/Set4_Base.png",
                                             "../assets/AK203/Set4_ORM.png",
-                                            "../assets/AK203/Set4_Normal.png" };
+                                            "../assets/AK203/Set4_Normal.png",
+                                            "../assets/DoesntExist/notFound.png"};
 
         //fileManager.loadTextures(texturePaths);
 
@@ -212,6 +214,8 @@ int main(int argc, char* argv[])
     debugShapes2.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5,1,0));
 
     GLuint resultTexture = firstPassBuffer[0];
+
+    ShadowFrameBuffer sfb;
 
     // Loop until the user closes the window, put it inside application/engine class
     while (!window.shouldClose())

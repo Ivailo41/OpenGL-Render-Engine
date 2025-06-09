@@ -16,7 +16,7 @@ UI_Scene::UI_Scene(Window* window) : window(window), fbuffer(2, false), viewMode
 
     fbuffer.genFrameBuffer(window->getWidth(), window->getHeight());
 
-	layerName = "Scene";
+    layerName = "Scene";
 }
 
 void UI_Scene::renderLayer()

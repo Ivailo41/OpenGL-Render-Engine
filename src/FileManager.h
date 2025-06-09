@@ -22,18 +22,16 @@ public:
 	bool loadOBJ(const std::string& fileName);
 	void createDirectory(const std::string& path);
 
-
-	//OLD FUNCTION
-	GLuint loadTexture(const std::string& texturePath);
+	//Function that checks the file existance found from stackoverflow answer
+	inline bool checkFileExistance(const std::string& name);
 
 	//Using multithreading to load multiple textures faster
 	void loadTextures(const std::vector<std::string>& texturesPaths);
 
-	GLuint loadCubemap(const std::string texturePaths[6]);
-
 	std::string loadShader(const std::string& shaderPath);
 	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath);
 
+	//Might make these scene functions
 	Material* const getMaterial(const std::string& name);
 	unsigned isMaterialInList(const std::string& name);
 	Material* addMaterial(const std::string name);
