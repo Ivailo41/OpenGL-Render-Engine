@@ -6,6 +6,15 @@
 #include "../Renderer/Texture.h"
 #include "../Renderer/Material.h"
 
+struct MaterialGroup
+{
+	unsigned offset;
+	unsigned indicesCount;
+	const Material* material = nullptr;
+
+	MaterialGroup() : offset(0), indicesCount(0) {}
+};
+
 class Mesh : public BaseObject
 {
 public:
@@ -15,15 +24,8 @@ public:
 	unsigned getVBO() const { return VBO; }
 	unsigned getEBO() const { return EBO; }
 
-	//not used
-	//glm::mat4 getModelMatrix() const { return transform.modelMatrix; }
-
-	void setMaterial(Material* const material);
-
 public:
-	Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned>& indices);
-	//Mesh(const Mesh& other);
-	//Mesh& operator=(const Mesh& other);
+	Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups);
 	virtual ~Mesh();
 
 protected:
@@ -34,7 +36,9 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> vIndices;
 
-	Material* material;
+	std::vector<MaterialGroup> materialGroups;
+
+	//Material* material;
 
 	unsigned VAO, VBO, EBO;
 

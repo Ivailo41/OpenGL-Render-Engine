@@ -3,36 +3,13 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-Mesh::Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned>& indices) : BaseObject()
+Mesh::Mesh(const std::vector<Vertex>& verts, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups) : BaseObject()
 {
 	generateBuffers(VAO, VBO, EBO);
 	initialize(verts, indices);
+	setName(name);
+	materialGroups = matGroups;
 }
-
-
-//COPY CTOR AND =OPERATOR WERE CREATING NEW BUFFERS, FOR COPIED OBJECTS WE WILL SHARE 1 BUFFER
-//Mesh::Mesh(const Mesh& other) : BaseObject(other)
-//{
-//	vertices = other.vertices;
-//	vIndices = other.vIndices;
-//	material = other.material;
-//	generateBuffers(VAO, VBO, EBO);
-//	initialize(vertices, vIndices);
-//}
-//
-//Mesh& Mesh::operator=(const Mesh& other)
-//{
-//	if(this != &other)
-//	{
-//		BaseObject::operator=(other);
-//		vertices = other.vertices;
-//		vIndices = other.vIndices;
-//		material = other.material;
-//		generateBuffers(VAO, VBO, EBO);
-//		initialize(vertices, vIndices);
-//	}
-//	return *this;
-//}
 
 Mesh::~Mesh() //EACH COPY WILL SHARE ONE VERTEX BUFFER SO USE A SHARED POINTER AND AFTER ALL INSTANCES ARE DELETED, DELETE THE BUFFER
 {
@@ -85,33 +62,32 @@ void Mesh::draw() const
 	{
 		return;
 	}
-	unsigned shaderProgram = material->getShaderProgram();
 
-	//add function to shader object to set matrices
-	unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-	glm::mat4 modelMat = transform.modelMatrix;
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(modelMat)); //transform.modelMatrix
-
-	glBindVertexArray(VAO);
-
-	material->sendToShader();
-
-	if(material != nullptr)
+	for (auto materialGroup : materialGroups)
 	{
-		glActiveTexture(GL_TEXTURE0 + 0);
-		glBindTexture(GL_TEXTURE_2D, *material->operator[](0));
+		unsigned shaderProgram = materialGroup.material->getShaderProgram();
 
-		glActiveTexture(GL_TEXTURE0 + 1);
-		glBindTexture(GL_TEXTURE_2D, *material->operator[](1));
+		//add function to shader object to set matrices
+		unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+		glm::mat4 modelMat = transform.modelMatrix;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(modelMat)); //transform.modelMatrix
 
-		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, *material->operator[](2));
+		glBindVertexArray(VAO);
+
+		materialGroup.material->sendToShader();
+
+		if(materialGroup.material != nullptr)
+		{
+			glActiveTexture(GL_TEXTURE0 + 0);
+			glBindTexture(GL_TEXTURE_2D, *materialGroup.material->operator[](0));
+
+			glActiveTexture(GL_TEXTURE0 + 1);
+			glBindTexture(GL_TEXTURE_2D, *materialGroup.material->operator[](1));
+
+			glActiveTexture(GL_TEXTURE0 + 2);
+			glBindTexture(GL_TEXTURE_2D, *materialGroup.material->operator[](2));
+		}
+		glDrawElements(GL_TRIANGLES, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));
+		glBindVertexArray(0);
 	}
-	glDrawElements(GL_TRIANGLES, vIndices.size(), GL_UNSIGNED_INT, nullptr);
-	glBindVertexArray(0);
-}
-
-void Mesh::setMaterial(Material* const material)
-{
-	this->material = material;
 }

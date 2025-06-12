@@ -47,8 +47,6 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	size_t substrEnd = fileName.find_last_of('.');
 	std::string objectName = fileName.substr(substrStart, substrEnd - substrStart);
 
-	Material* currentMaterial = nullptr;
-
 	//Storages for the coords of each vertex, texture coordinate and normal vector
 	std::vector<glm::vec3> vertPosList;
 	std::vector<glm::vec2> vertTextureList;
@@ -57,6 +55,8 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	//final combined vertices that will be passed to the mesh construction
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
+
+	std::vector<MaterialGroup> materialGroups;
 
 	//unordered map that keeps track if we already have added the read vertex and if so use it again
 	std::unordered_map<std::string, unsigned> vertTable;
@@ -177,7 +177,6 @@ bool FileManager::loadOBJ(const std::string& fileName)
 					vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
 				}
 				Indx = vertTable[face];
-				//indices.push_back(Indx);
 				faceVertIndices[i] = Indx;
 			}
 
@@ -250,6 +249,8 @@ bool FileManager::loadOBJ(const std::string& fileName)
 				indices.push_back(I1);
 				indices.push_back(I2);
 				indices.push_back(I3);
+
+				materialGroups.back().indicesCount += 3;
 			}
 		}
 		else if (prefix[0] == 'o')
@@ -261,7 +262,7 @@ bool FileManager::loadOBJ(const std::string& fileName)
 			}
 
 			//if we read the prefix 'o' we create a new mesh with the vertices we have read.
-			Mesh* mesh = createMesh(vertices, indices, currentMeshName, currentMaterial);
+			Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
 			mesh->attachTo(object);
 
 			currentMeshName = line.substr(2);
@@ -271,9 +272,10 @@ bool FileManager::loadOBJ(const std::string& fileName)
 			vtOffset += vertTextureList.size();
 			vnOffset += vertNormalList.size();
 
-			//clear the used vertices and indices
+			//clear the used vertices, indices and material groups
 			vertices.clear();
 			indices.clear();
+			materialGroups.clear();
 
 			vertPosList.clear();
 			vertTextureList.clear();
@@ -281,21 +283,24 @@ bool FileManager::loadOBJ(const std::string& fileName)
 		}
 		else if (line.find("usemtl") != std::string::npos)
 		{
+			materialGroups.push_back(MaterialGroup());
+			materialGroups.back().offset = indices.size();
+
 			std::string name = line.substr(7);
 			if (isMaterialInList(name))
 			{
-				currentMaterial = getMaterial(name);
+				materialGroups.back().material = getMaterial(name);
 			}
 			else
 			{
-				currentMaterial = addMaterial(name);
+				materialGroups.back().material = addMaterial(name);
 			}
 		}
 	}
 
 	objFile.close();
 	//At the end add the final mesh with the last vertices and close the file
-	Mesh* mesh = createMesh(vertices, indices, currentMeshName, currentMaterial);
+	Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
 	mesh->attachTo(object);
 
 	//Scene::activeScene->sceneObjects.push_back(object);
@@ -515,19 +520,18 @@ void FileManager::checkRunState()
 	assert(isRunning); //Forgot to call the initialisation function init() before calling functions
 }
 
-Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, Material* const currentMaterial)
+Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups)
 {
-	Mesh* mesh = new Mesh(vertices, indices);
-	mesh->setName(name);
-	mesh->setMaterial(currentMaterial);
+	Mesh* mesh = new Mesh(vertices, indices, name, matGroups);
 
 	//Add debug lines to each vertex pointing the normal direction
-	for (size_t i = 0; i < vertices.size(); i++)
+	//currently disabling this feature as it may slow down object loading and it is usually done with geometric shader.
+	/*for (size_t i = 0; i < vertices.size(); i++)
 	{
 		mesh->debugLinesContainer.pushLine(Line(
 			Point(vertices[i].x, vertices[i].y, vertices[i].z),
 			Point(vertices[i].x + vertices[i].nx * 0.002, vertices[i].y + vertices[i].ny * 0.002, vertices[i].z + vertices[i].nz * 0.002)));
-	}
+	}*/
 
 	return mesh;
 }

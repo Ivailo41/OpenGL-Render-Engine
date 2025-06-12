@@ -47,7 +47,7 @@ private:
 	void checkRunState();
 	void operator=(const FileManager& other) {}
 	//dynamically allocates mesh by given vertices, indices, name and material
-	Mesh* createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, Material* const currentMaterial);
+	Mesh* createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups);
 
 	unsigned FileManager::tokenizeOBJFaceLine(std::vector<std::string>& tokens, const std::string& line);
 
