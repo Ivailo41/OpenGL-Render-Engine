@@ -18,7 +18,7 @@ struct MaterialGroup
 class Mesh : public BaseObject
 {
 public:
-	void draw() const override;
+	void draw(Shader* overrideShader = nullptr) const override;
 	BaseObject* clone() const override { return new Mesh(*this); }
 
 	unsigned getVBO() const { return VBO; }
@@ -37,8 +37,6 @@ protected:
 	std::vector<unsigned> vIndices;
 
 	std::vector<MaterialGroup> materialGroups;
-
-	//Material* material;
 
 	unsigned VAO, VBO, EBO;
 

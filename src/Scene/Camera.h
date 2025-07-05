@@ -39,7 +39,7 @@ public:
 
 	void cameraController(GLFWwindow* window, int winX, int winY);
 
-	void draw() const override;
+	void draw(Shader* overrideShader = nullptr) const override;
 	BaseObject* clone() const override { return new Camera(*this);}
 
 	void updateCamera();

@@ -29,7 +29,7 @@ public:
 	const PointLightData* getData() const;
 	void sendToShader(unsigned shaderProgram, unsigned lightIndex) const override;
 	virtual BaseObject* clone() const override { return new PointLight(*this); }
-	virtual void draw() const override;
+	virtual void draw(Shader* overrideShader = nullptr) const override;
 
 	PointLight();
 	PointLight(const std::string name);

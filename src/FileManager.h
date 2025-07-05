@@ -29,7 +29,7 @@ public:
 	void loadTextures(const std::vector<std::string>& texturesPaths);
 
 	std::string loadShader(const std::string& shaderPath);
-	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath);
+	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader = "");
 
 	//Might make these scene functions
 	Material* const getMaterial(const std::string& name);

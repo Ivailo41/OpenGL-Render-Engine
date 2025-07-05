@@ -1,6 +1,5 @@
 #include "Material.h"
 #include <iostream>
-#include "Shader.h"
 
 void Material::setTexture(Texture* texture, unsigned index)
 {
@@ -27,7 +26,7 @@ Material::Material() : baseColor(1,1,1), roughness(0.3), metalic(0), name("New_M
 						hasDiffuse(false), useNormalTexture(false), useORM(false), textures()
 {
 	//consider assigning shader by passing it as a parameter
-	shaderProgram = *Shader::findShader("PBRShader");
+	shader = Shader::findShader("PBRShader");
 	sendToShader();
 }
 
@@ -35,35 +34,33 @@ Material::Material(const std::string& name) : baseColor(1, 1, 1), roughness(0.3)
 												hasDiffuse(false), useNormalTexture(false), useORM(false), textures()
 {
 	//consider assigning shader by passing it as a parameter
-	shaderProgram = *Shader::findShader("PBRShader");
+	shader = Shader::findShader("PBRShader");
 	sendToShader();
 }
 
 void Material::sendToShader() const
 {
-	GLint baseColorLoc = glGetUniformLocation(shaderProgram, "baseColor");
-	GLint roughnessLoc = glGetUniformLocation(shaderProgram, "roughness");
-	GLint metalicLoc = glGetUniformLocation(shaderProgram, "metalic");
+	//glUseProgram(shaderProgram);
+	shader->setVec3("baseColor", baseColor);
+	shader->setFloat("roughness", roughness);
+	shader->setFloat("metalic", metalic);
 
-	GLint hasDiffuseLoc = glGetUniformLocation(shaderProgram, "hasDiffuse");
-	GLint useNormalTextureLoc = glGetUniformLocation(shaderProgram, "useNormalTexture");
-	GLint useORMLoc = glGetUniformLocation(shaderProgram, "useORM");
+	shader->setBool("hasDiffuse", hasDiffuse);
+	shader->setBool("useNormalTexture", useNormalTexture);
+	shader->setBool("useORM", useORM);
 
-	GLint baseImageLoc = glGetUniformLocation(shaderProgram, "diffTexture");
-	GLint ORMImageLoc = glGetUniformLocation(shaderProgram, "ORMTexture");      // ORM = Occlusion, Roughness, Metallic
-	GLint normalMapLoc = glGetUniformLocation(shaderProgram, "normalTexture");
+	shader->setInt("diffTexture", 0); // Texture unit 0 is for base images.
+	shader->setInt("ORMTexture", 1); // Texture unit 1 is for ORM images.
+	shader->setInt("normalTexture", 2); // Texture unit 2 is for normal maps.
+	shader->setInt("depthMap", 3); // Texture unit 3 is for depth maps, if needed.
 
-	glUseProgram(shaderProgram);
+	//This is specific for PBR materials, so it might go to a derived class later
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, *textures[0]);
 
-	glUniform3f(baseColorLoc, baseColor.r, baseColor.g, baseColor.b);
-	glUniform1f(roughnessLoc, roughness);
-	glUniform1f(metalicLoc, metalic);
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glBindTexture(GL_TEXTURE_2D, *textures[1]);
 
-	glUniform1i(hasDiffuseLoc, hasDiffuse);
-	glUniform1i(useNormalTextureLoc, useNormalTexture);
-	glUniform1i(useORMLoc, useORM);
-
-	glUniform1i(baseImageLoc, 0); // Texture unit 0 is for base images.
-	glUniform1i(ORMImageLoc, 1); // Texture unit 1 is for ORM images.
-	glUniform1i(normalMapLoc, 2); // Texture unit 2 is for normal maps.
+	glActiveTexture(GL_TEXTURE0 + 2);
+	glBindTexture(GL_TEXTURE_2D, *textures[2]);
 }

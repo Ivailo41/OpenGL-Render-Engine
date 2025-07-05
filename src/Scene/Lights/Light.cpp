@@ -61,7 +61,7 @@ void Light::setLightColor(char r, char g, char b)
 	lightColor = glm::vec3(r, g, b);
 }
 
-void Light::draw() const
+void Light::draw(Shader* overrideShader) const
 {
 
 }

@@ -22,7 +22,7 @@ public:
 
 	float* ambientRef() { return &ambientStrength; }
 
-	virtual void draw() const override;
+	virtual void draw(Shader* overrideShader = nullptr) const override;
 	virtual void sendToShader(unsigned shaderProgram, unsigned lightIndex) const = 0;
 
 protected:

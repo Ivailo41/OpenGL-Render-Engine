@@ -296,11 +296,11 @@ bool BaseObject::isChildOf(const BaseObject* object) const
 	return parentPtr->isChildOf(object);
 }
 
-void BaseObject::draw() const
+void BaseObject::draw(Shader* overrideShader) const
 {
 	unsigned meshesCount = children.size();
 	for (size_t i = 0; i < meshesCount; i++)
 	{
-		children[i]->draw();
+		children[i]->draw(overrideShader);
 	}
 }

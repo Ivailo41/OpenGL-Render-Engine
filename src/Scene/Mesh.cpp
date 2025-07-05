@@ -54,9 +54,9 @@ void Mesh::initialize(const std::vector<Vertex>& verts, const std::vector<unsign
 	//glBindVertexArray(0);
 }
 
-void Mesh::draw() const
+void Mesh::draw(Shader* overrideShader) const
 {
-	BaseObject::draw();
+	BaseObject::draw(overrideShader);
 
 	if(vertices.size() == 0 || vIndices.size() == 0)
 	{
@@ -67,25 +67,26 @@ void Mesh::draw() const
 	{
 		unsigned shaderProgram = materialGroup.material->getShaderProgram();
 
-		//add function to shader object to set matrices
-		unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-		glm::mat4 modelMat = transform.modelMatrix;
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(modelMat)); //transform.modelMatrix
+		materialGroup.material->getShader()->setMat4("transform", transform.modelMatrix);
 
 		glBindVertexArray(VAO);
 
-		materialGroup.material->sendToShader();
+		//this binds the shader asigned to the material
+		if (overrideShader != nullptr)
+		{
+			overrideShader->setMat4("model", transform.modelMatrix);
+			//overrideShader->use();
+		}
+		else
+		{
+			glUseProgram(shaderProgram);
+		}
 
+
+		//this might go to the pbr material class
 		if(materialGroup.material != nullptr)
 		{
-			glActiveTexture(GL_TEXTURE0 + 0);
-			glBindTexture(GL_TEXTURE_2D, *materialGroup.material->operator[](0));
-
-			glActiveTexture(GL_TEXTURE0 + 1);
-			glBindTexture(GL_TEXTURE_2D, *materialGroup.material->operator[](1));
-
-			glActiveTexture(GL_TEXTURE0 + 2);
-			glBindTexture(GL_TEXTURE_2D, *materialGroup.material->operator[](2));
+			materialGroup.material->sendToShader();
 		}
 		glDrawElements(GL_TRIANGLES, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));
 		glBindVertexArray(0);

@@ -37,10 +37,9 @@ protected:
 class ShadowFrameBuffer : public FrameBuffer
 {
 public:
-	void genFrameBuffer(unsigned width, unsigned heigth);
+	void genFrameBuffer(unsigned width, unsigned height);
 
 	ShadowFrameBuffer();
-	~ShadowFrameBuffer();
 
 	Cubemap cubemapTexture;
 };

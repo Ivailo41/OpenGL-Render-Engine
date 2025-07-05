@@ -29,8 +29,8 @@ void PointLight::sendToShader(unsigned shaderProgram, unsigned lightIndex) const
 	glUniform1f(intLoc, getIntensity());
 }
 
-void PointLight::draw() const
+void PointLight::draw(Shader* overrideShader) const
 {
-	Light::draw();
+	Light::draw(overrideShader);
 	//sendToShader(Shader::activeShader->getShaderProgram(), 0);
 }

@@ -16,7 +16,7 @@ public:
 	BaseObject* getSelectedObject() const;
 	void setSelectedObject(BaseObject* object);
 
-	void drawObjects() const;
+	void drawObjects(Shader* overrideShader = nullptr) const;
 
 	void setName(const std::string& name);
 	std::string getName() const;

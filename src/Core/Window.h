@@ -18,6 +18,10 @@ public:
 	unsigned getHeight() const;
 
 	bool shouldClose() const;
+	void resetViewport() const
+	{
+		glViewport(0, 0, width, height);
+	}
 
 	//GLFWwindow* operator()() { return window; }
 

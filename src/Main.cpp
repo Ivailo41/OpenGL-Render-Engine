@@ -85,6 +85,10 @@ int main(int argc, char* argv[])
     fileManager.loadShader("SkyboxShader", "../assets/Shaders/Skybox/SkyboxVertex.glsl", "../assets/Shaders/Skybox/SkyboxFrag.glsl");
     Shader skyboxShader = *Shader::findShader("SkyboxShader");
 
+	//CREATE SHADOW SHADER
+	fileManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
+	Shader shadowShader = *Shader::findShader("ShadowShader");
+
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
     Scene::activeScene = &mainScene;
@@ -130,17 +134,17 @@ int main(int argc, char* argv[])
         //mainScene.sceneObjects.push_back(lights[i]);
         mainScene.root.addChild(lights[i]);
     }
-    lights[0]->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
-    lights[0]->setIntensity(100);
+    lights[0]->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    lights[0]->setIntensity(10);
 
     lights[1]->setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-    lights[1]->setIntensity(100);
+    lights[1]->setIntensity(10);
 
     lights[2]->setPosition(glm::vec3(0.0f, 0.0f, -1.0f));
-    lights[2]->setIntensity(100);
+    lights[2]->setIntensity(10);
 
     lights[3]->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
-    lights[3]->setIntensity(100);
+    lights[3]->setIntensity(10);
 
     lights[0]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
     lights[1]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
@@ -164,7 +168,7 @@ int main(int argc, char* argv[])
                                             "../assets/AK203/Set4_Normal.png",
                                             "../assets/DoesntExist/notFound.png"};
 
-        //fileManager.loadTextures(texturePaths);
+        fileManager.loadTextures(texturePaths);
 
         // dynamically loaded object
         if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
@@ -216,12 +220,49 @@ int main(int argc, char* argv[])
     GLuint resultTexture = firstPassBuffer[0];
 
     ShadowFrameBuffer sfb;
+	unsigned SHADOW_WIDTH = 2048;
+	unsigned SHADOW_HEIGHT = 2048;
+    sfb.genFrameBuffer(SHADOW_WIDTH, SHADOW_HEIGHT); //generate shadow map framebuffer
+
+    glm::vec3 lightPos = lights[0]->getPosition();
+
+    float aspect = (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT;
+    float near = 0.01f;
+    float far = 25.0f;
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
 
     // Loop until the user closes the window, put it inside application/engine class
     while (!window.shouldClose())
     {
         //this scope should go inside a renderer class
         {
+            lightPos = lights[0]->getPosition();
+
+            std::vector<glm::mat4> shadowTransforms;
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f))); //the wrong one
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f))); //top
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));//bottom
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));//not
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));//not
+
+            //genFrameBuffer unbinds the buffer but on the next line we bind it again, could optimize it in the future
+			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT); //set the viewport to the shadow map size
+            sfb.bind();
+            glClear(GL_DEPTH_BUFFER_BIT); //clear the depth buffer for the shadow map
+            
+			//use depth shader and pass the light position to it
+			shadowShader.use();
+            for (size_t i = 0; i < 6; i++)
+            {
+				shadowShader.setMat4(std::string("shadowMatrices[" + std::to_string(i) + "]").c_str(), shadowTransforms[i]);
+            }
+            shadowShader.setVec3("lightPosition", lightPos);
+            shadowShader.setFloat("far_plane", far);
+
+			mainScene.drawObjects(&shadowShader); //draws object to the shadow map
+			sfb.unbind(); //unbind the shadow framebuffer
+            window.resetViewport();
             //START OF SCENE OBJECTS RENDERING
             firstPassBuffer.bind();
 
@@ -237,6 +278,10 @@ int main(int argc, char* argv[])
             //The PBR shader
             shader.use();
             shader.setFloat("threshold", settingsLayer.getTreshold());
+			shader.setFloat("far_plane", far);
+
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, sfb.cubemapTexture);
 
             //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
             for(unsigned i = 0; i < lights.size(); i++)
@@ -244,6 +289,7 @@ int main(int argc, char* argv[])
                 lights[i]->sendToShader(shader, i);
             }
 
+            Scene::activeScene->getActiveCamera()->updateCamera();
             mainScene.drawObjects(); //draws object
 
             glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh

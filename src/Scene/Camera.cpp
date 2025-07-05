@@ -99,7 +99,7 @@ void Camera::updateCamera()
 	glUniform3f(camPos, getPosition().x, getPosition().y, getPosition().z);
 }
 
-void Camera::draw() const
+void Camera::draw(Shader* overrideShader) const
 {
 }
 

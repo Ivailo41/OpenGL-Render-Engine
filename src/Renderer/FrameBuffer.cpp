@@ -63,6 +63,11 @@ frameBufferID(0), depthBufferID(0)
 
 FrameBuffer::~FrameBuffer()
 {
+    if (buffersCount == 0) 
+    {
+        return;
+    }
+
     glDeleteTextures(buffersCount, &buffers[0]);
     deleteFrameBuffer();
 }
@@ -72,7 +77,7 @@ void FrameBuffer::deleteFrameBuffer()
     glDeleteFramebuffers(1, &frameBufferID);
 }
 
-void ShadowFrameBuffer::genFrameBuffer(unsigned width, unsigned heigth)
+void ShadowFrameBuffer::genFrameBuffer(unsigned width, unsigned height)
 {
     glGenFramebuffers(1, &frameBufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
@@ -85,14 +90,15 @@ void ShadowFrameBuffer::genFrameBuffer(unsigned width, unsigned heigth)
 
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) 
+    {
+        // Log or handle error
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-ShadowFrameBuffer::ShadowFrameBuffer() : FrameBuffer(0, true)
+ShadowFrameBuffer::ShadowFrameBuffer() : FrameBuffer(0, false)
 {
 
-}
-
-ShadowFrameBuffer::~ShadowFrameBuffer()
-{
-    glDeleteTextures(1, &depthBufferID);
 }

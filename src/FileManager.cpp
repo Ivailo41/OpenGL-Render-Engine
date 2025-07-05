@@ -424,17 +424,23 @@ std::string FileManager::loadShader(const std::string& shaderPath)
 	return shaderSource;
 }
 
-bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath)
+bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader)
 {
 	checkRunState();
 
 	//check if shader exists in map and return it if so
 
-	const std::string* paths[] = { &vertexShaderPath , &fragShaderPath };
-	std::string result[2];
+	const std::string* paths[] = { &vertexShaderPath , &fragShaderPath, &geometryShader};
+	std::string result[3];
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
+		if (paths[i]->empty())
+		{
+			result[i] = "";
+			continue;
+		}
+
 		std::ifstream saderFile(*paths[i], std::ios::in);
 		if (!saderFile.is_open())
 		{
@@ -456,7 +462,7 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 	//the shader constructor adds it to the shader map
 	try
 	{
-		Shader shader(shaderName, result[0], result[1]);
+		Shader shader(shaderName, result[0], result[1], result[2]);
 	}
 	catch(std::exception error)
 	{
