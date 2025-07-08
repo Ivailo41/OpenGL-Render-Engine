@@ -1,7 +1,7 @@
 #include "Light.h"
 
-uint16_t Light::SHADOW_WIDTH = 512;
-uint16_t Light::SHADOW_HEIGHT = 512;
+uint16_t Light::SHADOW_WIDTH = 1024;
+uint16_t Light::SHADOW_HEIGHT = 1024;
 
 Light::Light() : BaseObject("New Light")
 {

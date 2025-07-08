@@ -43,9 +43,11 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	std::string line;
 
 	//Get the name of the file without its extention to name the object
-	size_t substrStart = fileName.find_last_of('/') + 1;
-	size_t substrEnd = fileName.find_last_of('.');
-	std::string objectName = fileName.substr(substrStart, substrEnd - substrStart);
+	std::string objectName = fileName;
+	std::replace(objectName.begin(), objectName.end(), '\\', '/'); //replace backslash with forward slash for compatibility
+	size_t substrStart = objectName.find_last_of('/') + 1;
+	size_t substrEnd = objectName.find_last_of('.');
+	objectName = objectName.substr(substrStart, substrEnd - substrStart);
 
 	//Storages for the coords of each vertex, texture coordinate and normal vector
 	std::vector<glm::vec3> vertPosList;
