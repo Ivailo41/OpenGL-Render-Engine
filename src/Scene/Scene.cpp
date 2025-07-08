@@ -52,6 +52,11 @@ void Scene::drawObjects(Shader* overrideShader) const
 	}*/
 }
 
+void Scene::updateObjects(float deltaTime)
+{
+	root.update(deltaTime);
+}
+
 void Scene::setName(const std::string& name)
 {
 	this->name = name;

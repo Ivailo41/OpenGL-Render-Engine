@@ -75,12 +75,12 @@ void Cubemap::generateCubemap(unsigned width = 1024, unsigned height = 1024, Cub
 		else if(type == CubemapType::SHADOW_MAP)
 		{
 			glGenTextures(1, &textureID);
-
 			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
 			for (unsigned int i = 0; i < 6; ++i)
 			{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
-					width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+					width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 			}
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

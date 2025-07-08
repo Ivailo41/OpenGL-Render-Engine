@@ -127,14 +127,14 @@ int main(int argc, char* argv[])
     otherCamera_p->setFOV(30.0f);
 
     //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
-    std::vector<Light*> lights;
+    std::vector<PointLight*> lights;
     for (size_t i = 0; i < 4; i++)
     {
         lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
         //mainScene.sceneObjects.push_back(lights[i]);
         mainScene.root.addChild(lights[i]);
     }
-    lights[0]->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    lights[0]->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
     lights[0]->setIntensity(10);
 
     lights[1]->setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
@@ -220,50 +220,49 @@ int main(int argc, char* argv[])
     GLuint resultTexture = firstPassBuffer[0];
 
     ShadowFrameBuffer sfb;
-	unsigned SHADOW_WIDTH = 2048;
-	unsigned SHADOW_HEIGHT = 2048;
+
+	unsigned SHADOW_WIDTH = Light::SHADOW_WIDTH;
+    unsigned SHADOW_HEIGHT = Light::SHADOW_HEIGHT;
+
     sfb.genFrameBuffer(SHADOW_WIDTH, SHADOW_HEIGHT); //generate shadow map framebuffer
 
-    glm::vec3 lightPos = lights[0]->getPosition();
-
-    float aspect = (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT;
-    float near = 0.01f;
-    float far = 25.0f;
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
-
+    double lastFrameTime = glfwGetTime();
     // Loop until the user closes the window, put it inside application/engine class
     while (!window.shouldClose())
     {
+		double currentFrameTime = glfwGetTime();
+		float deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);
+		lastFrameTime = currentFrameTime;
         //this scope should go inside a renderer class
         {
-            lightPos = lights[0]->getPosition();
+            //later on pass deltaTime here, currently it is not needed
+            mainScene.updateObjects(deltaTime);
 
-            std::vector<glm::mat4> shadowTransforms;
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f))); //the wrong one
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f))); //top
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));//bottom
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));//not
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));//not
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            //genFrameBuffer unbinds the buffer but on the next line we bind it again, could optimize it in the future
+            //SHADOW PASS START
 			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT); //set the viewport to the shadow map size
             sfb.bind();
             glClear(GL_DEPTH_BUFFER_BIT); //clear the depth buffer for the shadow map
             
 			//use depth shader and pass the light position to it
 			shadowShader.use();
-            for (size_t i = 0; i < 6; i++)
-            {
-				shadowShader.setMat4(std::string("shadowMatrices[" + std::to_string(i) + "]").c_str(), shadowTransforms[i]);
-            }
-            shadowShader.setVec3("lightPosition", lightPos);
-            shadowShader.setFloat("far_plane", far);
 
-			mainScene.drawObjects(&shadowShader); //draws object to the shadow map
+            for (unsigned i = 0; i < lights.size(); i++)
+            {
+                //attach each cubemap to the framebuffer
+                sfb.attachCubemap(lights[i]->getShadowCubemap());
+				glClear(GL_DEPTH_BUFFER_BIT); //clear the depth buffer for the shadow map
+                shadowShader.use();
+                lights[i]->sendShadowDataToShader(shadowShader, i);
+			    mainScene.drawObjects(&shadowShader); //draws object to the shadow map
+                //draw scene from each light perspective
+            }
 			sfb.unbind(); //unbind the shadow framebuffer
-            window.resetViewport();
+            //SHADOW PASS END
+
             //START OF SCENE OBJECTS RENDERING
+            window.resetViewport();
             firstPassBuffer.bind();
 
             unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
@@ -278,15 +277,17 @@ int main(int argc, char* argv[])
             //The PBR shader
             shader.use();
             shader.setFloat("threshold", settingsLayer.getTreshold());
-			shader.setFloat("far_plane", far);
 
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, sfb.cubemapTexture);
 
             //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
             for(unsigned i = 0; i < lights.size(); i++)
             {
+				//!!!MAXIMUM OF 16 TEXTURES CAN BE BOUND AT ONCE, MAKE SURE TO NOT EXCEED THE LIMIT, LATER ON FIND BETTER APPROACH!!!
+			    glActiveTexture(GL_TEXTURE0 + 3 + i);
+			    glBindTexture(GL_TEXTURE_CUBE_MAP, lights[i]->getShadowCubemap());
                 lights[i]->sendToShader(shader, i);
+			    shader.setFloat(std::string("far_plane[" + std::to_string(i) + "]").c_str(), lights[i]->getShadowFar());
+				shader.setInt(std::string("depthMap[" + std::to_string(i) + "]").c_str(), 3 + i); //bind the shadow map texture to the shader
             }
 
             Scene::activeScene->getActiveCamera()->updateCamera();
@@ -327,6 +328,17 @@ int main(int argc, char* argv[])
             FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer(), settingsLayer.getGamma(), settingsLayer.getExposure());
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            if(mainUI.getSceneLayer().isViewMode())
+            {
+				ImVec2 windowSpace = mainUI.getSceneLayer().getWindowSpace();
+
+                mainScene.getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
+                mainScene.getActiveCamera()->updateCamera();
+
+                Camera::CursorData data(windowSpace.x, windowSpace.y, 0, 0, 0, 0);
+                mainScene.getActiveCamera()->cameraController(window.getGLWindow(), windowSpace.x, windowSpace.y, deltaTime);
+            }
 
             mainUI.renderUI();
 

@@ -37,9 +37,10 @@ public:
 
 	void rotateCam(const glm::vec3& rotation);
 
-	void cameraController(GLFWwindow* window, int winX, int winY);
+	void cameraController(GLFWwindow* window, int winX, int winY, float deltaTime);
 
 	void draw(Shader* overrideShader = nullptr) const override;
+	void update(float deltaTime);
 	BaseObject* clone() const override { return new Camera(*this);}
 
 	void updateCamera();

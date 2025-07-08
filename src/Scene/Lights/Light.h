@@ -23,11 +23,18 @@ public:
 	float* ambientRef() { return &ambientStrength; }
 
 	virtual void draw(Shader* overrideShader = nullptr) const override;
-	virtual void sendToShader(unsigned shaderProgram, unsigned lightIndex) const = 0;
+	virtual void update(float deltaTime) override;
+	virtual void sendToShader(const Shader& shaderProgram, unsigned lightIndex) const = 0;
+	virtual void sendShadowDataToShader(const Shader& shaderProgram, unsigned lightIndex) const = 0;
+
+public:
+	static uint16_t SHADOW_WIDTH;
+	static uint16_t SHADOW_HEIGHT;
 
 protected:
 	float intensity;
 	float ambientStrength;
 	glm::vec3 lightColor;
+
 };
 

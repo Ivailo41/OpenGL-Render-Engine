@@ -37,23 +37,23 @@
         uniform sampler2D diffTexture;
         uniform sampler2D ORMTexture;
         uniform sampler2D normalTexture;
-        uniform samplerCube depthMap;
+        uniform samplerCube depthMap[MAX_POINT_LIGHTS];
         
         uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
-        uniform float far_plane;
+        uniform float far_plane[MAX_POINT_LIGHTS];
 
         uniform vec3 camPos;
         uniform float threshold;
 
-        float ShadowCalculation(vec3 fragPos)
+        float ShadowCalculation(vec3 fragPos, int lightIndex)
         {
             // get vector between fragment position and light position
-            vec3 fragToLight = fragPos - pointLights[0].position;
+            vec3 fragToLight = fragPos - pointLights[lightIndex].position;
             // use the light to fragment vector to sample from the depth map    
-            float closestDepth = texture(depthMap, fragToLight).r;
+            float closestDepth = texture(depthMap[lightIndex], fragToLight).r;
             // it is currently in linear range between [0,1]. Re-transform back to original value
-            closestDepth *= far_plane;
+            closestDepth *= far_plane[lightIndex];
             // now get current linear depth as the length between the fragment and light position
             float currentDepth = length(fragToLight);
             // now test for shadows
@@ -61,8 +61,7 @@
             float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
 
             return shadow;
-        }  
-  
+        }
 
         // vec3 CalcPointLight(PointLight light, vec3 normal, vec3 V, vec3 diffuseTexture, vec3 F0, vec3 ORM, mat3 TanMatrix) 
         // {
@@ -149,7 +148,7 @@
             vec3 F0 = vec3(0.24); 
             F0 = mix(F0, diffuseTexture, ORM.b);  
 
-           for(int i = 0; i < 1; i++)
+           for(int i = 0; i < MAX_POINT_LIGHTS; i++)
             {
                 vec3 L = fs_in.TanMatrix * normalize(pointLights[i].position - fs_in.FragPos);
                 vec3 H = normalize(V + L);
@@ -175,7 +174,7 @@
 
                 // Apply shadow: (1.0 - shadow) means 1 in light, 0 in shadow
                 //lightResult += (1.0 - shadow) * ((kD * diffuseTexture / PI + specular) * attenuation * NdotL);
-                float shadow = ShadowCalculation(fs_in.FragPos);
+                float shadow = ShadowCalculation(fs_in.FragPos, i);
                 vec3 ambient = vec3(0.01) * diffuseTexture;
                 lightResult += ((kD * diffuseTexture / PI + specular) * (ambient + (1- shadow)) * attenuation * NdotL * diffuseTexture * ORM.r);
             }
@@ -193,7 +192,7 @@
             //float shadows = length(fragToLight) - bias > closestDepth ? 1.0 : 0.0;
 
             //FragColor = vec4(vec3(1- shadows), 1.0);  
-            //FragColor = vec4(vec3(length(fragToLight) - closestDepth), 1.0f);
+            //FragColor = vec4(vec3(closestDepth / far_plane), 1.0f);
             FragColor = vec4(color, 1.0f);
 
             float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));

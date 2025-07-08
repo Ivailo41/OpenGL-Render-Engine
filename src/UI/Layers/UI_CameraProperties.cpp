@@ -27,7 +27,7 @@ void UI_CameraProperties::renderLayer()
     {
         currentCamera->setFOV(FOV);
     }
-    if (ImGui::SliderFloat("camera Speed", &camSpeed, 0.01f, 2.0f))
+    if (ImGui::DragFloat("camera Speed", &camSpeed, 0.1f, 0.1f, 0.0f))
     {
         currentCamera->setSpeed(camSpeed);
     }

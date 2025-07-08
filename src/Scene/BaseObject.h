@@ -50,6 +50,7 @@ public:
 	const glm::mat4 globalToLocalMat(const glm::mat4& matrix) const;
 
 	virtual void draw(Shader* overrideShader = nullptr) const;
+	virtual void update(float deltaTime);
 	virtual BaseObject* clone() const { return new BaseObject(*this); }
 
 	void setParent(BaseObject* parent);
@@ -84,6 +85,7 @@ protected:
 	Transform transform;
 
 	BaseObject* parentPtr;
+	bool moved;
 
 private:
 	void updateModelMat();

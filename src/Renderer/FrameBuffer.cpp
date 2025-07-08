@@ -48,6 +48,10 @@ void FrameBuffer::genFrameBuffer(unsigned width, unsigned height)
 void FrameBuffer::bind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {}
+        // log message when logging class is complete
 }
 
 void FrameBuffer::unbind() const
@@ -80,13 +84,7 @@ void FrameBuffer::deleteFrameBuffer()
 void ShadowFrameBuffer::genFrameBuffer(unsigned width, unsigned height)
 {
     glGenFramebuffers(1, &frameBufferID);
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
-
-    cubemapTexture.generateCubemap(width, height, CubemapType::SHADOW_MAP);
-
-    depthBufferID = cubemapTexture;
-
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthBufferID, 0);
+    bind();
 
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
@@ -95,7 +93,12 @@ void ShadowFrameBuffer::genFrameBuffer(unsigned width, unsigned height)
     {
         // Log or handle error
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void ShadowFrameBuffer::attachCubemap(const Cubemap& cubemap)
+{
+    depthBufferID = cubemap;
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthBufferID, 0);
 }
 
 ShadowFrameBuffer::ShadowFrameBuffer() : FrameBuffer(0, false)

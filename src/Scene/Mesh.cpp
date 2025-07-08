@@ -65,10 +65,6 @@ void Mesh::draw(Shader* overrideShader) const
 
 	for (auto materialGroup : materialGroups)
 	{
-		unsigned shaderProgram = materialGroup.material->getShaderProgram();
-
-		materialGroup.material->getShader()->setMat4("transform", transform.modelMatrix);
-
 		glBindVertexArray(VAO);
 
 		//this binds the shader asigned to the material
@@ -79,16 +75,23 @@ void Mesh::draw(Shader* overrideShader) const
 		}
 		else
 		{
+			unsigned shaderProgram = materialGroup.material->getShaderProgram();
 			glUseProgram(shaderProgram);
+			materialGroup.material->getShader()->setMat4("transform", transform.modelMatrix);
+
+			//this might go to the pbr material class
+			if(materialGroup.material != nullptr)
+			{
+				materialGroup.material->sendToShader();
+			}
 		}
 
-
-		//this might go to the pbr material class
-		if(materialGroup.material != nullptr)
-		{
-			materialGroup.material->sendToShader();
-		}
 		glDrawElements(GL_TRIANGLES, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));
 		glBindVertexArray(0);
 	}
+}
+
+void Mesh::update(float deltaTime)
+{
+
 }

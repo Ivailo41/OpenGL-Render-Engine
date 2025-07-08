@@ -52,7 +52,7 @@ void Material::sendToShader() const
 	shader->setInt("diffTexture", 0); // Texture unit 0 is for base images.
 	shader->setInt("ORMTexture", 1); // Texture unit 1 is for ORM images.
 	shader->setInt("normalTexture", 2); // Texture unit 2 is for normal maps.
-	shader->setInt("depthMap", 3); // Texture unit 3 is for depth maps, if needed.
+	//shader->setInt("depthMap", 3); // Texture unit 3 is for depth maps, if needed.
 
 	//This is specific for PBR materials, so it might go to a derived class later
 	glActiveTexture(GL_TEXTURE0 + 0);

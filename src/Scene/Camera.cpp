@@ -103,25 +103,30 @@ void Camera::draw(Shader* overrideShader) const
 {
 }
 
+void Camera::update(float deltaTime)
+{
+
+}
+
 void Camera::setViewDirection(const glm::vec3& viewDirection)
 {
 	this->viewDirection = viewDirection;
 	//updateCamera();
 }
 
-void Camera::cameraController(GLFWwindow* window, int winX, int winY)
+void Camera::cameraController(GLFWwindow* window, int winX, int winY, float deltaTime)
 {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		translate(getViewDirection() * cameraSpeed);
+		translate(getViewDirection() * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		translate(-getViewDirection() * cameraSpeed);
+		translate(-getViewDirection() * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		translate(-rightVector * cameraSpeed);
+		translate(-rightVector * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		translate(rightVector * cameraSpeed);
+		translate(rightVector * cameraSpeed * deltaTime);
 	}
 
 	//consider using delta mouse position instead

@@ -14,6 +14,8 @@ public:
 
 	unsigned getTexture() const { return fbuffer[0]; }
 	unsigned getLightTexture() const { return fbuffer[1]; }
+	bool isViewMode() const { return viewMode; }
+	ImVec2 getWindowSpace() const { return windowSpace; }
 
 public:
 	UI_Scene(Window* window);

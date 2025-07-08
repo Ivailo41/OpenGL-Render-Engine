@@ -38,8 +38,9 @@ class ShadowFrameBuffer : public FrameBuffer
 {
 public:
 	void genFrameBuffer(unsigned width, unsigned height);
+	void attachCubemap(const Cubemap& cubemap);
 
 	ShadowFrameBuffer();
 
-	Cubemap cubemapTexture;
+	//Cubemap cubemapTexture;
 };

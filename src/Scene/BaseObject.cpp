@@ -1,6 +1,6 @@
 #include "BaseObject.h"
 
-BaseObject::BaseObject() : parentPtr(nullptr)
+BaseObject::BaseObject() : parentPtr(nullptr), moved(false)
 {
 	name = "New Object";
 	setPosition(glm::vec3(0.0f));
@@ -9,7 +9,7 @@ BaseObject::BaseObject() : parentPtr(nullptr)
 	//modelMatrix = glm::mat4(1.0f);
 }
 
-BaseObject::BaseObject(const std::string& name) : parentPtr(nullptr)
+BaseObject::BaseObject(const std::string& name) : parentPtr(nullptr), moved(false)
 {
 	this->name = name;
 	setPosition(glm::vec3(0.0f));
@@ -17,28 +17,6 @@ BaseObject::BaseObject(const std::string& name) : parentPtr(nullptr)
 	setScale(glm::vec3(1.0f));
 	//modelMatrix = glm::mat4(1.0f);
 }
-
-//BaseObject::BaseObject(const BaseObject& other)
-//{
-//	name = other.name;
-//	transform = other.transform;
-//	modelMatrix = other.modelMatrix;
-//	children = other.children;
-//	parentPtr = other.parentPtr;
-//}
-//
-//BaseObject& BaseObject::operator=(const BaseObject& other)
-//{
-//	if (this != &other)
-//	{
-//		name = other.name;
-//		transform = other.transform;
-//		modelMatrix = other.modelMatrix;
-//		children = other.children;
-//		parentPtr = other.parentPtr;
-//	}
-//	return *this;
-//}
 
 BaseObject::~BaseObject()
 {
@@ -52,8 +30,7 @@ void BaseObject::setName(const std::string& name)
 
 void BaseObject::translate(const glm::vec3& position)
 {
-	transform.position += position;
-	updateModelMat();
+	setPosition(transform.position += position);
 
 	/*for (size_t i = 0; i < children.getSize(); i++)
 	{
@@ -63,8 +40,7 @@ void BaseObject::translate(const glm::vec3& position)
 
 void BaseObject::rotate(const glm::vec3& rotation)
 {
-	transform.rotation += rotation;
-	updateModelMat();
+	setRotation(transform.rotation += rotation);
 
 	/*for (size_t i = 0; i < children.getSize(); i++)
 	{
@@ -74,8 +50,7 @@ void BaseObject::rotate(const glm::vec3& rotation)
 
 void BaseObject::scale(const glm::vec3& scale)
 {
-	transform.scale *= scale;
-	updateModelMat();
+	setScale(transform.scale *= scale);
 
 	/*for (size_t i = 0; i < children.getSize(); i++)
 	{
@@ -88,6 +63,7 @@ void BaseObject::setPosition(const glm::vec3& position)
 	//glm::vec3 translation = position - transform.position;
 	//transform.position += translation;
 	transform.position = position;
+	moved = true;
 	updateModelMat();
 
 	/*for (size_t i = 0; i < children.getSize(); i++)
@@ -101,6 +77,7 @@ void BaseObject::setPosition(float x, float y, float z)
 	transform.position.x = x;
 	transform.position.y = y;
 	transform.position.z = z;
+	moved = true;
 	updateModelMat();
 
 	//TO DO: dont update the children location but multiply their matrices with parent's
@@ -112,9 +89,8 @@ void BaseObject::setPosition(float x, float y, float z)
 
 void BaseObject::setRotation(const glm::vec3& rotation)
 {
-	//glm::quat rotationAmount = rotation - transform.rotation;
-	//transform.rotation += rotationAmount;
 	transform.rotation = rotation;
+	moved = true;
 	updateModelMat();
 
 	/*for (size_t i = 0; i < children.getSize(); i++)
@@ -126,6 +102,7 @@ void BaseObject::setRotation(const glm::vec3& rotation)
 void BaseObject::setScale(const glm::vec3& scale)
 {
 	transform.scale = scale;
+	moved = true;
 	updateModelMat();
 
 	/*for (size_t i = 0; i < children.getSize(); i++)
@@ -302,5 +279,14 @@ void BaseObject::draw(Shader* overrideShader) const
 	for (size_t i = 0; i < meshesCount; i++)
 	{
 		children[i]->draw(overrideShader);
+	}
+}
+
+void BaseObject::update(float deltaTime)
+{
+	unsigned meshesCount = children.size();
+	for (size_t i = 0; i < meshesCount; i++)
+	{
+		children[i]->update(deltaTime);
 	}
 }

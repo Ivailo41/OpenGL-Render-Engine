@@ -17,6 +17,7 @@ public:
 	void setSelectedObject(BaseObject* object);
 
 	void drawObjects(Shader* overrideShader = nullptr) const;
+	void updateObjects(float deltaTime);
 
 	void setName(const std::string& name);
 	std::string getName() const;

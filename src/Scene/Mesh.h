@@ -19,6 +19,7 @@ class Mesh : public BaseObject
 {
 public:
 	void draw(Shader* overrideShader = nullptr) const override;
+	void update(float deltaTime) override;
 	BaseObject* clone() const override { return new Mesh(*this); }
 
 	unsigned getVBO() const { return VBO; }
