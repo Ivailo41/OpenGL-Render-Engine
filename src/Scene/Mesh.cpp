@@ -54,7 +54,7 @@ void Mesh::initialize(const std::vector<Vertex>& verts, const std::vector<unsign
 	//glBindVertexArray(0);
 }
 
-void Mesh::draw(Shader* overrideShader) const
+void Mesh::draw(Shader* overrideShader, GLenum drawMode) const
 {
 	BaseObject::draw(overrideShader);
 
@@ -70,7 +70,7 @@ void Mesh::draw(Shader* overrideShader) const
 		//this binds the shader asigned to the material
 		if (overrideShader != nullptr)
 		{
-			overrideShader->setMat4("model", transform.modelMatrix);
+			overrideShader->setMat4("transform", transform.modelMatrix);
 			//overrideShader->use();
 		}
 		else
@@ -86,7 +86,7 @@ void Mesh::draw(Shader* overrideShader) const
 			}
 		}
 
-		glDrawElements(GL_TRIANGLES, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));
+		glDrawElements(drawMode, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));
 		glBindVertexArray(0);
 	}
 }

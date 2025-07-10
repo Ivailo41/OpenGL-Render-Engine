@@ -49,7 +49,7 @@ public:
 	const glm::mat4 getGlobalModelMat();
 	const glm::mat4 globalToLocalMat(const glm::mat4& matrix) const;
 
-	virtual void draw(Shader* overrideShader = nullptr) const;
+	virtual void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const;
 	virtual void update(float deltaTime);
 	virtual BaseObject* clone() const { return new BaseObject(*this); }
 

@@ -16,7 +16,7 @@ public:
 	BaseObject* getSelectedObject() const;
 	void setSelectedObject(BaseObject* object);
 
-	void drawObjects(Shader* overrideShader = nullptr) const;
+	void drawObjects(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const;
 	void updateObjects(float deltaTime);
 
 	void setName(const std::string& name);

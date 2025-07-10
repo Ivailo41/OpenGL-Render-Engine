@@ -42,10 +42,10 @@ void Scene::setSelectedObject(BaseObject* object)
 	selectedObject = object;
 }
 
-void Scene::drawObjects(Shader* overrideShader) const
+void Scene::drawObjects(Shader* overrideShader, GLenum drawMode) const
 {
 	//activeCamera->updateCamera();
-	root.draw(overrideShader);
+	root.draw(overrideShader, drawMode);
 	/*for (size_t i = 0; i < sceneObjects.size(); i++)
 	{
 		sceneObjects[i]->draw();

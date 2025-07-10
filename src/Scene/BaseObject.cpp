@@ -273,12 +273,12 @@ bool BaseObject::isChildOf(const BaseObject* object) const
 	return parentPtr->isChildOf(object);
 }
 
-void BaseObject::draw(Shader* overrideShader) const
+void BaseObject::draw(Shader* overrideShader, GLenum drawMode) const
 {
 	unsigned meshesCount = children.size();
 	for (size_t i = 0; i < meshesCount; i++)
 	{
-		children[i]->draw(overrideShader);
+		children[i]->draw(overrideShader, drawMode);
 	}
 }
 

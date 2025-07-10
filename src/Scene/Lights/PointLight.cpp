@@ -38,7 +38,7 @@ void PointLight::sendShadowDataToShader(const Shader& shaderProgram, unsigned li
 	shaderProgram.setFloat("far_plane", shadowFar);
 }
 
-void PointLight::draw(Shader* overrideShader) const
+void PointLight::draw(Shader* overrideShader, GLenum drawMode) const
 {
 	Light::draw(overrideShader);
 }

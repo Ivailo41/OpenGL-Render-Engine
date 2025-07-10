@@ -89,6 +89,10 @@ int main(int argc, char* argv[])
 	fileManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
 	Shader shadowShader = *Shader::findShader("ShadowShader");
 
+	//CREATE TANGENT SHADER
+	fileManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
+	Shader tangentShader = *Shader::findShader("TangentShader");
+
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
     Scene::activeScene = &mainScene;
@@ -308,7 +312,12 @@ int main(int argc, char* argv[])
             lights[2]->drawDebug();
             lights[3]->drawDebug();
 
-            //mainScene.sceneObjects[6]->drawDebug();
+			//visualise tangents, normals and bitangents
+			tangentShader.use();
+			tangentShader.setFloat("lineWidth", 0.01f); //set the line width for the tangent shader
+			mainScene.getActiveCamera()->updateCamera();
+            glLineWidth(3.0f);
+			mainScene.drawObjects(&tangentShader, GL_POINTS); //draws object with tangent shader, used for debugging tangents
 
             //make skybox member of scene
             skybox.render(mainScene.getActiveCamera());
@@ -341,7 +350,6 @@ int main(int argc, char* argv[])
             }
 
             mainUI.renderUI();
-
             /* Swap front and back buffers */
             glfwSwapBuffers(window.getGLWindow());
         }

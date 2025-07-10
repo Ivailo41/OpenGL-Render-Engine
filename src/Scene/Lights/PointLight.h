@@ -35,7 +35,7 @@ public:
 	void sendToShader(const Shader& shaderProgram, unsigned lightIndex) const override;
 	void sendShadowDataToShader(const Shader& shaderProgram, unsigned lightIndex) const override;
 	BaseObject* clone() const override { return new PointLight(*this); }
-	void draw(Shader* overrideShader = nullptr) const override;
+	void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const override;
 	void update(float deltaTime) override;
 
 	PointLight();

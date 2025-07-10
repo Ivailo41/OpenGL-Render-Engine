@@ -22,7 +22,7 @@ public:
 
 	float* ambientRef() { return &ambientStrength; }
 
-	virtual void draw(Shader* overrideShader = nullptr) const override;
+	virtual void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const override;
 	virtual void update(float deltaTime) override;
 	virtual void sendToShader(const Shader& shaderProgram, unsigned lightIndex) const = 0;
 	virtual void sendShadowDataToShader(const Shader& shaderProgram, unsigned lightIndex) const = 0;
