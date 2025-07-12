@@ -87,21 +87,28 @@ bool Scene::addObject(BaseObject* object)
 
 void Scene::removeObject(BaseObject* object)
 {
+	if (object == nullptr)
+		return;
+
+	Light* light = dynamic_cast<Light*>(object);
+	if (light != nullptr)
+	{
+		for (size_t i = 0; i < lights.size(); i++)
+		{
+			if (lights[i] == light)
+			{
+				lights.erase(lights.begin() + i);
+				break;
+			}
+		}
+	}
+
 	if (selectedObject == object)
 	{
 		selectedObject = nullptr;
 	}
 
 	root.removeChild(object);
-	/*for (size_t i = 0; i < root.size(); i++)
-	{
-		if(sceneObjects[i] == object)
-		{
-			sceneObjects.erase(sceneObjects.begin() + i);
-			delete object;
-			return;
-		}
-	}*/
 }
 	
 BaseObject* Scene::getSelectedObject() const

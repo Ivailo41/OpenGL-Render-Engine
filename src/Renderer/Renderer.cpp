@@ -47,7 +47,7 @@ void Renderer::onWindowResize(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void Renderer::render(Scene* scene, Window* window)
+void Renderer::renderScene(Scene* scene, Window* window)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -123,10 +123,7 @@ void Renderer::render(Scene* scene, Window* window)
 	scene->getActiveCamera()->updateCamera();
     debugShapes.drawDebugShapes();
 
-    scene->lights[0]->drawDebug();
-    scene->lights[1]->drawDebug();
-    scene->lights[2]->drawDebug();
-    scene->lights[3]->drawDebug();
+    scene->root.drawDebug();
 
     //visualise tangents, normals and bitangents
     if(drawTangents)

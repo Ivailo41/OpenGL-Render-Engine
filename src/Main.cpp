@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     // create a default directory for the resources
     fileManager.createDirectory("../assets");
 
-    //Move the shader creation to the startup fo an Engine class
+    //Move the shader creation to the startup of an Engine class
     //CREATE PBR SHADER
     //Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
     fileManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl");
@@ -124,20 +124,15 @@ int main(int argc, char* argv[])
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
     Scene::activeScene = &mainScene;
-
-    BaseObject dummyObject;
-    BaseObject* dummy = &dummyObject;
     
     Camera mainCamera;
-    Camera* mainCamera_p = &mainCamera;
     //mainScene.sceneObjects.push_back(mainCamera_p);
-    mainScene.root.addChild(mainCamera_p);
-    mainScene.setActiveCamera(mainCamera_p);
+    mainScene.addObject(&mainCamera);
+    mainScene.setActiveCamera(&mainCamera);
 
     Camera otherCamera;
-    Camera* otherCamera_p = &otherCamera;
     //mainScene.sceneObjects.push_back(otherCamera_p);
-    mainScene.root.addChild(otherCamera_p);
+    mainScene.addObject(&otherCamera);
 
     //Could go to a JSON file that wil be used to load the scene
     std::string cubemapPaths[6] = 
@@ -154,9 +149,9 @@ int main(int argc, char* argv[])
     Skybox skybox(cubemapPaths);
 	mainScene.activeSkybox = &skybox;
 
-    mainCamera_p->setFOV(90.0f);
-    mainCamera_p->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
-    otherCamera_p->setFOV(30.0f);
+    mainCamera.setFOV(90.0f);
+    mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    otherCamera.setFOV(30.0f);
 
     //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
     std::vector<PointLight*> lights;
@@ -233,6 +228,19 @@ int main(int argc, char* argv[])
 
     renderer.debugShapes.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5, 1, 0));
 
+    //TEST ANOTHER SCENE
+	Scene otherScene;
+	//Scene::activeScene = &otherScene;
+
+	Camera otherCamera2;
+	otherScene.setActiveCamera(&otherCamera2);
+	otherCamera2.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+	otherScene.addObject(&otherCamera2);
+
+    otherScene.activeSkybox = &skybox;
+
+    Scene* activeScene = Scene::activeScene;
+
     double lastFrameTime = glfwGetTime();
     // Loop until the user closes the window, put it inside application/engine class
     while (!window.shouldClose())
@@ -240,20 +248,20 @@ int main(int argc, char* argv[])
 		double currentFrameTime = glfwGetTime();
 		float deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);
 		lastFrameTime = currentFrameTime;
-        mainScene.updateObjects(deltaTime);
+        activeScene->updateObjects(deltaTime);
         //this scope should go inside a renderer class
 
-		renderer.render(&mainScene, &window); //render the scene with the renderer
+		renderer.renderScene(&mainScene, &window); //render the scene with the renderer
 
         if(mainUI.getSceneLayer().isViewMode())
         {
 		    ImVec2 windowSpace = mainUI.getSceneLayer().getWindowSpace();
 
-            mainScene.getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
-            mainScene.getActiveCamera()->updateCamera();
+            activeScene->getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
+            activeScene->getActiveCamera()->updateCamera();
 
             Camera::CursorData data(windowSpace.x, windowSpace.y, 0, 0, 0, 0);
-            mainScene.getActiveCamera()->cameraController(window.getGLWindow(), windowSpace.x, windowSpace.y, deltaTime);
+            activeScene->getActiveCamera()->cameraController(window.getGLWindow(), windowSpace.x, windowSpace.y, deltaTime);
         }
 
         mainUI.renderUI();

@@ -12,9 +12,6 @@ public:
 	virtual void renderLayer() override;
 	virtual UI_Settings* clone() override;
 
-	//temp
-	std::string OpenFolderDialog() const;
-
 public:
 	UI_Settings(FileManager* fileman, Renderer* renderer);
 

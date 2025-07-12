@@ -19,7 +19,7 @@ public:
 
 	void onWindowResize(int width, int height);
 
-	void render(Scene* scene, Window* window);
+	void renderScene(Scene* scene, Window* window);
 
 	const FrameBuffer& getScreneFrameBuffer() const { return screneFrameBuffer; }
 

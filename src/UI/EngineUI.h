@@ -30,6 +30,9 @@ public:
 	~EngineUI();
 
 private:
+	std::string OpenFolderDialog() const;
+
+private:
 	std::vector<UILayer*> UIElements;
 	static bool isUIOpen;
 

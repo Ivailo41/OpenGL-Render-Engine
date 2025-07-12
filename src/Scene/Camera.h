@@ -47,9 +47,6 @@ public:
 
 public:
 	Camera();
-	Camera(const Camera& other);
-	Camera& operator=(const Camera& other);
-	~Camera();
 
 private:
 
@@ -61,9 +58,10 @@ private:
 	glm::mat4 viewMat;
 	glm::mat4 perspectiveMat;
 
-	float FOV;
+	float FOV = 90.0f;
 	float cameraSpeed = 1.0f;
-	float near, far;
+	float near = 0.1f;
+	float far = 100.0f;
 	float aspectRatio;
 };
 
