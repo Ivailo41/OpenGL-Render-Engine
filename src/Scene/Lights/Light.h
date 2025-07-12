@@ -3,6 +3,14 @@
 #include "../Mesh.h"
 #include "../../Renderer/Shader.h"
 
+enum class LightType
+{
+	POINT,
+	DIRECTIONAL,
+	SPOTLIGHT,
+	UNDEFINED = -1
+};
+
 class Light : public BaseObject
 {
 public:
@@ -19,6 +27,7 @@ public:
 	float getIntensity() const { return intensity; }
 	float getAmbientStrength() const { return ambientStrength; }
 	glm::vec3 getLightColor() const { return lightColor; }
+	LightType getLightType() const { return type; }
 
 	float* ambientRef() { return &ambientStrength; }
 
@@ -35,6 +44,8 @@ protected:
 	float intensity;
 	float ambientStrength;
 	glm::vec3 lightColor;
+
+	LightType type;
 
 };
 

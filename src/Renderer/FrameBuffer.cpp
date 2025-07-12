@@ -2,7 +2,11 @@
 
 void FrameBuffer::genFrameBuffer(unsigned width, unsigned height)
 {
-    deleteFrameBuffer();
+	if (frameBufferID != 0)
+    {
+		// If the framebuffer already exists, delete it
+		deleteFrameBuffer();
+    }
 
     this->width = width;
     this->height = height;
@@ -67,12 +71,11 @@ frameBufferID(0), depthBufferID(0)
 
 FrameBuffer::~FrameBuffer()
 {
-    if (buffersCount == 0) 
+    if (!buffersCount == 0) 
     {
-        return;
+        glDeleteTextures(buffersCount, &buffers[0]);
     }
 
-    glDeleteTextures(buffersCount, &buffers[0]);
     deleteFrameBuffer();
 }
 

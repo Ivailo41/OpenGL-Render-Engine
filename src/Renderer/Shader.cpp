@@ -4,6 +4,11 @@
 std::unordered_map<std::string, Shader> Shader::shadersList;
 const Shader* Shader::activeShader = nullptr;
 
+Shader::Shader()
+{
+	//default constructor
+}
+
 Shader::Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource) : shaderProgram(0), name(shaderName)
 {
 	if (vertexSource.size() == 0 || fragmentSource.size() == 0)

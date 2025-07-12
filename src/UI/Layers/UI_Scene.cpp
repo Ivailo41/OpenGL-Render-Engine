@@ -10,12 +10,8 @@ UI_Scene::~UI_Scene()
 
 }
 
-UI_Scene::UI_Scene(Window* window) : window(window), fbuffer(2, false), viewMode(false), operation(ImGuizmo::OPERATION::TRANSLATE)
+UI_Scene::UI_Scene(Window* window, Renderer* renderer) : window(window), renderer(renderer), viewMode(false), operation(ImGuizmo::OPERATION::TRANSLATE)
 {
-    //create framebuffer that will project the context from the main window to the UI window
-
-    fbuffer.genFrameBuffer(window->getWidth(), window->getHeight());
-
     layerName = "Scene";
 }
 
@@ -49,7 +45,7 @@ void UI_Scene::renderLayer()
     }*/
 
     ImGui::Image(
-        (ImTextureID)fbuffer[0],
+        (ImTextureID)renderer->getScreneFrameBuffer()[0],
         windowSpace,
         ImVec2(0, 1),
         ImVec2(1, 0)

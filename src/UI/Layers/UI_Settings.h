@@ -1,6 +1,7 @@
 #pragma once
 #include "UILayer.h"
 #include "../../Renderer/Shader.h"
+#include "../../Renderer/Renderer.h"
 
 //temp
 #include "../../FileManager.h"
@@ -11,27 +12,11 @@ public:
 	virtual void renderLayer() override;
 	virtual UI_Settings* clone() override;
 
-	bool isUsingBloom() const { return useBloom; }
-	float getTreshold() const { return threshold; }
-	int getSteps() const { return steps; }
-
-	float getGamma() const { return gamma; }
-	float getExposure() const { return exposure; }
-
-	//temp
-	std::string OpenFolderDialog() const;
-
 public:
-	UI_Settings(FileManager* fileman);
+	UI_Settings(FileManager* fileman, Renderer* renderer);
 
 private:
-	bool useBloom;
-	float threshold;
-	int steps;
-
-	float gamma;
-	float exposure;
-
 	//temp code for the model importing
 	FileManager* fileman;
+	Renderer* renderer;
 };

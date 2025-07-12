@@ -40,10 +40,11 @@ protected:
 	void createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader,const unsigned geometryShader = 0);
 	unsigned createShader(const std::string& shaderSource, const unsigned type);
 
+	Shader();
 	Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource = "");
 	//Shader(const unsigned vertexShader, const unsigned fragmentShader);
 
-	std::string name;
-	unsigned shaderProgram;
+	std::string name = "";
+	unsigned shaderProgram = 0;
 };
 

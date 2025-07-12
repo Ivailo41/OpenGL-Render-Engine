@@ -42,16 +42,6 @@ void Scene::setSelectedObject(BaseObject* object)
 	selectedObject = object;
 }
 
-void Scene::drawObjects(Shader* overrideShader, GLenum drawMode) const
-{
-	//activeCamera->updateCamera();
-	root.draw(overrideShader, drawMode);
-	/*for (size_t i = 0; i < sceneObjects.size(); i++)
-	{
-		sceneObjects[i]->draw();
-	}*/
-}
-
 void Scene::updateObjects(float deltaTime)
 {
 	root.update(deltaTime);
@@ -85,27 +75,40 @@ bool Scene::addObject(BaseObject* object)
 		return false;
 
 	//sceneObjects.push_back(object);
+	Light* light = dynamic_cast<Light*>(object);
+	if (light != nullptr)
+	{
+		lights.push_back(light);
+	}
+
 	root.addChild(object);
 	return true;
 }
 
 void Scene::removeObject(BaseObject* object)
 {
+	if (object == nullptr)
+		return;
+
+	Light* light = dynamic_cast<Light*>(object);
+	if (light != nullptr)
+	{
+		for (size_t i = 0; i < lights.size(); i++)
+		{
+			if (lights[i] == light)
+			{
+				lights.erase(lights.begin() + i);
+				break;
+			}
+		}
+	}
+
 	if (selectedObject == object)
 	{
 		selectedObject = nullptr;
 	}
 
 	root.removeChild(object);
-	/*for (size_t i = 0; i < root.size(); i++)
-	{
-		if(sceneObjects[i] == object)
-		{
-			sceneObjects.erase(sceneObjects.begin() + i);
-			delete object;
-			return;
-		}
-	}*/
 }
 	
 BaseObject* Scene::getSelectedObject() const

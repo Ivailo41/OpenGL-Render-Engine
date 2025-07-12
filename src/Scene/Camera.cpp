@@ -14,41 +14,10 @@ void Camera::setFOV(float fov)
 
 Camera::Camera() : BaseObject("New Camera"), near(0.1f), far(100.0f), aspectRatio(4.0f/3.0f)
 {
-	setFOV(45.0f);
+	setFOV(90.0f);
 	viewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 	rightVector = glm::vec3(1.0f, 0.0f, 0.0f);
 	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
-}
-
-Camera::Camera(const Camera& other) : BaseObject(other), near(other.near), far(other.far), aspectRatio(other.aspectRatio)
-{
-	viewDirection = other.viewDirection;
-	viewMat = other.viewMat;
-	rightVector = other.rightVector;
-	perspectiveMat = other.perspectiveMat;
-	FOV = other.FOV;
-}
-
-Camera& Camera::operator=(const Camera& other)
-{
-	if (this != &other)
-	{
-		BaseObject::operator=(other);
-		viewDirection = other.viewDirection;
-		viewMat = other.viewMat;
-		rightVector = other.rightVector;
-		perspectiveMat = other.perspectiveMat;
-		FOV = other.FOV;
-
-		near = other.near;
-		far = other.far;
-		aspectRatio = other.aspectRatio;
-	}
-	return *this;
-}
-
-Camera::~Camera()
-{
 }
 
 void Camera::rotateCam(const glm::vec3& rotation)

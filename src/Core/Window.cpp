@@ -99,9 +99,22 @@ unsigned Window::getHeight() const
     return height;
 }
 
+void Window::setSize(unsigned width, unsigned height)
+{
+	this->width = width;
+	this->height = height;
+	glfwSetWindowSize(window, width, height);
+	glViewport(0, 0, width, height);
+}
+
 bool Window::shouldClose() const
 {
     return glfwWindowShouldClose(window);
+}
+
+void Window::pollEvents() const
+{
+	glfwPollEvents();
 }
 
 Window::Window() : isRunning(false), window(nullptr), width(0), height(0), name("Uninitialised Window")
