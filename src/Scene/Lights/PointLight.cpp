@@ -3,11 +3,13 @@
 PointLight::PointLight() : Light("New Point Light")
 {
 	shadowCubemap.generateCubemap(SHADOW_WIDTH, SHADOW_HEIGHT, CubemapType::SHADOW_MAP);
+	type = LightType::POINT;
 }
 
 PointLight::PointLight(const std::string name) : Light(name)
 {
 	shadowCubemap.generateCubemap(SHADOW_WIDTH, SHADOW_HEIGHT, CubemapType::SHADOW_MAP);
+	type = LightType::POINT;
 }
 
 PointLight::~PointLight()

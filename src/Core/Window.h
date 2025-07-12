@@ -17,11 +17,19 @@ public:
 	unsigned getWidth() const;
 	unsigned getHeight() const;
 
+	//temporary using these setters until the resize callback is moved inside the window class
+	void setWidth(unsigned width) { this->width = width; }
+	void setHeight(unsigned height) { this->height = height; }
+
+	void setSize(unsigned width, unsigned height);
+
 	bool shouldClose() const;
 	void resetViewport() const
 	{
 		glViewport(0, 0, width, height);
 	}
+
+	void pollEvents() const;
 
 	//GLFWwindow* operator()() { return window; }
 

@@ -12,7 +12,7 @@ uniform mat4 transform;
 uniform mat4 viewMat;
 uniform mat4 perspectiveMat;
 
-uniform float  lineWidth;
+uniform float lineWidth;
 
 out vec3 color;
 

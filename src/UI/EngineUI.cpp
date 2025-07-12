@@ -5,7 +5,7 @@
 
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window), fileman(fileman), uiSettingsLayer(fileman), uiCameraProperties(Scene::activeScene->getActiveCamera())
+EngineUI::EngineUI(Window* window, FileManager* fileman, Renderer* renderer) : uiSceneLayer(window, renderer), fileman(fileman), renderer(renderer), uiSettingsLayer(fileman, renderer), uiCameraProperties(Scene::activeScene->getActiveCamera())
 {
     if(isUIOpen)
     {

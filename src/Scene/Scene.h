@@ -1,9 +1,10 @@
 #pragma once
-#include "../Scene/Camera.h"
-#include "../Scene/BaseObject.h"
+#include "Camera.h"
+#include "BaseObject.h"
 #include "Lights/Light.h"
 #include <string>
 #include <vector>
+#include "Skybox.h"
 
 class Scene
 {
@@ -16,7 +17,7 @@ public:
 	BaseObject* getSelectedObject() const;
 	void setSelectedObject(BaseObject* object);
 
-	void drawObjects(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const;
+	//remove that draw function
 	void updateObjects(float deltaTime);
 
 	void setName(const std::string& name);
@@ -40,7 +41,9 @@ public:
 	std::vector<Texture*> textures;
 	std::vector<Material*> materials;
 	//add container for cameras
-	//add container for lights
+	std::vector<Light*> lights;
+
+	Skybox* activeSkybox = nullptr;
 
 private:
 	std::string name;

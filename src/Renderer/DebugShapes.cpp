@@ -38,13 +38,8 @@ void DebugShapes::drawBox(Point topLeftBack, Point bottomRightFront, Color color
 
 }
 
-void DebugShapes::drawDebugShapes(Camera* camera)
+void DebugShapes::drawDebugShapes()
 {
-	//bind shader
-	debugShader->use();
-	
-	camera->updateCamera();
-
 	unsigned size = containers.size();
 	for (size_t i = 0; i < size; i++)
 	{

@@ -4,6 +4,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Material.h"
 #include "Renderer/Texture.h"
+#include "Renderer/Renderer.h"
 #include "Scene/Camera.h"
 #include "Scene/Lights/Light.h"
 #include "Scene/Lights/PointLight.h"
@@ -38,6 +39,22 @@
 
 #include "Scene/Skybox.h"
 
+
+//Temporary global variables, later put them inside engine class
+Renderer* renderer_ptr = nullptr;
+Window* window_ptr = nullptr;
+
+//move that to engine class
+void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    if(renderer_ptr)
+    {
+	    renderer_ptr->onWindowResize(width, height);
+        window_ptr->setWidth(width); //reset the viewport to the new window size
+        window_ptr->setHeight(height);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     //Put window inside application class
@@ -47,6 +64,9 @@ int main(int argc, char* argv[])
         std::cout << "Couldn't initialize window!" << std::endl;
         return 1;
     }
+	window_ptr = &window; //set the window pointer to the window instance
+
+    glfwSetFramebufferSizeCallback(window.getGLWindow(), frameBufferSizeCallback);
 
     //Put file manager inside application class
     FileManager fileManager;
@@ -93,6 +113,14 @@ int main(int argc, char* argv[])
 	fileManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
 	Shader tangentShader = *Shader::findShader("TangentShader");
 
+    Renderer renderer;
+    if (!renderer.init(&window))
+    {
+		std::cout << "Couldn't initialize Renderer!" << std::endl;
+		return 1;
+    }
+    renderer_ptr = &renderer; //set the renderer pointer to the renderer instance
+
     //Hardcoding scene objects untill I make a factory
     Scene mainScene;
     Scene::activeScene = &mainScene;
@@ -123,8 +151,8 @@ int main(int argc, char* argv[])
     };
 
     //Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
-    Cubemap testCubeMap(cubemapPaths);
-    Skybox skybox(&testCubeMap, &skyboxShader);
+    Skybox skybox(cubemapPaths);
+	mainScene.activeSkybox = &skybox;
 
     mainCamera_p->setFOV(90.0f);
     mainCamera_p->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
@@ -136,7 +164,7 @@ int main(int argc, char* argv[])
     {
         lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
         //mainScene.sceneObjects.push_back(lights[i]);
-        mainScene.root.addChild(lights[i]);
+        mainScene.addObject(lights[i]);
     }
     lights[0]->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
     lights[0]->setIntensity(10);
@@ -169,8 +197,7 @@ int main(int argc, char* argv[])
                                             "../assets/AK203/Set3_Normal.png",
                                             "../assets/AK203/Set4_Base.png",
                                             "../assets/AK203/Set4_ORM.png",
-                                            "../assets/AK203/Set4_Normal.png",
-                                            "../assets/DoesntExist/notFound.png"};
+                                            "../assets/AK203/Set4_Normal.png"};
 
         fileManager.loadTextures(texturePaths);
 
@@ -199,36 +226,12 @@ int main(int argc, char* argv[])
     mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
 
     //Initing ImGUI here
-    EngineUI mainUI(&window, &fileManager);
-    const UI_Settings& settingsLayer = mainUI.getSettingsLayer();
-
-    FrameQuad::initFrameQuad(&frameQuadShader);
-
-    FrameBuffer firstPassBuffer(2, true);
-    firstPassBuffer.genFrameBuffer(1920, 1080);
+    EngineUI mainUI(&window, &fileManager, &renderer);
 
     Bloom bloomPP(blurShader, bloomShader);
     bloomPP.setSteps(20);
 
-    DebugShapes debugShapes;
-    DebugShapes debugShapes2;
-
-    debugShapes.drawBox(Point(0, 0, 0), Point(1, 1, 1), Color(1,0,0));
-    debugShapes.drawBox(Point(0.2, 0.2, 0.2), Point(0.4, 0.4, 0.4), Color(1,1,0));
-    debugShapes.drawLine(Point(0.2, 0.2, 0.2), Point(0.4, 0.4, 0.4), Color(1,0,0));
-    debugShapes.drawBox(Point(1.2, 0.2, 0.2), Point(0.4, 0.4, 0.0), Color(0,0,1));
-    debugShapes.drawBox(Point(0.5, 0.2, 3.0), Point(0.4, 1.1, 0.1), Color(0,1,1));
-
-    debugShapes2.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5,1,0));
-
-    GLuint resultTexture = firstPassBuffer[0];
-
-    ShadowFrameBuffer sfb;
-
-	unsigned SHADOW_WIDTH = Light::SHADOW_WIDTH;
-    unsigned SHADOW_HEIGHT = Light::SHADOW_HEIGHT;
-
-    sfb.genFrameBuffer(SHADOW_WIDTH, SHADOW_HEIGHT); //generate shadow map framebuffer
+    renderer.debugShapes.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5, 1, 0));
 
     double lastFrameTime = glfwGetTime();
     // Loop until the user closes the window, put it inside application/engine class
@@ -237,127 +240,32 @@ int main(int argc, char* argv[])
 		double currentFrameTime = glfwGetTime();
 		float deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);
 		lastFrameTime = currentFrameTime;
+        mainScene.updateObjects(deltaTime);
         //this scope should go inside a renderer class
+
+		renderer.render(&mainScene, &window); //render the scene with the renderer
+
+        if(mainUI.getSceneLayer().isViewMode())
         {
-            //later on pass deltaTime here, currently it is not needed
-            mainScene.updateObjects(deltaTime);
+		    ImVec2 windowSpace = mainUI.getSceneLayer().getWindowSpace();
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            mainScene.getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
+            mainScene.getActiveCamera()->updateCamera();
 
-            //SHADOW PASS START
-			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT); //set the viewport to the shadow map size
-            sfb.bind();
-            glClear(GL_DEPTH_BUFFER_BIT); //clear the depth buffer for the shadow map
-            
-			//use depth shader and pass the light position to it
-			shadowShader.use();
-
-            for (unsigned i = 0; i < lights.size(); i++)
-            {
-                //attach each cubemap to the framebuffer
-                sfb.attachCubemap(lights[i]->getShadowCubemap());
-				glClear(GL_DEPTH_BUFFER_BIT); //clear the depth buffer for the shadow map
-                shadowShader.use();
-                lights[i]->sendShadowDataToShader(shadowShader, i);
-			    mainScene.drawObjects(&shadowShader); //draws object to the shadow map
-                //draw scene from each light perspective
-            }
-			sfb.unbind(); //unbind the shadow framebuffer
-            //SHADOW PASS END
-
-            //START OF SCENE OBJECTS RENDERING
-            window.resetViewport();
-            firstPassBuffer.bind();
-
-            unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-            glDrawBuffers(2, attachments);
-
-            /* Render here */
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_FRONT);
-
-            //The PBR shader
-            shader.use();
-            shader.setFloat("threshold", settingsLayer.getTreshold());
-
-
-            //PASS LIGHTS TO SHADER         //LIGHTS ARE UPDATED EVERY FRAME, MAKE IT ONLY WHEN THEY ARE MOVED
-            for(unsigned i = 0; i < lights.size(); i++)
-            {
-				//!!!MAXIMUM OF 16 TEXTURES CAN BE BOUND AT ONCE, MAKE SURE TO NOT EXCEED THE LIMIT, LATER ON FIND BETTER APPROACH!!!
-			    glActiveTexture(GL_TEXTURE0 + 3 + i);
-			    glBindTexture(GL_TEXTURE_CUBE_MAP, lights[i]->getShadowCubemap());
-                lights[i]->sendToShader(shader, i);
-			    shader.setFloat(std::string("far_plane[" + std::to_string(i) + "]").c_str(), lights[i]->getShadowFar());
-				shader.setInt(std::string("depthMap[" + std::to_string(i) + "]").c_str(), 3 + i); //bind the shadow map texture to the shader
-            }
-
-            Scene::activeScene->getActiveCamera()->updateCamera();
-            mainScene.drawObjects(); //draws object
-
-            glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh
-                                  //sinse debug doesnt use VAO and doesnt bind one
-
-            //IF WE DONT STOP THE DRAWING TO THE ATTACHMENT1 THE OTHER SHADERS WILL DRAW TO THE BLOOM TEXTURE TOO
-            glDrawBuffer(GL_COLOR_ATTACHMENT0);
-            //END OF SCENE OBJECTS RENDERING - PUT THAT IN THE FUNCTION
-                              
-            //debugShapes.drawDebugShapes(mainScene.getActiveCamera());
-            debugShapes2.drawDebugShapes(mainScene.getActiveCamera());
-
-            lights[0]->drawDebug();
-            lights[1]->drawDebug();
-            lights[2]->drawDebug();
-            lights[3]->drawDebug();
-
-			//visualise tangents, normals and bitangents
-			tangentShader.use();
-			tangentShader.setFloat("lineWidth", 0.01f); //set the line width for the tangent shader
-			mainScene.getActiveCamera()->updateCamera();
-            glLineWidth(3.0f);
-			mainScene.drawObjects(&tangentShader, GL_POINTS); //draws object with tangent shader, used for debugging tangents
-
-            //make skybox member of scene
-            skybox.render(mainScene.getActiveCamera());
-
-            //apply bloom effect, currently the bloom is performance heavy, search for another approach
-            if(settingsLayer.isUsingBloom())
-            {
-                resultTexture = bloomPP.applyEffect(firstPassBuffer, mainUI.getSceneLayer().getFrameBuffer());
-                bloomPP.setSteps(settingsLayer.getSteps());
-            }
-            else
-            {
-                resultTexture = firstPassBuffer[0];
-            }
-
-            //draw the final result to the screne frame buufer, TODO: change the way of gettting gamma and exposure
-            FrameQuad::drawFrameQuad(resultTexture, mainUI.getSceneLayer().getFrameBuffer(), settingsLayer.getGamma(), settingsLayer.getExposure());
-
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            if(mainUI.getSceneLayer().isViewMode())
-            {
-				ImVec2 windowSpace = mainUI.getSceneLayer().getWindowSpace();
-
-                mainScene.getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
-                mainScene.getActiveCamera()->updateCamera();
-
-                Camera::CursorData data(windowSpace.x, windowSpace.y, 0, 0, 0, 0);
-                mainScene.getActiveCamera()->cameraController(window.getGLWindow(), windowSpace.x, windowSpace.y, deltaTime);
-            }
-
-            mainUI.renderUI();
-            /* Swap front and back buffers */
-            glfwSwapBuffers(window.getGLWindow());
+            Camera::CursorData data(windowSpace.x, windowSpace.y, 0, 0, 0, 0);
+            mainScene.getActiveCamera()->cameraController(window.getGLWindow(), windowSpace.x, windowSpace.y, deltaTime);
         }
 
+        mainUI.renderUI();
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window.getGLWindow());
+
         /* Poll for and process events */
-        glfwPollEvents();
+		//window.pollEvents();
+		glfwPollEvents();
     }
 
+    renderer.stop();
     fileManager.stop();
     window.stop();
 

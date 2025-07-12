@@ -62,7 +62,7 @@ private:
 	glm::mat4 perspectiveMat;
 
 	float FOV;
-	float cameraSpeed = 0.01f;
+	float cameraSpeed = 1.0f;
 	float near, far;
 	float aspectRatio;
 };
