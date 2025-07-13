@@ -40,7 +40,7 @@ Material::Material(const std::string& name) : baseColor(1, 1, 1), roughness(0.3)
 
 void Material::sendToShader() const
 {
-	//glUseProgram(shaderProgram);
+	//shader->use();
 	shader->setVec3("baseColor", baseColor);
 	shader->setFloat("roughness", roughness);
 	shader->setFloat("metalic", metalic);

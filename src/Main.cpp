@@ -153,30 +153,11 @@ int main(int argc, char* argv[])
     mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     otherCamera.setFOV(30.0f);
 
-    //Hard coded lights, later do an object factory that passes the created lights to the scene's array of lights
-    std::vector<PointLight*> lights;
+    //Hard coded lights
     for (size_t i = 0; i < 4; i++)
     {
-        lights.push_back(new PointLight(std::string("PointLight_" + std::to_string(i))));
-        //mainScene.sceneObjects.push_back(lights[i]);
-        mainScene.addObject(lights[i]);
+        mainScene.addObject(new PointLight(std::string("PointLight_" + std::to_string(i))));
     }
-    lights[0]->setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
-    lights[0]->setIntensity(10);
-
-    lights[1]->setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-    lights[1]->setIntensity(10);
-
-    lights[2]->setPosition(glm::vec3(0.0f, 0.0f, -1.0f));
-    lights[2]->setIntensity(10);
-
-    lights[3]->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
-    lights[3]->setIntensity(10);
-
-    lights[0]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
-    lights[1]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
-    lights[2]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
-    lights[3]->debugLinesContainer.pushLine(Line(Point(0, 0, 0), Point(0.1, 0, 0)));
 
     //Loading textures and setting materials untill I make it through the UI
     {
@@ -226,6 +207,7 @@ int main(int argc, char* argv[])
     Bloom bloomPP(blurShader, bloomShader);
     bloomPP.setSteps(20);
 
+    //this should be in the scene class
     renderer.debugShapes.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5, 1, 0));
 
     //TEST ANOTHER SCENE
@@ -249,10 +231,10 @@ int main(int argc, char* argv[])
 		float deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);
 		lastFrameTime = currentFrameTime;
         activeScene->updateObjects(deltaTime);
-        //this scope should go inside a renderer class
 
 		renderer.renderScene(&mainScene, &window); //render the scene with the renderer
 
+		//This can later go into input handling class
         if(mainUI.getSceneLayer().isViewMode())
         {
 		    ImVec2 windowSpace = mainUI.getSceneLayer().getWindowSpace();
@@ -269,8 +251,7 @@ int main(int argc, char* argv[])
         glfwSwapBuffers(window.getGLWindow());
 
         /* Poll for and process events */
-		//window.pollEvents();
-		glfwPollEvents();
+		window.pollEvents();
     }
 
     renderer.stop();
