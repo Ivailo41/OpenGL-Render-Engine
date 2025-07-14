@@ -9,9 +9,6 @@ public:
 
 	void drawDebugShapes();							//will draw all the lines from each container
 
-public:
-	DebugShapes();
-
 private:
 	LinesContainer& getContainerWithColor(const Color& color);
 

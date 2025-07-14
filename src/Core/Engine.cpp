@@ -1,139 +1,47 @@
-#include <iostream>
-#include "Renderer/Primitives.h"
-#include "Scene/Mesh.h"
-#include "Renderer/Shader.h"
-#include "Renderer/Material.h"
-#include "Renderer/Texture.h"
-#include "Renderer/Renderer.h"
-#include "Scene/Camera.h"
-#include "Scene/Lights/Light.h"
-#include "Scene/Lights/PointLight.h"
-#include "Renderer/DebugShapes.h"
+#include "Engine.h"
 
-#include "Core/FileManager.h"
-#include "Scene/Scene.h"
-
-//#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
-
-#include <vector>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
-#include "UI/EngineUI.h"
-#include "UI/Layers/UISceneTree.h"
-#include "UI/Layers/UI_Scene.h"
-#include "UI/Layers/UI_ObjectProperties.h"
-#include "UI/Layers/UI_CameraProperties.h"
-
-#include "Core/Window.h"
-#include "Renderer/FrameQuad.h"
-#include "Renderer/Cubemap.h"
-#include "Renderer/PostProccess/Bloom.h"
-
-#include "Scene/Skybox.h"
-
-#include "Core/Engine.h"
-
-#if(false)
-//Temporary global variables, later put them inside engine class
-Renderer* renderer_ptr = nullptr;
-Window* window_ptr = nullptr;
-
-//move that to engine class
-void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
+bool Engine::Init()
 {
-    if(renderer_ptr)
-    {
-	    renderer_ptr->onWindowResize(width, height);
-        window_ptr->setWidth(width); //reset the viewport to the new window size
-        window_ptr->setHeight(height);
-    }
-}
-#endif
-
-int main(int argc, char* argv[])
-{
-    Engine engine;
-    engine.Init();
-    engine.Run();
-    engine.Shutdown();
-
-#if(false)
-    //Put window inside application class
-    Window window;
-    if(!window.init("Render Engine", 1920, 1080))
+    if (!window.init("Render Engine", windowWidth, windowHeight))
     {
         std::cout << "Couldn't initialize window!" << std::endl;
-        return 1;
+        return false;
     }
-	window_ptr = &window; //set the window pointer to the window instance
+    glfwSetWindowUserPointer(window.getGLWindow(), this);
 
-    glfwSetFramebufferSizeCallback(window.getGLWindow(), frameBufferSizeCallback);
-
-    //Put file manager inside application class
-    FileManager fileManager;
-    if(!fileManager.init())
+    if (!fileManager.init())
     {
         std::cout << "Couldn't initialize File Manager!" << std::endl;
         return 1;
     }
 
-    // create a default directory for the resources
     fileManager.createDirectory("../assets");
 
-    //Move the shader creation to the startup of an Engine class
-    //CREATE PBR SHADER
-    //Shader shader(FileManager::loadShader("Shaders/Main/vertexShader.glsl"), FileManager::loadShader("Shaders/Main/fragShader.glsl"));
     fileManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl");
-    Shader shader = *Shader::findShader("PBRShader");
-
-    //CREATE BLOOM SHADER
     fileManager.loadShader("BloomShader", "../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl", "../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl");
-    Shader bloomShader = *Shader::findShader("BloomShader");
-
-    //CREATE BLUR SHADER
     fileManager.loadShader("BlurShader", "../assets/Shaders/PostProcess/Blur/blurVertex.glsl", "../assets/Shaders/PostProcess/Blur/blurFrag.glsl");
-    Shader blurShader = *Shader::findShader("BlurShader");
-
-    //CREATE DEBUG SHADER
     fileManager.loadShader("DebugShader", "../assets/Shaders/Debug/debugVertex.glsl", "../assets/Shaders/Debug/debugFrag.glsl");
-    Shader debugShader = *Shader::findShader("DebugShader");
-
-    //CREATE FRAMEQUAD SHADER
     fileManager.loadShader("FramequadShader", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl");
-    Shader frameQuadShader = *Shader::findShader("FramequadShader");
-
-    //CREATE SKYBOX SHADER
     fileManager.loadShader("SkyboxShader", "../assets/Shaders/Skybox/SkyboxVertex.glsl", "../assets/Shaders/Skybox/SkyboxFrag.glsl");
-    Shader skyboxShader = *Shader::findShader("SkyboxShader");
+    fileManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
+    fileManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
 
-	//CREATE SHADOW SHADER
-	fileManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
-	Shader shadowShader = *Shader::findShader("ShadowShader");
-
-	//CREATE TANGENT SHADER
-	fileManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
-	Shader tangentShader = *Shader::findShader("TangentShader");
-
-    Renderer renderer;
     if (!renderer.init(&window))
     {
-		std::cout << "Couldn't initialize Renderer!" << std::endl;
-		return 1;
+        std::cout << "Couldn't initialize Renderer!" << std::endl;
+        return 1;
     }
-    renderer_ptr = &renderer; //set the renderer pointer to the renderer instance
 
-    //Hardcoding scene objects untill I make a factory
+    //Initing ImGUI here
+    EngineUI mainUI(&window, &fileManager);
+    mainUI.init(&window, &fileManager, &renderer);
+
+    SetCallbacks();
+
+    //SCENE CREATION
     Scene mainScene;
     Scene::activeScene = &mainScene;
-    
+
     Camera mainCamera;
     //mainScene.sceneObjects.push_back(mainCamera_p);
     mainScene.addObject(&mainCamera);
@@ -144,19 +52,19 @@ int main(int argc, char* argv[])
     mainScene.addObject(&otherCamera);
 
     //Could go to a JSON file that wil be used to load the scene
-    std::string cubemapPaths[6] = 
-    { 
+    std::string cubemapPaths[6] =
+    {
         "../assets/Skybox/right.jpg",
         "../assets/Skybox/left.jpg",
         "../assets/Skybox/top.jpg",
         "../assets/Skybox/bottom.jpg",
         "../assets/Skybox/front.jpg",
-        "../assets/Skybox/back.jpg" 
+        "../assets/Skybox/back.jpg"
     };
 
     //Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
     Skybox skybox(cubemapPaths);
-	mainScene.activeSkybox = &skybox;
+    mainScene.activeSkybox = &skybox;
 
     mainCamera.setFOV(90.0f);
     mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
@@ -170,7 +78,7 @@ int main(int argc, char* argv[])
 
     //Loading textures and setting materials untill I make it through the UI
     {
-        std::vector<std::string> texturePaths = { 
+        std::vector<std::string> texturePaths = {
                                             "../assets/AK203/Set1_Base.png",
                                             "../assets/AK203/Set1_ORM.png",
                                             "../assets/AK203/Set1_Normal.png",
@@ -182,7 +90,7 @@ int main(int argc, char* argv[])
                                             "../assets/AK203/Set3_Normal.png",
                                             "../assets/AK203/Set4_Base.png",
                                             "../assets/AK203/Set4_ORM.png",
-                                            "../assets/AK203/Set4_Normal.png"};
+                                            "../assets/AK203/Set4_Normal.png" };
 
         fileManager.loadTextures(texturePaths);
 
@@ -208,46 +116,32 @@ int main(int argc, char* argv[])
     }
 
     //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
-    mainScene.getActiveCamera()->rotateCam(glm::vec3(0,0,0));
+    mainScene.getActiveCamera()->rotateCam(glm::vec3(0, 0, 0));
+    scenes.push_back(mainScene);
 
-    //Initing ImGUI here
-    EngineUI mainUI(&window, &fileManager);
-    mainUI.init(&window, &fileManager, &renderer);
-
-    Bloom bloomPP(blurShader, bloomShader);
-    bloomPP.setSteps(20);
+    /*Bloom bloomPP(blurShader, bloomShader);
+    bloomPP.setSteps(20);*/
 
     //this should be in the scene class
     renderer.debugShapes.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5, 1, 0));
+}
 
-    //TEST ANOTHER SCENE
-	Scene otherScene;
-	//Scene::activeScene = &otherScene;
-
-	Camera otherCamera2;
-	otherScene.setActiveCamera(&otherCamera2);
-	otherCamera2.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
-	otherScene.addObject(&otherCamera2);
-
-    otherScene.activeSkybox = &skybox;
-
+void Engine::Run()
+{
     Scene* activeScene = Scene::activeScene;
 
-    double lastFrameTime = glfwGetTime();
-    // Loop until the user closes the window, put it inside application/engine class
     while (!window.shouldClose())
     {
-		double currentFrameTime = glfwGetTime();
-		float deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);
-		lastFrameTime = currentFrameTime;
+        CalculateDeltaTime();
+
         activeScene->updateObjects(deltaTime);
 
-		renderer.renderScene(&mainScene, &window); //render the scene with the renderer
+        renderer.renderScene(activeScene, &window); //render the scene with the renderer
 
-		//This can later go into input handling class
-        if(mainUI.getSceneLayer().isViewMode())
+        //This can later go into input handling class
+        if (engineUI.getSceneLayer().isViewMode())
         {
-		    ImVec2 windowSpace = mainUI.getSceneLayer().getWindowSpace();
+            ImVec2 windowSpace = engineUI.getSceneLayer().getWindowSpace();
 
             activeScene->getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
             activeScene->getActiveCamera()->updateCamera();
@@ -256,19 +150,51 @@ int main(int argc, char* argv[])
             activeScene->getActiveCamera()->cameraController(window.getGLWindow(), windowSpace.x, windowSpace.y, deltaTime);
         }
 
-        mainUI.renderUI();
+        engineUI.renderUI();
         /* Swap front and back buffers */
         glfwSwapBuffers(window.getGLWindow());
 
         /* Poll for and process events */
-		window.pollEvents();
+        window.pollEvents();
     }
+}
 
+void Engine::Shutdown()
+{
     renderer.stop();
     fileManager.stop();
     window.stop();
+}
 
-#endif
+void Engine::OnWindowResize(int width, int height)
+{
+    renderer.onWindowResize(width, height);
+    window.setWidth(width); //reset the viewport to the new window size
+    window.setHeight(height);
+}
 
-    return 0;
+void Engine::FrameBufferResizeCallback(GLFWwindow* window, int width, int height)
+{
+    Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
+    if(engine)
+    {
+        engine->OnWindowResize(width, height);
+    }
+}
+
+Engine::Engine() : engineUI(&window, &fileManager)
+{
+
+}
+
+void Engine::SetCallbacks()
+{
+    glfwSetFramebufferSizeCallback(window.getGLWindow(), FrameBufferResizeCallback);
+}
+
+void Engine::CalculateDeltaTime()
+{
+    double currentFrameTime = glfwGetTime();
+    deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);
+    lastFrameTime = currentFrameTime;
 }

@@ -161,7 +161,7 @@ void BaseObject::setTransform(const glm::mat4& transformMat)
 {
 	//A lot of calculations here, consider a better way
 	glm::vec3 rotation;
-	Engine::Math::DecomposeMatrix(transformMat, transform.position, rotation, transform.scale);
+	Math::DecomposeMatrix(transformMat, transform.position, rotation, transform.scale);
 
 	transform.rotation.x = glm::degrees(rotation.x);
 	transform.rotation.y = glm::degrees(rotation.y);

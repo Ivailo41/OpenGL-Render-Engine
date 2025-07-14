@@ -1,11 +1,11 @@
 #pragma once
-#include "Scene/Mesh.h"
+#include "../Scene/Mesh.h"
 #include <fstream>
 #include <string>
-#include "Scene/BaseObject.h"
+#include "../Scene/BaseObject.h"
 #include <filesystem>
-#include "Renderer/Shader.h"
-#include "Scene/Scene.h"
+#include "../Renderer/Shader.h"
+#include "../Scene/Scene.h"
 #include <sstream>
 
 //for multithreading

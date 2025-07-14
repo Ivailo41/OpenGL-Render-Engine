@@ -13,6 +13,9 @@
 class EngineUI
 {
 public:
+
+	bool init(Window* window, FileManager* fileman, Renderer* renderer); //Initing ImGUI here
+
 	void addUILayer(UILayer* layer);
 	void removeUILayer(unsigned index);
 	void removeUILayer(UILayer* layer);
@@ -24,7 +27,7 @@ public:
 	const UI_Settings& getSettingsLayer() const { return uiSettingsLayer; }
 
 public:
-	EngineUI(Window* window, FileManager* fileman, Renderer* renderer); //Initing ImGUI here
+	EngineUI(Window* window, FileManager* fileman);
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
 	~EngineUI();

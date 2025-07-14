@@ -12,7 +12,7 @@ target_sources(
     PRIVATE
         "Scene/BaseObject.cpp"
         "Scene/Camera.cpp"
-        "FileManager.cpp"
+        "Core/FileManager.cpp"
         "Main.cpp"
         "Renderer/Material.cpp"
         "Renderer/Shader.cpp"
@@ -30,4 +30,4 @@ target_sources(
 	    "Renderer/FrameBuffer.cpp" "Core/Window.h" "Core/Window.cpp" 
         "UI/Layers/UI_Settings.h" "UI/Layers/UI_Settings.cpp" 
         "Renderer/DebugShapes.h" "Renderer/DebugShapes.cpp" "Renderer/LinesContainer.h" "Renderer/LinesContainer.cpp" 
-        "Renderer/PostProccess/Bloom.h" "Renderer/PostProccess/Bloom.cpp" "Renderer/FrameQuad.h" "Renderer/FrameQuad.cpp" "Renderer/Cubemap.h" "Renderer/Cubemap.cpp" "Scene/Skybox.h" "Scene/Skybox.cpp" "Math/Math.cpp" "Math/Math.h" "Renderer/Renderer.h" "Renderer/Renderer.cpp")
+        "Renderer/PostProccess/Bloom.h" "Renderer/PostProccess/Bloom.cpp" "Renderer/FrameQuad.h" "Renderer/FrameQuad.cpp" "Renderer/Cubemap.h" "Renderer/Cubemap.cpp" "Scene/Skybox.h" "Scene/Skybox.cpp" "Math/Math.cpp" "Math/Math.h" "Renderer/Renderer.h" "Renderer/Renderer.cpp" "Core/Engine.h" "Core/Engine.cpp")
