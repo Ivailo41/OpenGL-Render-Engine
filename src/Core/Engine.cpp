@@ -33,23 +33,27 @@ bool Engine::Init()
     }
 
     //Initing ImGUI here
-    EngineUI mainUI(&window, &fileManager);
-    mainUI.init(&window, &fileManager, &renderer);
+    if (!engineUI.init())
+    {
+        std::cout << "Couldn't initialize UI!" << std::endl;
+        return 1;
+    }
 
     SetCallbacks();
 
-    //SCENE CREATION
-    Scene mainScene;
-    Scene::activeScene = &mainScene;
+    //SCENE CREATION ABSTRACT THIS PART LATER INTO SCENE MANAGER OR SCENE LOADER
+    scenes.push_back(Scene());
+    Scene* mainScene = &scenes[0];
+    Scene::activeScene = mainScene;
 
-    Camera mainCamera;
+    Camera* mainCamera = new Camera;
     //mainScene.sceneObjects.push_back(mainCamera_p);
-    mainScene.addObject(&mainCamera);
-    mainScene.setActiveCamera(&mainCamera);
+    mainScene->addObject(mainCamera);
+    mainScene->setActiveCamera(mainCamera);
 
-    Camera otherCamera;
+    Camera* otherCamera = new Camera;
     //mainScene.sceneObjects.push_back(otherCamera_p);
-    mainScene.addObject(&otherCamera);
+    mainScene->addObject(otherCamera);
 
     //Could go to a JSON file that wil be used to load the scene
     std::string cubemapPaths[6] =
@@ -63,17 +67,17 @@ bool Engine::Init()
     };
 
     //Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
-    Skybox skybox(cubemapPaths);
-    mainScene.activeSkybox = &skybox;
+    Skybox* skybox = new Skybox(cubemapPaths);
+    mainScene->activeSkybox = skybox;
 
-    mainCamera.setFOV(90.0f);
-    mainCamera.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
-    otherCamera.setFOV(30.0f);
+    mainCamera->setFOV(90.0f);
+    mainCamera->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    otherCamera->setFOV(30.0f);
 
     //Hard coded lights
     for (size_t i = 0; i < 4; i++)
     {
-        mainScene.addObject(new PointLight(std::string("PointLight_" + std::to_string(i))));
+        mainScene->addObject(new PointLight(std::string("PointLight_" + std::to_string(i))));
     }
 
     //Loading textures and setting materials untill I make it through the UI
@@ -97,27 +101,26 @@ bool Engine::Init()
         // dynamically loaded object
         if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
         {
-            mainScene.materials[2]->setTexture(mainScene.textures[0], 0);
-            mainScene.materials[2]->setTexture(mainScene.textures[1], 1);
-            mainScene.materials[2]->setTexture(mainScene.textures[2], 2);
+            mainScene->materials[2]->setTexture(mainScene->textures[0], 0);
+            mainScene->materials[2]->setTexture(mainScene->textures[1], 1);
+            mainScene->materials[2]->setTexture(mainScene->textures[2], 2);
 
-            mainScene.materials[0]->setTexture(mainScene.textures[3], 0);
-            mainScene.materials[0]->setTexture(mainScene.textures[4], 1);
-            mainScene.materials[0]->setTexture(mainScene.textures[5], 2);
+            mainScene->materials[0]->setTexture(mainScene->textures[3], 0);
+            mainScene->materials[0]->setTexture(mainScene->textures[4], 1);
+            mainScene->materials[0]->setTexture(mainScene->textures[5], 2);
 
-            mainScene.materials[3]->setTexture(mainScene.textures[6], 0);
-            mainScene.materials[3]->setTexture(mainScene.textures[7], 1);
-            mainScene.materials[3]->setTexture(mainScene.textures[8], 2);
+            mainScene->materials[3]->setTexture(mainScene->textures[6], 0);
+            mainScene->materials[3]->setTexture(mainScene->textures[7], 1);
+            mainScene->materials[3]->setTexture(mainScene->textures[8], 2);
 
-            mainScene.materials[1]->setTexture(mainScene.textures[9], 0);
-            mainScene.materials[1]->setTexture(mainScene.textures[10], 1);
-            mainScene.materials[1]->setTexture(mainScene.textures[11], 2);
+            mainScene->materials[1]->setTexture(mainScene->textures[9], 0);
+            mainScene->materials[1]->setTexture(mainScene->textures[10], 1);
+            mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
         }
     }
 
     //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
-    mainScene.getActiveCamera()->rotateCam(glm::vec3(0, 0, 0));
-    scenes.push_back(mainScene);
+    mainScene->getActiveCamera()->rotateCam(glm::vec3(0, 0, 0));
 
     /*Bloom bloomPP(blurShader, bloomShader);
     bloomPP.setSteps(20);*/
@@ -182,7 +185,7 @@ void Engine::FrameBufferResizeCallback(GLFWwindow* window, int width, int height
     }
 }
 
-Engine::Engine() : engineUI(&window, &fileManager)
+Engine::Engine() : engineUI(&window, &fileManager, &renderer)
 {
 
 }

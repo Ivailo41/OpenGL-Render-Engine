@@ -7,25 +7,26 @@
 #include <unordered_map>
 #include <sstream>
 
-bool FileManager::isRunning = false;
-
 bool FileManager::init()
 {
-	assert(!isRunning);
+	if(running)
+	{
+		return true;
+	}
 
 	std::cout << "Initializing File Manager!" << std::endl;
-	isRunning = true;
 	//init code
+	running = true;
 
 	return true;
 }
 
 void FileManager::stop()
 {
-	if(isRunning)
+	if(running)
 	{
 		std::cout << "Shutting down File Manager!" << std::endl;
-		isRunning = false;
+		running = false;
 		//stop code
 	}
 }
@@ -525,7 +526,7 @@ bool FileManager::removeMaterial(const std::string name)
 
 void FileManager::checkRunState()
 {
-	assert(isRunning); //Forgot to call the initialisation function init() before calling functions
+	assert(running); //Forgot to call the initialisation function init() before calling functions
 }
 
 Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups)

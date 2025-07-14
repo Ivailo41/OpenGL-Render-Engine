@@ -19,6 +19,8 @@ public:
 	bool init(); //initialises the FileManager system
 	void stop(); //stops the FileManager system
 
+	bool isRunning() const { return running; }
+
 	bool loadOBJ(const std::string& fileName);
 	void createDirectory(const std::string& path);
 
@@ -50,10 +52,6 @@ private:
 	Mesh* createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups);
 
 	unsigned FileManager::tokenizeOBJFaceLine(std::vector<std::string>& tokens, const std::string& line);
-
-private:
-	static bool isRunning;
-
-
+	bool running;
 };
 

@@ -15,7 +15,7 @@ void UI_ObjectProperties::renderLayer()
 
     ImGui::Begin(layerName.c_str());
 
-    if(Scene::activeScene->getSelectedObject() != nullptr)
+    if(Scene::activeScene != nullptr && Scene::activeScene->getSelectedObject() != nullptr)
     {
         transform = Scene::activeScene->getSelectedObject()->getTransform();
 

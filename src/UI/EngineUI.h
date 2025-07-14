@@ -14,7 +14,7 @@ class EngineUI
 {
 public:
 
-	bool init(Window* window, FileManager* fileman, Renderer* renderer); //Initing ImGUI here
+	bool init(); //Initing ImGUI here
 
 	void addUILayer(UILayer* layer);
 	void removeUILayer(unsigned index);
@@ -27,7 +27,7 @@ public:
 	const UI_Settings& getSettingsLayer() const { return uiSettingsLayer; }
 
 public:
-	EngineUI(Window* window, FileManager* fileman);
+	EngineUI(Window* window, FileManager* fileman, Renderer* renderer);
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
 	~EngineUI();
@@ -39,7 +39,6 @@ private:
 	std::vector<UILayer*> UIElements;
 	static bool isUIOpen;
 
-	FileManager* fileman;
 
 	UI_Scene uiSceneLayer;
 	UI_Settings uiSettingsLayer;
@@ -47,6 +46,8 @@ private:
 	UI_ObjectProperties uiObjectProperties;
 	UI_CameraProperties uiCameraProperties;
 
+	Window* window = nullptr;
+	FileManager* fileman = nullptr;
 	Renderer* renderer = nullptr;
 };
 

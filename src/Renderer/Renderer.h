@@ -17,6 +17,8 @@ public:
 	bool init(Window* window);
 	void stop();
 
+	bool isRunning() const { return running; }
+
 	void onWindowResize(int width, int height);
 
 	void renderScene(Scene* scene, Window* window);
@@ -49,4 +51,5 @@ protected:
 	Shader* skyboxShader;
 
 	GLuint sceneTexture = 0; //texture for the scene
+	bool running = false;
 };

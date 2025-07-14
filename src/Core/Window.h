@@ -16,6 +16,7 @@ public:
 	GLFWwindow* getGLWindow() const { return window; }
 	unsigned getWidth() const;
 	unsigned getHeight() const;
+	bool isRunning() const { return running; }
 
 	//temporary using these setters until the resize callback is moved inside the window class
 	void setWidth(unsigned width) { this->width = width; }
@@ -38,7 +39,7 @@ public:
 	Window(const Window& other) = delete;
 
 private:
-	bool isRunning;
+	bool running;
 	unsigned width, height;
 	std::string name;
 	GLFWwindow* window;

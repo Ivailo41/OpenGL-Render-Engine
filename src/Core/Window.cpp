@@ -5,7 +5,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
 {
     std::cout << "Initializing window!" << std::endl;
 
-    assert(!isRunning); //Make sure init() is called only once
+    assert(!running); //Make sure init() is called only once
 
     if (!glfwInit())
     {
@@ -68,7 +68,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
         std::cout << "Couldn't load icon!" << std::endl;
     }
 
-    isRunning = true;
+    running = true;
     //End of initialization
 }
 
@@ -77,7 +77,7 @@ void Window::stop()
     std::cout << "Shutting down window!" << std::endl;
     glfwDestroyWindow(window);
     glfwTerminate();
-    isRunning = false;
+    running = false;
 }
 
 //Window* Window::getInstance()
@@ -117,7 +117,7 @@ void Window::pollEvents() const
 	glfwPollEvents();
 }
 
-Window::Window() : isRunning(false), window(nullptr), width(0), height(0), name("Uninitialised Window")
+Window::Window() : running(false), window(nullptr), width(0), height(0), name("Uninitialised Window")
 {
 
 }

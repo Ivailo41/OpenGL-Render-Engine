@@ -7,6 +7,11 @@ Renderer::Renderer() : colorFrameBuffer(2, true), screneFrameBuffer(2, false)
 
 bool Renderer::init(Window* window)
 {
+    if(running)
+    {
+        return true;
+    }
+
 	std::cout << "Initializing Renderer!" << std::endl;
 
 	pbrShader = Shader::findShader("PBRShader");
@@ -28,12 +33,14 @@ bool Renderer::init(Window* window)
 
     FrameQuad::initFrameQuad();
 
+    running = true;
     return true;
 }
 
 void Renderer::stop()
 {
 	// Cleanup resources if needed
+    running = false;
 	std::cout << "Shutting down Renderer!" << std::endl;
 }
 

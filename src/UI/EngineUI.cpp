@@ -8,13 +8,18 @@
 
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window, renderer), fileman(fileman), renderer(renderer), uiSettingsLayer(fileman, renderer), uiCameraProperties(Scene::activeScene->getActiveCamera())
+EngineUI::EngineUI(Window* window, FileManager* fileman, Renderer* renderer) : window(window), fileman(fileman), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(fileman, renderer)
 {
 
 }
 
-bool EngineUI::init(Window* window, FileManager* fileman, Renderer* renderer)
+bool EngineUI::init()
 {
+    if(!window->isRunning() || !fileman->isRunning() || !renderer->isRunning())
+    {
+        return false;
+    }
+
     if(isUIOpen)
     {
         return false;
