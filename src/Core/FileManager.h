@@ -21,7 +21,7 @@ public:
 
 	bool isRunning() const { return running; }
 
-	bool loadOBJ(const std::string& fileName);
+	bool loadOBJ(const std::string& fileName, Scene* scene = nullptr);
 	void createDirectory(const std::string& path);
 
 	//Function that checks the file existance found from stackoverflow answer
@@ -45,13 +45,12 @@ public:
 	FileManager(const FileManager& other) = delete;
 
 private:
-	//using assert to check if the system is running
-	void checkRunState();
 	void operator=(const FileManager& other) {}
 	//dynamically allocates mesh by given vertices, indices, name and material
 	Mesh* createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups);
 
-	unsigned FileManager::tokenizeOBJFaceLine(std::vector<std::string>& tokens, const std::string& line);
+	unsigned tokenizeOBJFaceLine(std::vector<char*>& tokens, char* line);
+	void getPrefixFromLine(char* line, char* prefix);
 	bool running;
 };
 

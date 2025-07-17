@@ -19,7 +19,6 @@ Scene::~Scene()
 	unsigned sceneOjectsCount = root.getChildrenCount();
 	for (size_t i = 0; i < sceneOjectsCount; i++)
 	{
-		//this will cause error trying to delete objects allocated on the stack
 		//delete sceneObjects[i];
 	}
 }

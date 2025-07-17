@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-bool Engine::Init()
+bool Engine::init()
 {
     if (!window.init("Render Engine", windowWidth, windowHeight))
     {
@@ -39,7 +39,7 @@ bool Engine::Init()
         return 1;
     }
 
-    SetCallbacks();
+    setCallbacks();
 
     //SCENE CREATION ABSTRACT THIS PART LATER INTO SCENE MANAGER OR SCENE LOADER
     scenes.push_back(Scene());
@@ -82,25 +82,25 @@ bool Engine::Init()
 
     //Loading textures and setting materials untill I make it through the UI
     {
-        std::vector<std::string> texturePaths = {
-                                            "../assets/AK203/Set1_Base.png",
-                                            "../assets/AK203/Set1_ORM.png",
-                                            "../assets/AK203/Set1_Normal.png",
-                                            "../assets/AK203/Set2_Base.png",
-                                            "../assets/AK203/Set2_ORM.png",
-                                            "../assets/AK203/Set2_Normal.png",
-                                            "../assets/AK203/Set3_Base.png",
-                                            "../assets/AK203/Set3_ORM.png",
-                                            "../assets/AK203/Set3_Normal.png",
-                                            "../assets/AK203/Set4_Base.png",
-                                            "../assets/AK203/Set4_ORM.png",
-                                            "../assets/AK203/Set4_Normal.png" };
-
-        fileManager.loadTextures(texturePaths);
-
         // dynamically loaded object
         if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
         {
+            std::vector<std::string> texturePaths = {
+                                                "../assets/AK203/Set1_Base.png",
+                                                "../assets/AK203/Set1_ORM.png",
+                                                "../assets/AK203/Set1_Normal.png",
+                                                "../assets/AK203/Set2_Base.png",
+                                                "../assets/AK203/Set2_ORM.png",
+                                                "../assets/AK203/Set2_Normal.png",
+                                                "../assets/AK203/Set3_Base.png",
+                                                "../assets/AK203/Set3_ORM.png",
+                                                "../assets/AK203/Set3_Normal.png",
+                                                "../assets/AK203/Set4_Base.png",
+                                                "../assets/AK203/Set4_ORM.png",
+                                                "../assets/AK203/Set4_Normal.png" };
+
+            fileManager.loadTextures(texturePaths);
+
             mainScene->materials[2]->setTexture(mainScene->textures[0], 0);
             mainScene->materials[2]->setTexture(mainScene->textures[1], 1);
             mainScene->materials[2]->setTexture(mainScene->textures[2], 2);
@@ -117,6 +117,10 @@ bool Engine::Init()
             mainScene->materials[1]->setTexture(mainScene->textures[10], 1);
             mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
         }
+
+        if (fileManager.loadOBJ("../assets/sponzaS.obj")) {
+
+        }
     }
 
     //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
@@ -129,13 +133,13 @@ bool Engine::Init()
     renderer.debugShapes.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5, 1, 0));
 }
 
-void Engine::Run()
+void Engine::run()
 {
     Scene* activeScene = Scene::activeScene;
 
     while (!window.shouldClose())
     {
-        CalculateDeltaTime();
+        calculateDeltaTime();
 
         activeScene->updateObjects(deltaTime);
 
@@ -162,26 +166,25 @@ void Engine::Run()
     }
 }
 
-void Engine::Shutdown()
+void Engine::shutdown()
 {
     renderer.stop();
     fileManager.stop();
     window.stop();
 }
 
-void Engine::OnWindowResize(int width, int height)
+void Engine::onWindowResize(int width, int height)
 {
     renderer.onWindowResize(width, height);
-    window.setWidth(width); //reset the viewport to the new window size
-    window.setHeight(height);
+	window.onWindowResize(width, height);
 }
 
-void Engine::FrameBufferResizeCallback(GLFWwindow* window, int width, int height)
+void Engine::frameBufferResizeCallback(GLFWwindow* window, int width, int height)
 {
     Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
     if(engine)
     {
-        engine->OnWindowResize(width, height);
+        engine->onWindowResize(width, height);
     }
 }
 
@@ -190,12 +193,12 @@ Engine::Engine() : engineUI(&window, &fileManager, &renderer)
 
 }
 
-void Engine::SetCallbacks()
+void Engine::setCallbacks()
 {
-    glfwSetFramebufferSizeCallback(window.getGLWindow(), FrameBufferResizeCallback);
+    glfwSetFramebufferSizeCallback(window.getGLWindow(), frameBufferResizeCallback);
 }
 
-void Engine::CalculateDeltaTime()
+void Engine::calculateDeltaTime()
 {
     double currentFrameTime = glfwGetTime();
     deltaTime = static_cast<float>(currentFrameTime - lastFrameTime);

@@ -99,6 +99,13 @@ unsigned Window::getHeight() const
     return height;
 }
 
+void Window::onWindowResize(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+    glViewport(0, 0, width, height);
+}
+
 void Window::setSize(unsigned width, unsigned height)
 {
 	this->width = width;

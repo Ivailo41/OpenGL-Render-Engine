@@ -3,9 +3,9 @@
 int main(int argc, char* argv[])
 {
     Engine engine;
-    engine.Init();
-    engine.Run();
-    engine.Shutdown();
+    engine.init();
+    engine.run();
+    engine.shutdown();
 
     return 0;
 }

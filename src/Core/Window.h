@@ -11,7 +11,6 @@ class Window
 public:
 	bool init(const std::string& name, unsigned width, unsigned heigth);
 	void stop();
-	//static Window* getInstance();
 
 	GLFWwindow* getGLWindow() const { return window; }
 	unsigned getWidth() const;
@@ -21,6 +20,8 @@ public:
 	//temporary using these setters until the resize callback is moved inside the window class
 	void setWidth(unsigned width) { this->width = width; }
 	void setHeight(unsigned height) { this->height = height; }
+
+	void onWindowResize(int width, int height);
 
 	void setSize(unsigned width, unsigned height);
 

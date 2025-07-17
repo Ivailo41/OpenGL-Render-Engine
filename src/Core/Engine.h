@@ -8,20 +8,20 @@
 class Engine
 {
 public:
-	bool Init();
-	void Run();
-	void Shutdown();
+	bool init();
+	void run();
+	void shutdown();
 
-	void OnWindowResize(int width, int height);
+	void onWindowResize(int width, int height);
 
-	static void FrameBufferResizeCallback(GLFWwindow* window, int width, int height);
+	static void frameBufferResizeCallback(GLFWwindow* window, int width, int height);
 
 public:
 	Engine();
 
 private:
-	void SetCallbacks();
-	void CalculateDeltaTime();
+	void setCallbacks();
+	void calculateDeltaTime();
 
 private:
 	Window window;
