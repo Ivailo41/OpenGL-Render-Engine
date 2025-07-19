@@ -15,7 +15,7 @@ bool FileManager::init()
 		return true;
 	}
 
-	std::cout << "Initializing File Manager!" << std::endl;
+	LOG_TRACE("File Manager initialized!");
 	//init code
 	running = true;
 
@@ -26,7 +26,7 @@ void FileManager::stop()
 {
 	if(running)
 	{
-		std::cout << "Shutting down File Manager!" << std::endl;
+		LOG_TRACE("File Manager stopped!");
 		running = false;
 		//stop code
 	}
@@ -41,7 +41,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 		scene = Scene::activeScene;
 		if(!scene)
 		{
-			std::cerr << "No active scene found to load the object into!" << std::endl;
+			LOG_ERROR("No active scene found to load the object into!");
 			return false;
 		}
 	}
@@ -49,7 +49,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 	std::ifstream objFile(fileName, std::ios::in);
 	if (!objFile.is_open())
 	{
-		std::cerr << "Could not open mesh file for read : " << fileName << std::endl;
+		LOG_ERROR("Could not open mesh file for read: " + fileName);
 		return false;
 	}
 
@@ -111,7 +111,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 
 				if (inputs != 2)
 				{
-					std::cerr << "Model has incorrect vertex textures" << std::endl;
+					LOG_ERROR("Model has incorrect vertex textures");
 					delete object;
 					return false;
 				}
@@ -125,7 +125,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 
 				if (inputs != 3)
 				{
-					std::cerr << "Model has incorrect vertex normals" << std::endl;
+					LOG_ERROR("Model has incorrect vertex normals");
 					delete object;
 					return false;
 				}
@@ -139,7 +139,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 
 				if (inputs != 3)
 				{
-					std::cerr << "Model has incorrect vertex coordinates" << std::endl;
+					LOG_ERROR("Model has incorrect vertex coordinates");
 					delete object;
 					return false;
 				}
@@ -358,7 +358,7 @@ void FileManager::createDirectory(const std::string& path)
 	if (statRC != 0)
 	{
 		std::filesystem::create_directory(path);
-		std::cout << "Directory created: " << path << std::endl;
+		LOG_TRACE("Directory created: " + path);
 	}
 }
 
@@ -390,8 +390,7 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 		}
 		else
 		{
-			//Create a logging class that will handle messages
-			std::cout << "Texture not found! : " << texturesPaths[i] << std::endl;
+			LOG_ERROR("Texture not found: " + texturesPaths[i]);
 		}
 	}
 
@@ -423,8 +422,7 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 						std::lock_guard<std::mutex> lock(textureMutex);
 						commandVector.push_back([data, i, &texturesPaths]() 
 						{
-							//Create a logging class that will handle messages
-							std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
+							LOG_ERROR("Failed to load texture: " + texturesPaths[i]);
 							stbi_image_free(data);
 						});
 					}
@@ -507,7 +505,7 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 	}
 	catch(std::exception error)
 	{
-		std::cout << error.what() << std::endl;
+		LOG_ERROR(error.what());
 		return false;
 	}
 }

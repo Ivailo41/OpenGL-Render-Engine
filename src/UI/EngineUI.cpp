@@ -49,6 +49,7 @@ bool EngineUI::init()
     addUILayer(&uiCameraProperties);
     addUILayer(&uiSceneLayer);
     addUILayer(&uiSettingsLayer);
+	addUILayer(&uiConsole);
 
     return true;
 }
@@ -196,7 +197,7 @@ void EngineUI::renderUI()
     }
 
     //ImGui::ShowStyleEditor();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 
     //ImGuiStyle& style = ImGui::GetStyle();
     //style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2, 0.2, 0.2, 1);

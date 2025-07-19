@@ -3,13 +3,13 @@
 
 bool Window::init(const std::string& name, unsigned width, unsigned height)
 {
-    std::cout << "Initializing window!" << std::endl;
+    LOG_TRACE("Initializing window!");
 
     assert(!running); //Make sure init() is called only once
 
     if (!glfwInit())
     {
-        std::cout << "Could not initialise glfw!" << std::endl;
+		LOG_ERROR("Could not initialise glfw!");
         return false;
     }
 
@@ -18,7 +18,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     if (!window)
     {
         glfwTerminate();
-        std::cout << "Could not initialise window!" << std::endl;
+		LOG_ERROR("Could not initialise window!");
         return false;
     }
 
@@ -51,7 +51,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     if (glewInit() != GLEW_OK)
     {
         stop();
-        std::cout << "GLEW ERROR!" << std::endl;
+		LOG_ERROR("Could not initialise GLEW!");
         return false;
     }
 
@@ -65,7 +65,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     }
     else
     {
-        std::cout << "Couldn't load icon!" << std::endl;
+		LOG_ERROR("Couldn't load icon!");
     }
 
     running = true;
@@ -74,7 +74,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
 
 void Window::stop()
 {
-    std::cout << "Shutting down window!" << std::endl;
+	LOG_TRACE("Shutting down window!");
     glfwDestroyWindow(window);
     glfwTerminate();
     running = false;

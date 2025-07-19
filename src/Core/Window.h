@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cassert>
+#include "Logger.h"
 
 class Window
 {

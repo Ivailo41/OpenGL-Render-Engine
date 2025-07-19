@@ -1,6 +1,7 @@
 #pragma once
 #include "Window.h"
 #include "FileManager.h"
+#include "Logger.h"
 #include "../Renderer/Renderer.h"
 #include "../Scene/Scene.h"
 #include "../UI/EngineUI.h"

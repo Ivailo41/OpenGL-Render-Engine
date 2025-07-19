@@ -4,6 +4,7 @@
 #include "../Scene/Lights/Light.h"
 #include "../Scene/Lights/PointLight.h"
 #include "../Core/Window.h"
+#include "../Core/Logger.h"
 #include "FrameBuffer.h"
 #include "Shader.h"
 #include "DebugShapes.h"

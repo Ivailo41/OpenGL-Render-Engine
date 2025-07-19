@@ -2,16 +2,18 @@
 
 bool Engine::init()
 {
+    Logger::getInstance().addSink(std::make_shared<ConsoleLogSink>());
+
     if (!window.init("Render Engine", windowWidth, windowHeight))
     {
-        std::cout << "Couldn't initialize window!" << std::endl;
+        LOG_ERROR("Couldn't initialize window!");
         return false;
     }
     glfwSetWindowUserPointer(window.getGLWindow(), this);
 
     if (!fileManager.init())
     {
-        std::cout << "Couldn't initialize File Manager!" << std::endl;
+        LOG_ERROR("Couldn't initialize File Manager!", LogLevel::ERROR, 0);
         return 1;
     }
 
@@ -28,31 +30,34 @@ bool Engine::init()
 
     if (!renderer.init(&window))
     {
-        std::cout << "Couldn't initialize Renderer!" << std::endl;
+        LOG_ERROR("Couldn't initialize Renderer!");
         return 1;
     }
 
     //Initing ImGUI here
     if (!engineUI.init())
     {
-        std::cout << "Couldn't initialize UI!" << std::endl;
+        LOG_ERROR("Couldn't initialize UI!");
         return 1;
+    }
+    else
+    {
+		Logger::getInstance().addSink(std::make_shared<UILogSink>(&engineUI.getConsoleLayer()));
     }
 
     setCallbacks();
 
     //SCENE CREATION ABSTRACT THIS PART LATER INTO SCENE MANAGER OR SCENE LOADER
+    //this getting of pointer causes sometimes the scene to be a deleted pointer!!
     scenes.push_back(Scene());
     Scene* mainScene = &scenes[0];
     Scene::activeScene = mainScene;
 
     Camera* mainCamera = new Camera;
-    //mainScene.sceneObjects.push_back(mainCamera_p);
     mainScene->addObject(mainCamera);
     mainScene->setActiveCamera(mainCamera);
 
     Camera* otherCamera = new Camera;
-    //mainScene.sceneObjects.push_back(otherCamera_p);
     mainScene->addObject(otherCamera);
 
     //Could go to a JSON file that wil be used to load the scene
@@ -66,7 +71,6 @@ bool Engine::init()
         "../assets/Skybox/back.jpg"
     };
 
-    //Cubemap testCubeMap(fileManager.loadCubemap(cubemapPaths));
     Skybox* skybox = new Skybox(cubemapPaths);
     mainScene->activeSkybox = skybox;
 
@@ -80,7 +84,7 @@ bool Engine::init()
         mainScene->addObject(new PointLight(std::string("PointLight_" + std::to_string(i))));
     }
 
-    //Loading textures and setting materials untill I make it through the UI
+    //Loading textures and setting materials
     {
         // dynamically loaded object
         if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
@@ -143,7 +147,7 @@ void Engine::run()
 
         activeScene->updateObjects(deltaTime);
 
-        renderer.renderScene(activeScene, &window); //render the scene with the renderer
+        renderer.renderScene(activeScene, &window);
 
         //This can later go into input handling class
         if (engineUI.getSceneLayer().isViewMode())

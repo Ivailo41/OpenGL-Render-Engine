@@ -12,7 +12,7 @@ bool Renderer::init(Window* window)
         return true;
     }
 
-	std::cout << "Initializing Renderer!" << std::endl;
+	LOG_TRACE("Renderer initialized!");
 
 	pbrShader = Shader::findShader("PBRShader");
 	shadowShader = Shader::findShader("ShadowShader");
@@ -23,7 +23,7 @@ bool Renderer::init(Window* window)
 
 	if (!pbrShader || !shadowShader || !debugShader || !tangentShader || !frameQuadShader || !skyboxShader)
     {
-		std::cout << "Error: One or more shaders could not be found!" << std::endl;
+		LOG_ERROR("One or more shaders could not be found!");
 		return false;
 	}
 
@@ -41,7 +41,7 @@ void Renderer::stop()
 {
 	// Cleanup resources if needed
     running = false;
-	std::cout << "Shutting down Renderer!" << std::endl;
+	LOG_TRACE("Renderer stopped!");
 }
 
 void Renderer::onWindowResize(int width, int height)

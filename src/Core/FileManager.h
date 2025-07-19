@@ -7,6 +7,7 @@
 #include "../Renderer/Shader.h"
 #include "../Scene/Scene.h"
 #include <sstream>
+#include "Logger.h"
 
 //for multithreading
 #include <future>
