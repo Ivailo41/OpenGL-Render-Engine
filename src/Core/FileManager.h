@@ -32,7 +32,7 @@ public:
 	void loadTextures(const std::vector<std::string>& texturesPaths);
 
 	std::string loadShader(const std::string& shaderPath);
-	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader = "");
+	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader = "") const;
 
 	//Might make these scene functions
 	Material* const getMaterial(const std::string& name);
@@ -52,6 +52,6 @@ private:
 
 	unsigned tokenizeOBJFaceLine(std::vector<char*>& tokens, char* line);
 	void getPrefixFromLine(char* line, char* prefix);
-	bool running;
+	bool running = false;
 };
 

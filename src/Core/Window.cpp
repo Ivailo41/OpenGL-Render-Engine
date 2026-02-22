@@ -69,6 +69,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     }
 
     running = true;
+    return true;
     //End of initialization
 }
 

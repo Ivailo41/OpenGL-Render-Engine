@@ -13,7 +13,7 @@ Shader::Shader(const std::string& shaderName, const std::string& vertexSource, c
 {
 	if (vertexSource.size() == 0 || fragmentSource.size() == 0)
 	{
-		throw std::exception("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
+		throw std::runtime_error("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
 	}
 	try
 	{
@@ -116,7 +116,7 @@ unsigned Shader::createShader(const std::string& shaderSource, const unsigned ty
 	{
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
 
-		throw std::exception("ERROR::SHADER::COMPILATION_FAILED\n");
+		throw std::runtime_error("ERROR::SHADER::COMPILATION_FAILED\n");
 
 		return 0;
 	}
@@ -146,7 +146,7 @@ void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fra
 	{
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 
-		throw std::exception("ERROR::SHADER::PROGRAM::LINKING_FAILED\n");
+		throw std::runtime_error("ERROR::SHADER::PROGRAM::LINKING_FAILED\n");
 	}
 
 	glDeleteShader(vertexShader);

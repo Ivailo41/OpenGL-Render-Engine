@@ -5,3 +5,4 @@ assets/*
 *.exe
 *.pdb
 *.ilk
+.idea

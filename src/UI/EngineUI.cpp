@@ -3,8 +3,9 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include <windows.h>
-#include <shobjidl.h>
+#include "../tinyfiledialogs/tinyfiledialogs.h"
+//#include <windows.h>
+//#include <shobjidl.h>
 
 bool EngineUI::isUIOpen = false;
 
@@ -214,9 +215,9 @@ void EngineUI::renderUI()
     }
 }
 
-std::string EngineUI::OpenFolderDialog() const
+std::string EngineUI::OpenFolderDialog()
 {
-	// Initialize COM
+	/*// Initialize COM
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 	std::wstring filePath;
 
@@ -279,5 +280,15 @@ std::string EngineUI::OpenFolderDialog() const
 	str.resize(filePath.length());
 	wcstombs_s(&size, &str[0], str.size() + 1, filePath.c_str(), filePath.size());
 
-	return str;
+	return str;*/
+
+	// Show a folder picker dialog
+	const char* path = tinyfd_openFileDialog("Select OBJ file", "", 0, nullptr, "path", 0);
+
+	// If the user canceled, path will be nullptr
+	if (!path)
+		return {}; // empty string
+
+	// Return the selected path as std::string
+	return std::string(path);
 }

@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <mutex>
 #include <string>

@@ -2,6 +2,8 @@
 #include "FileManager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include <algorithm>
+
 #include "stb_image.h"
 #include <sys/stat.h>
 
@@ -463,7 +465,7 @@ std::string FileManager::loadShader(const std::string& shaderPath)
 	return shaderSource;
 }
 
-bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader)
+bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader) const
 {
 	assert(running);
 
@@ -508,6 +510,8 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 		LOG_ERROR(error.what());
 		return false;
 	}
+
+	return true;
 }
 
 Material* const FileManager::getMaterial(const std::string& name)

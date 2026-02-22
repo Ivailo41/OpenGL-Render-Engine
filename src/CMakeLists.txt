@@ -2,8 +2,6 @@ add_executable(Application)
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 
-#target_include_directories(Application PRIVATE Math)
-
 target_link_libraries(Application PUBLIC external glew_s glfw)
 
 #the target source is Application

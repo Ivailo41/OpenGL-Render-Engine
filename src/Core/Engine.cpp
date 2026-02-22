@@ -13,7 +13,7 @@ bool Engine::init()
 
     if (!fileManager.init())
     {
-        LOG_ERROR("Couldn't initialize File Manager!", LogLevel::ERROR, 0);
+        LOG_ERROR("Couldn't initialize File Manager!");
         return 1;
     }
 
@@ -135,6 +135,8 @@ bool Engine::init()
 
     //this should be in the scene class
     renderer.debugShapes.drawBox(Point(0.5, 2.2, 3.0), Point(1.4, 1.1, 0.1), Color(0.5, 1, 0));
+
+    return true;
 }
 
 void Engine::run()
