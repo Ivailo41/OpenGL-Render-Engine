@@ -7,7 +7,12 @@ Renderer::Renderer() : colorFrameBuffer(2, true), screneFrameBuffer(2, false)
 
 bool Renderer::init(Window* window)
 {
-	std::cout << "Initializing Renderer!" << std::endl;
+    if(running)
+    {
+        return true;
+    }
+
+	LOG_TRACE("Renderer initialized!");
 
 	pbrShader = Shader::findShader("PBRShader");
 	shadowShader = Shader::findShader("ShadowShader");
@@ -18,7 +23,7 @@ bool Renderer::init(Window* window)
 
 	if (!pbrShader || !shadowShader || !debugShader || !tangentShader || !frameQuadShader || !skyboxShader)
     {
-		std::cout << "Error: One or more shaders could not be found!" << std::endl;
+		LOG_ERROR("One or more shaders could not be found!");
 		return false;
 	}
 
@@ -28,13 +33,15 @@ bool Renderer::init(Window* window)
 
     FrameQuad::initFrameQuad();
 
+    running = true;
     return true;
 }
 
 void Renderer::stop()
 {
 	// Cleanup resources if needed
-	std::cout << "Shutting down Renderer!" << std::endl;
+    running = false;
+	LOG_TRACE("Renderer stopped!");
 }
 
 void Renderer::onWindowResize(int width, int height)

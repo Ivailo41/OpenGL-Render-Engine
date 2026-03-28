@@ -4,6 +4,7 @@
 #include "../Scene/Lights/Light.h"
 #include "../Scene/Lights/PointLight.h"
 #include "../Core/Window.h"
+#include "../Core/Logger.h"
 #include "FrameBuffer.h"
 #include "Shader.h"
 #include "DebugShapes.h"
@@ -16,6 +17,8 @@ public:
 
 	bool init(Window* window);
 	void stop();
+
+	bool isRunning() const { return running; }
 
 	void onWindowResize(int width, int height);
 
@@ -49,4 +52,5 @@ protected:
 	Shader* skyboxShader;
 
 	GLuint sceneTexture = 0; //texture for the scene
+	bool running = false;
 };

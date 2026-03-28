@@ -1,12 +1,13 @@
 #pragma once
-#include "Scene/Mesh.h"
+#include "../Scene/Mesh.h"
 #include <fstream>
 #include <string>
-#include "Scene/BaseObject.h"
+#include "../Scene/BaseObject.h"
 #include <filesystem>
-#include "Renderer/Shader.h"
-#include "Scene/Scene.h"
+#include "../Renderer/Shader.h"
+#include "../Scene/Scene.h"
 #include <sstream>
+#include "Logger.h"
 
 //for multithreading
 #include <future>
@@ -19,7 +20,9 @@ public:
 	bool init(); //initialises the FileManager system
 	void stop(); //stops the FileManager system
 
-	bool loadOBJ(const std::string& fileName);
+	bool isRunning() const { return running; }
+
+	bool loadOBJ(const std::string& fileName, Scene* scene = nullptr);
 	void createDirectory(const std::string& path);
 
 	//Function that checks the file existance found from stackoverflow answer
@@ -29,7 +32,7 @@ public:
 	void loadTextures(const std::vector<std::string>& texturesPaths);
 
 	std::string loadShader(const std::string& shaderPath);
-	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader = "");
+	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader = "") const;
 
 	//Might make these scene functions
 	Material* const getMaterial(const std::string& name);
@@ -43,17 +46,12 @@ public:
 	FileManager(const FileManager& other) = delete;
 
 private:
-	//using assert to check if the system is running
-	void checkRunState();
 	void operator=(const FileManager& other) {}
 	//dynamically allocates mesh by given vertices, indices, name and material
 	Mesh* createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups);
 
-	unsigned FileManager::tokenizeOBJFaceLine(std::vector<std::string>& tokens, const std::string& line);
-
-private:
-	static bool isRunning;
-
-
+	unsigned tokenizeOBJFaceLine(std::vector<char*>& tokens, char* line);
+	void getPrefixFromLine(char* line, char* prefix);
+	bool running = false;
 };
 

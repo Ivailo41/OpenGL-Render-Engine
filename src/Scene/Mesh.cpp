@@ -93,5 +93,5 @@ void Mesh::draw(Shader* overrideShader, GLenum drawMode) const
 
 void Mesh::update(float deltaTime)
 {
-
+	BaseObject::update(deltaTime);
 }

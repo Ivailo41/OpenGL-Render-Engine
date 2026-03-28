@@ -17,10 +17,6 @@ The project can be built with CMake. All the libraries are present in the reposi
 The project uses resources from a hardcoded path to the folder `assets`. <br />
 It is not mandatory to have this folder as only the 3D models and textures are loaded from there. <br />
 You can load models and textures from the UI and set the materials. <br />
-### (!!Currently, there is an issue with textures vector so pleace comment out line 165 in Main.cpp if you don't intend to load textures from there)
-```cpp
-fileManager.loadTextures(texturePaths);
-```
 
 # Navigation
 
@@ -34,13 +30,16 @@ R - Scale gizmo <br />
 
 # Load your own 3D model
 `The engine uses a parser written by me and it has its' limitations.` <br />
-The parser can read ONLY OBJ files at the moment. They need to be exported as triangulated and have a material. <br />
-`Currently there is no support for multi-material mesh` <br />
+The parser can read ONLY OBJ files at the moment. <br />
 If you want to use the UI loading, navigate to the `Import Model` button in the `Settings` pannel and find your model. <br />
-If you want to hardcode the model loading (which later will be moved to Scene loading) inside the Main.cpp navigate to line 168 <br />
+If you want to hardcode the model loading (which later will be moved to Scene loading) inside the src/Core/Engine.cpp navigate to line 90 <br />
 ```cpp
 if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
 {
+  std::vector<std::string> texturePaths = {..}
+
+  fileManager.loadTextures(texturePaths);
+
   mainScene.materials[2]->setTexture(mainScene.textures[0], 0);
   mainScene.materials[2]->setTexture(mainScene.textures[1], 1);
   mainScene.materials[2]->setTexture(mainScene.textures[2], 2);
@@ -53,7 +52,7 @@ the 1st material slot is for Occolusion, Roughness, Metallic texture which is co
 # Load your textures
 
 Loading textures can be done either from the button `Import Texture` under the `Import Model` <br />
-Or they can be batch-loaded with this function at line 151-165
+Or they can be batch-loaded with this function inside the if block from model loading above
 ```cpp
  std::vector<std::string> texturePaths = { 
                                             "../assets/AK203/Set1_Base.png",

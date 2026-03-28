@@ -45,7 +45,6 @@ void UI_SceneTree::renderElement(BaseObject* object, const ImGuiTextFilter& filt
 		if (ImGui::IsItemClicked())
 		{
 			Scene::activeScene->setSelectedObject(object);
-			std::cout << "Selected: " << object->getName() << std::endl;
 		}
 
 		else if (ImGui::IsItemClicked(1))
@@ -67,13 +66,10 @@ void UI_SceneTree::renderElement(BaseObject* object, const ImGuiTextFilter& filt
 			if (ImGui::MenuItem("Select"))
 			{
 				Scene::activeScene->setSelectedObject(object);
-				std::cout << "Selected: " << object->getName() << std::endl;
 			}
 			if(ImGui::MenuItem("Delete"))
 			{
 				Scene::activeScene->removeObject(object);
-				//object->getParent()->removeChild(object);
-				std::cout << "Removed object: " << object->getName() << std::endl;
 			}
 			ImGui::EndPopup();
 		}

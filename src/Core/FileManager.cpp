@@ -1,46 +1,60 @@
 #include "FileManager.h"
+#include "FileManager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include <algorithm>
+
 #include "stb_image.h"
 #include <sys/stat.h>
 
 #include <unordered_map>
 #include <sstream>
 
-bool FileManager::isRunning = false;
-
 bool FileManager::init()
 {
-	assert(!isRunning);
+	if(running)
+	{
+		return true;
+	}
 
-	std::cout << "Initializing File Manager!" << std::endl;
-	isRunning = true;
+	LOG_TRACE("File Manager initialized!");
 	//init code
+	running = true;
 
 	return true;
 }
 
 void FileManager::stop()
 {
-	if(isRunning)
+	if(running)
 	{
-		std::cout << "Shutting down File Manager!" << std::endl;
-		isRunning = false;
+		LOG_TRACE("File Manager stopped!");
+		running = false;
 		//stop code
 	}
 }
 
-bool FileManager::loadOBJ(const std::string& fileName)
+bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 {
-	checkRunState();
+	assert(running);
+
+	if (!scene)
+	{
+		scene = Scene::activeScene;
+		if(!scene)
+		{
+			LOG_ERROR("No active scene found to load the object into!");
+			return false;
+		}
+	}
 
 	std::ifstream objFile(fileName, std::ios::in);
 	if (!objFile.is_open())
 	{
-		std::cerr << "Could not open mesh file for read : " << fileName << std::endl;
+		LOG_ERROR("Could not open mesh file for read: " + fileName);
 		return false;
 	}
-	std::string line;
+
 
 	//Get the name of the file without its extention to name the object
 	std::string objectName = fileName;
@@ -48,6 +62,9 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	size_t substrStart = objectName.find_last_of('/') + 1;
 	size_t substrEnd = objectName.find_last_of('.');
 	objectName = objectName.substr(substrStart, substrEnd - substrStart);
+
+	char buffer[2048];
+	char prefix[7];
 
 	//Storages for the coords of each vertex, texture coordinate and normal vector
 	std::vector<glm::vec3> vertPosList;
@@ -60,8 +77,11 @@ bool FileManager::loadOBJ(const std::string& fileName)
 
 	std::vector<MaterialGroup> materialGroups;
 
+	std::vector<char*> tokens;
+	tokens.reserve(10); //reserve space for 10 tokens, can be adjusted based on expected face size
+
 	//unordered map that keeps track if we already have added the read vertex and if so use it again
-	std::unordered_map<std::string, unsigned> vertTable;
+	//std::unordered_map<std::string, unsigned> vertTable;
 
 	std::string currentMeshName = "";
 
@@ -70,58 +90,70 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	unsigned vtOffset = 0;
 	unsigned vnOffset = 0;
 
-	float X, Y, Z;
-	char prefix[3];
-
-	//TODO: make use of shared pointers instead using new
 	BaseObject* object = new BaseObject(objectName);
 
 	while (!objFile.eof())
 	{
-		std::getline(objFile, line);
-		int inputs = sscanf_s(line.c_str(), "%2s %f %f %f", prefix, 3, &X, &Y, &Z);
-		if (prefix == "#" || prefix == "s" || inputs < 1)
+		//Potential error if the line is too long, but we can ignore it for now
+		objFile.getline(buffer, sizeof(buffer));
+
+		getPrefixFromLine(buffer, prefix);
+
+		if (prefix[0] == '\0' || prefix[0] == '#' || prefix[0] == 's')
 		{
 			continue;
 		}
+
 		else if (prefix[0] == 'v')
 		{
 			if (prefix[1] == 't')
 			{
-				if (inputs != 3)
+				float x, y;
+				unsigned inputs = std::sscanf(buffer, "%*s %f %f", &x, &y); //read the texture coordinates
+
+				if (inputs != 2)
 				{
-					std::cerr << "Model has incorrect vertex textures" << std::endl;
+					LOG_ERROR("Model has incorrect vertex textures");
 					delete object;
 					return false;
 				}
-				vertTextureList.push_back(glm::vec2(X,-Y));
+
+				vertTextureList.push_back(glm::vec2(x,-y));
 			}
 			else if (prefix[1] == 'n')
 			{
-				if (inputs != 4)
+				float x, y, z;
+				unsigned inputs = std::sscanf(buffer, "%*s %f %f %f", &x, &y, &z); //read the vertex normal
+
+				if (inputs != 3)
 				{
-					std::cerr << "Model has incorrect vertex normals" << std::endl;
+					LOG_ERROR("Model has incorrect vertex normals");
 					delete object;
 					return false;
 				}
-				vertNormalList.push_back(glm::vec3(X, Y, Z));
+
+				vertNormalList.push_back(glm::vec3(x, y, z));
 			}
 			else
 			{
-				if (inputs != 4)
+				float x, y, z;
+				unsigned inputs = std::sscanf(buffer, "%*s %f %f %f", &x, &y, &z); //read the vertex position
+
+				if (inputs != 3)
 				{
-					std::cerr << "Model has incorrect vertex coordinates" << std::endl;
+					LOG_ERROR("Model has incorrect vertex coordinates");
 					delete object;
 					return false;
 				}
-				vertPosList.push_back(glm::vec3(X, Y, Z));
+
+				vertPosList.push_back(glm::vec3(x, y, z));
 			}
 		}
 		else if (prefix[0] == 'f')
 		{
-			//Split the face line into tokens
-			std::vector<std::string> tokens;
-			unsigned faceVertsCount = tokenizeOBJFaceLine(tokens, line);
+			tokens.clear();
+			unsigned inputs = tokenizeOBJFaceLine(tokens, buffer);
+			unsigned faceVertsCount = inputs - 1;
 
 			//for each token (a single token is one vertex data) we will parse that vertex data based on what information we are given for the vertex.
 			//the possible variations are to have vertexPos/vertexTextures/vertexData or some of them to be absent as seen in the formats below.
@@ -131,26 +163,26 @@ bool FileManager::loadOBJ(const std::string& fileName)
 
 			//each token is a vertex data
 			std::vector<unsigned> faceVertIndices(faceVertsCount);
-			for (size_t i = 0; i < tokens.size(); i++)
+			for (size_t i = 0; i < faceVertsCount; i++)
 			{
 				unsigned v = 0;
 				unsigned vt = 0;
 				unsigned vn = 0;
 
-				if (sscanf(tokens[i].c_str(), "%d/%d/%d", &v, &vt, &vn) == 3) {
+				char* face = tokens[i+1];
+
+				if (sscanf(face, "%d/%d/%d", &v, &vt, &vn) == 3) {
 					// v/vt/vn
 				}
-				else if (sscanf(tokens[i].c_str(), "%d//%d", &v, &vn) == 2) {
+				else if (sscanf(face, "%d//%d", &v, &vn) == 2) {
 					// v//vn
 				}
-				else if (sscanf(tokens[i].c_str(), "%d/%d", &v, &vt) == 2) {
+				else if (sscanf(face, "%d/%d", &v, &vt) == 2) {
 					// v/vt
 				}
-				else if (sscanf(tokens[i].c_str(), "%d", &v) == 1) {
+				else if (sscanf(face, "%d", &v) == 1) {
 					// v
 				}
-
-				std::string face(std::to_string(v) + '/' + std::to_string(vt) + '/' + std::to_string(vn));
 
 				glm::vec3 vertPos;
 				glm::vec2 vertTexture(1, 1);
@@ -171,15 +203,19 @@ bool FileManager::loadOBJ(const std::string& fileName)
 					hasNormalData = true;
 				}
 
-				//Add the vertices
-				unsigned Indx;
+				//This method allows to not have duplicate vertices but takes longer time to load a model
+				/*unsigned Indx;
 				if (vertTable.find(face) == vertTable.end())
 				{
 					vertTable[face] = vertices.size();
 					vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
 				}
 				Indx = vertTable[face];
-				faceVertIndices[i] = Indx;
+				faceVertIndices[i] = Indx;*/
+
+				//This method allows to have duplicate vertices but is faster to load a model
+				vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
+				faceVertIndices[i] = vertices.size() - 1;
 			}
 
 			//Here we need to triangulate if we have an ngon and do the steps below for each triangle
@@ -257,9 +293,12 @@ bool FileManager::loadOBJ(const std::string& fileName)
 		}
 		else if (prefix[0] == 'o')
 		{
+			tokens.clear();
+			unsigned inputs = tokenizeOBJFaceLine(tokens, buffer);
+
 			if (currentMeshName.empty())
 			{
-				currentMeshName = line.substr(2);
+				currentMeshName = tokens[1];
 				continue;
 			}
 
@@ -267,7 +306,7 @@ bool FileManager::loadOBJ(const std::string& fileName)
 			Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
 			mesh->attachTo(object);
 
-			currentMeshName = line.substr(2);
+			currentMeshName = tokens[1];
 
 			//increment the offset which will be used to subtract the indices of the next mesh so they begin from 0
 			vOffset += vertPosList.size();
@@ -283,12 +322,15 @@ bool FileManager::loadOBJ(const std::string& fileName)
 			vertTextureList.clear();
 			vertNormalList.clear();
 		}
-		else if (line.find("usemtl") != std::string::npos)
+		else if (prefix[0] == 'u')
 		{
+			tokens.clear();
+			unsigned inputs = tokenizeOBJFaceLine(tokens, buffer);
+
 			materialGroups.push_back(MaterialGroup());
 			materialGroups.back().offset = indices.size();
 
-			std::string name = line.substr(7);
+			std::string name = tokens[1];
 			if (isMaterialInList(name))
 			{
 				materialGroups.back().material = getMaterial(name);
@@ -305,21 +347,20 @@ bool FileManager::loadOBJ(const std::string& fileName)
 	Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
 	mesh->attachTo(object);
 
-	//Scene::activeScene->sceneObjects.push_back(object);
-	Scene::activeScene->root.addChild(object);
+	scene->root.addChild(object);
 	return true;
 }
 
 void FileManager::createDirectory(const std::string& path)
 {
-	checkRunState();
+	assert(running);
 
 	struct stat info;
 	int statRC = stat(path.c_str(), &info);
 	if (statRC != 0)
 	{
 		std::filesystem::create_directory(path);
-		std::cout << "Directory created: " << path << std::endl;
+		LOG_TRACE("Directory created: " + path);
 	}
 }
 
@@ -331,7 +372,7 @@ inline bool FileManager::checkFileExistance(const std::string& name)
 
 void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 {
-	checkRunState();
+	assert(running);
 
 	std::mutex textureMutex;
 	//will store the API calls to OpenGL that will be executed on the main thread
@@ -351,8 +392,7 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 		}
 		else
 		{
-			//Create a logging class that will handle messages
-			std::cout << "Texture not found! : " << texturesPaths[i] << std::endl;
+			LOG_ERROR("Texture not found: " + texturesPaths[i]);
 		}
 	}
 
@@ -384,8 +424,7 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 						std::lock_guard<std::mutex> lock(textureMutex);
 						commandVector.push_back([data, i, &texturesPaths]() 
 						{
-							//Create a logging class that will handle messages
-							std::cout << "Failed to load texture : " << texturesPaths[i] << std::endl;
+							LOG_ERROR("Failed to load texture: " + texturesPaths[i]);
 							stbi_image_free(data);
 						});
 					}
@@ -405,7 +444,7 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 //Change it to create Shader object that will be put in a hashmap, make other function that will return the wanted shader from the map
 std::string FileManager::loadShader(const std::string& shaderPath)
 {
-	checkRunState();
+	assert(running);
 
 	std::ifstream shaderFile(shaderPath, std::ios::in);
 	if (!shaderFile.is_open())
@@ -426,9 +465,9 @@ std::string FileManager::loadShader(const std::string& shaderPath)
 	return shaderSource;
 }
 
-bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader)
+bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader) const
 {
-	checkRunState();
+	assert(running);
 
 	//check if shader exists in map and return it if so
 
@@ -468,9 +507,11 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 	}
 	catch(std::exception error)
 	{
-		std::cout << error.what() << std::endl;
+		LOG_ERROR(error.what());
 		return false;
 	}
+
+	return true;
 }
 
 Material* const FileManager::getMaterial(const std::string& name)
@@ -523,35 +564,39 @@ bool FileManager::removeMaterial(const std::string name)
 	return false;
 }
 
-void FileManager::checkRunState()
-{
-	assert(isRunning); //Forgot to call the initialisation function init() before calling functions
-}
-
 Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups)
 {
 	Mesh* mesh = new Mesh(vertices, indices, name, matGroups);
 
-	//Add debug lines to each vertex pointing the normal direction
-	//currently disabling this feature as it may slow down object loading and it is usually done with geometric shader.
-	/*for (size_t i = 0; i < vertices.size(); i++)
-	{
-		mesh->debugLinesContainer.pushLine(Line(
-			Point(vertices[i].x, vertices[i].y, vertices[i].z),
-			Point(vertices[i].x + vertices[i].nx * 0.002, vertices[i].y + vertices[i].ny * 0.002, vertices[i].z + vertices[i].nz * 0.002)));
-	}*/
-
 	return mesh;
 }
 
-unsigned FileManager::tokenizeOBJFaceLine(std::vector<std::string>& tokens, const std::string& line)
+unsigned FileManager::tokenizeOBJFaceLine(std::vector<char*>& tokens, char* line)
 {
-	std::istringstream iss(line);
-	std::string word;
-	iss >> word; // Skip the leading 'f'
-	while (iss >> word) {
-		tokens.push_back(word);
+	char* pch;
+	pch = strtok(line, " \t"); // Tokenize the line by spaces and tabs
+	while(pch != nullptr) 
+	{
+		//this function creates and destroys a string object for each token, which is not efficient
+		tokens.emplace_back(pch);
+		pch = strtok(nullptr, " \t");
 	}
 
 	return tokens.size();
+}
+
+void FileManager::getPrefixFromLine(char* line, char* prefix)
+{
+	// Extract the prefix from the line
+	char* spacePos = strchr(line, ' ');
+	if (spacePos != nullptr)
+	{
+		size_t prefixLength = spacePos - line;
+		strncpy(prefix, line, prefixLength);
+		prefix[prefixLength] = '\0'; // Null-terminate the prefix string
+	}
+	else
+	{
+		strcpy(prefix, line); // If no space found, copy the whole line as prefix
+	}
 }

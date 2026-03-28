@@ -47,12 +47,6 @@ void DebugShapes::drawDebugShapes()
 	}
 }
 
-DebugShapes::DebugShapes()
-{
-	//pass the shader in the constructor 
-	debugShader = &Shader::shadersList.find("DebugShader").operator*().second;
-}
-
 LinesContainer& DebugShapes::getContainerWithColor(const Color& color)
 {
 	unsigned size = containers.size();

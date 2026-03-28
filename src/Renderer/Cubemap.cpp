@@ -41,8 +41,7 @@ Cubemap::Cubemap(const std::string texturePaths[6]) : type(CubemapType::SKYBOX)
 		}
 		else
 		{
-			//create logging class that will handle messages
-			//std::cout << "Failed to load cubemap face: " << texturePaths[i] << std::endl;
+			LOG_ERROR("Failed to load cubemap face: " + texturePaths[i]);
 		}
 		stbi_image_free(data);
 	}

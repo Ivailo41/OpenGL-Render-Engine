@@ -47,6 +47,7 @@ public:
 
 public:
 	Camera();
+	virtual ~Camera() = default;
 
 private:
 

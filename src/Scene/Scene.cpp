@@ -19,23 +19,9 @@ Scene::~Scene()
 	unsigned sceneOjectsCount = root.getChildrenCount();
 	for (size_t i = 0; i < sceneOjectsCount; i++)
 	{
-		//this will cause error trying to delete objects allocated on the stack
 		//delete sceneObjects[i];
 	}
 }
-
-//bool Scene::loadObject(const std::string& path)
-//{
-//
-//	Object* object = FileManager::readOBJ(path);
-//	if (object == nullptr)
-//	{
-//		return false;
-//	}
-//
-//	sceneObjects.push_back(object);
-//	return true;
-//}
 
 void Scene::setSelectedObject(BaseObject* object)
 {
@@ -61,13 +47,6 @@ void Scene::setActiveCamera(Camera* camera)
 {
 	activeCamera = camera;
 }
-
-//OLD CODE
-
-//void Scene::removeObject(unsigned index)
-//{
-//	sceneObjects.removeObject(index);
-//}
 
 bool Scene::addObject(BaseObject* object)
 {
@@ -115,13 +94,3 @@ BaseObject* Scene::getSelectedObject() const
 {
 	return selectedObject;
 }
-
-//BaseObject* Scene::addObject(BaseObject& object)
-//{
-//	return sceneObjects.addObject(object);
-//}
-
-//void Scene::addObject(BaseObject* object)
-//{
-//	sceneObjects.addObject(object);
-//}

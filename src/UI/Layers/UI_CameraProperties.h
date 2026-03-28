@@ -10,8 +10,8 @@ public:
 	virtual UI_CameraProperties* clone() override;
 
 public:
-	UI_CameraProperties(Camera*);
-	UI_CameraProperties(const char*, Camera*);
+	UI_CameraProperties();
+	UI_CameraProperties(const char*);
 
 private:
 	float FOV = 50.0f;
@@ -23,7 +23,5 @@ private:
 	//TEMP
 	float roughness = 0.5;
 	float metalic = 0.5;
-
-	Camera* currentCamera;
 };
 
