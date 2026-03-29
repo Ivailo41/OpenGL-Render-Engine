@@ -25,22 +25,21 @@ public:
 	bool loadOBJ(const std::string& fileName, Scene* scene = nullptr);
 	void createDirectory(const std::string& path);
 
-	//Function that checks the file existance found from stackoverflow answer
+	//Function that checks the file existence found from stackoverflow answer
 	inline bool checkFileExistance(const std::string& name);
 
 	//Using multithreading to load multiple textures faster
 	void loadTextures(const std::vector<std::string>& texturesPaths);
 
-	std::string loadShader(const std::string& shaderPath);
 	bool loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader = "") const;
 
 	//Might make these scene functions
-	Material* const getMaterial(const std::string& name);
-	unsigned isMaterialInList(const std::string& name);
-	Material* addMaterial(const std::string name);
-	bool removeMaterial(const std::string name);
+	//Material* const getMaterial(const std::string& name);
+	//unsigned isMaterialInList(const std::string& name);
+	//Material* addMaterial(const std::string name);
+	//bool removeMaterial(const std::string name);
 
-	FileManager() {}
+	FileManager() = default;
 
 public:
 	FileManager(const FileManager& other) = delete;

@@ -26,6 +26,11 @@ public:
 	void setActiveCamera(Camera* camera);
 	Camera* getActiveCamera() const { return activeCamera; }
 
+	Material* getMaterial(const std::string& name) const;
+	unsigned isMaterialInList(const std::string& name) const;
+	Material* addMaterial(const std::string name);
+	bool removeMaterial(const std::string name);
+
 	//void clear();
 
 public:
@@ -39,6 +44,7 @@ public:
 	BaseObject root;
 
 	std::vector<Texture*> textures;
+	//make it a map
 	std::vector<Material*> materials;
 	//add container for cameras
 	std::vector<Light*> lights;

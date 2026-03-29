@@ -331,13 +331,13 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 			materialGroups.back().offset = indices.size();
 
 			std::string name = tokens[1];
-			if (isMaterialInList(name))
+			if (scene->isMaterialInList(name))
 			{
-				materialGroups.back().material = getMaterial(name);
+				materialGroups.back().material = scene->getMaterial(name);
 			}
 			else
 			{
-				materialGroups.back().material = addMaterial(name);
+				materialGroups.back().material = scene->addMaterial(name);
 			}
 		}
 	}
@@ -441,30 +441,6 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 	}
 }
 
-//Change it to create Shader object that will be put in a hashmap, make other function that will return the wanted shader from the map
-std::string FileManager::loadShader(const std::string& shaderPath)
-{
-	assert(running);
-
-	std::ifstream shaderFile(shaderPath, std::ios::in);
-	if (!shaderFile.is_open())
-	{
-		return "";
-	}
-
-	std::string shaderSource;
-	std::string line;
-
-	while (!shaderFile.eof())
-	{
-		std::getline(shaderFile, line);
-		shaderSource += line + "\n";
-	}
-
-	shaderFile.close();
-	return shaderSource;
-}
-
 bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader) const
 {
 	assert(running);
@@ -482,22 +458,24 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 			continue;
 		}
 
-		std::ifstream saderFile(*paths[i], std::ios::in);
-		if (!saderFile.is_open())
+		std::ifstream shaderFile(*paths[i], std::ios::in);
+		if (!shaderFile.is_open())
 		{
 			return false;
 		}
 
 		std::string line;
 
-		while (!saderFile.eof())
+		while (!shaderFile.eof())
 		{
-			std::getline(saderFile, line);
+			std::getline(shaderFile, line);
 			result[i] += line + "\n";
 		}
 
-		saderFile.close();
+		shaderFile.close();
 	}
+
+	//RETURN THE RESULT STRING VECTOR, THE REST WILL BE MANAGED BY RESOURCE MANAGER
 
 	//create a shader, if the shader cannot be created print the throw message
 	//the shader constructor adds it to the shader map
@@ -512,56 +490,6 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 	}
 
 	return true;
-}
-
-Material* const FileManager::getMaterial(const std::string& name)
-{
-	unsigned materialsCount = Scene::activeScene->materials.size();
-	for (size_t i = 0; i < materialsCount; i++)
-	{
-		if (Scene::activeScene->materials[i]->name == name)
-		{
-			return Scene::activeScene->materials[i];
-		}
-	}
-
-	return nullptr;
-}
-
-unsigned FileManager::isMaterialInList(const std::string& name)
-{
-	unsigned timesFound = 0;
-	unsigned materialsCount = Scene::activeScene->materials.size();
-	for (size_t i = 0; i < materialsCount; i++)
-	{
-		if (Scene::activeScene->materials[i]->name.substr(0, Scene::activeScene->materials[i]->name.find_last_of('_') - 1) == name)
-		{
-			timesFound++;
-		}
-	}
-	return timesFound;
-}
-
-Material* FileManager::addMaterial(const std::string name)
-{
-	Material* material = new Material(name);
-	Scene::activeScene->materials.push_back(material);
-	return material;
-}
-
-bool FileManager::removeMaterial(const std::string name)
-{
-	unsigned materialsCount = Scene::activeScene->materials.size();
-	for (size_t i = 0; i < materialsCount; i++)
-	{
-		if (Scene::activeScene->materials[i]->name == name)
-		{
-			delete Scene::activeScene->materials[i];
-			Scene::activeScene->materials.erase(Scene::activeScene->materials.begin() + i);
-			return true;
-		}
-	}
-	return false;
 }
 
 Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups)
