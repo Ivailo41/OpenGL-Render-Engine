@@ -11,6 +11,7 @@
 #include "../Renderer/Renderer.h"
 
 #include "ImGuizmo.h"
+#include "Layers/UI_AssetBrowser.h"
 
 class EngineUI
 {
@@ -49,6 +50,7 @@ private:
 	UI_ObjectProperties uiObjectProperties;
 	UI_CameraProperties uiCameraProperties;
 	UI_Console uiConsole;
+	UI_AssetBrowser uiAssetBrowser;
 
 	Window* window = nullptr;
 	ResourceManager* resourceManager = nullptr;

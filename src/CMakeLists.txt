@@ -6,7 +6,10 @@ add_executable(Application
 		Resources/Raw/RawStructs.cpp
 		Resources/Raw/RawStructs.h
 		Resources/Model.cpp
-		Resources/Model.h)
+		Resources/Model.h
+		UI/Layers/UI_AssetBrowser.cpp
+		UI/Layers/UI_AssetBrowser.h
+		UI/IconsFontAwesome7.h)
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 

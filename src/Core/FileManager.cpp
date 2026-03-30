@@ -265,7 +265,9 @@ RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 				indices.push_back(I2);
 				indices.push_back(I3);
 
-				materialGroups.back().indicesCount += 3;
+				if (materialGroups.size() > 0) {
+					materialGroups.back().indicesCount += 3;
+				}
 			}
 		}
 		else if (prefix[0] == 'o')

@@ -1,4 +1,6 @@
 #include "EngineUI.h"
+
+#include "IconsFontAwesome7.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -7,9 +9,11 @@
 //#include <windows.h>
 //#include <shobjidl.h>
 
+
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer) : window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer, resourceManager)
+EngineUI::EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer)
+: window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer, resourceManager), uiAssetBrowser(resourceManager)
 {
 
 }
@@ -44,6 +48,15 @@ bool EngineUI::init()
     ImGui_ImplGlfw_InitForOpenGL(window->getGLWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
+    io.Fonts->AddFontDefault();
+
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = 13.0f;
+    static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+    io.Fonts->AddFontFromFileTTF("../assets/icons_font.otf", 50.0f, &config, icon_ranges);
+    io.Fonts->Build();
+
     //Create default UI layers
     addUILayer(&uiSceneTree);
     addUILayer(&uiObjectProperties);
@@ -51,6 +64,7 @@ bool EngineUI::init()
     addUILayer(&uiSceneLayer);
     addUILayer(&uiSettingsLayer);
 	addUILayer(&uiConsole);
+    addUILayer(&uiAssetBrowser);
 
     return true;
 }
@@ -165,8 +179,6 @@ void EngineUI::renderUI()
 				std::string filePath = OpenFolderDialog();
                 //check path correctnes
 				resourceManager->loadModel(filePath);
-                //temporary instance the model until adding instancing from UI
-                Scene::activeScene->instanceModel(std::filesystem::path(filePath).filename());
 
             }
             if (ImGui::MenuItem("Import Texture"))
