@@ -29,3 +29,8 @@ struct RawModel {
     RawModelNode root;
     std::string name;
 };
+
+struct RawTexture {
+    unsigned char* data;
+    int width, height, nrChannels;
+};

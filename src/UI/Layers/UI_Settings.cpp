@@ -94,7 +94,7 @@ UI_Settings* UI_Settings::clone()
 	return new UI_Settings(*this);
 }
 
-UI_Settings::UI_Settings(FileManager* fileman, Renderer* renderer) : UILayer("Settings"), fileman(fileman), renderer(renderer)
+UI_Settings::UI_Settings(Renderer* renderer) : UILayer("Settings"), renderer(renderer)
 {
 
 }

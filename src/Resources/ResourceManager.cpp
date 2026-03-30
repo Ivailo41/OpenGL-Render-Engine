@@ -1,7 +1,15 @@
 #include "ResourceManager.h"
 
-void ResourceManager::loadTexture(const std::filesystem::path& path) {
+#include "stb_image.h"
 
+void ResourceManager::loadTexture(const std::vector<std::filesystem::path>& paths) {
+    std::vector<RawTexture> rawTextures = fileManager.loadTextures(paths);
+
+    for (int i = 0; i < rawTextures.size(); ++i) {
+        textures.emplace(paths[i], Texture(rawTextures[i].data, rawTextures[i].width, rawTextures[i].height, paths[i].c_str()));
+        //free the image data loaded with stbi
+        stbi_image_free((rawTextures[i].data));
+    }
 }
 
 void ResourceManager::loadShader(const std::string& name, const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath, const std::filesystem::path& geometryPath = std::filesystem::path{}) {
@@ -24,6 +32,7 @@ bool ResourceManager::loadModel(const std::filesystem::path& path) {
         return false;
     }
 
+    LOG_TRACE("Loaded model: " + path.string());
     return true;
 }
 

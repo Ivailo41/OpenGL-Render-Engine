@@ -27,7 +27,7 @@ public:
 	static inline bool checkFileExistence(const std::string& name);
 
 	//Using multithreading to load multiple textures faster
-	void loadTextures(const std::vector<std::string>& texturesPaths);
+	std::vector<RawTexture> loadTextures(const std::vector<std::filesystem::path>& texturesPaths) const;
 
 	std::vector<std::string> loadShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath, const std::filesystem::path& geometryPath) const;
 

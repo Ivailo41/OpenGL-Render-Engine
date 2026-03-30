@@ -19,8 +19,6 @@ bool Engine::init()
         return 1;
     }
 
-    ResourceManager resourceManager(fileManager);
-
     fileManager.createDirectory("../assets");
 
     resourceManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl", "");
@@ -91,9 +89,9 @@ bool Engine::init()
     //Loading textures and setting materials
     {
         // dynamically loaded object
-        if (resourceManager.loadModel("../assets/AK203/AK203.obj"))
+        if (resourceManager.loadModel("../assets/AK74M.obj"))
         {
-            std::vector<std::string> texturePaths = {
+            std::vector<std::filesystem::path> texturePaths = {
                                                 "../assets/AK203/Set1_Base.png",
                                                 "../assets/AK203/Set1_ORM.png",
                                                 "../assets/AK203/Set1_Normal.png",
@@ -107,23 +105,23 @@ bool Engine::init()
                                                 "../assets/AK203/Set4_ORM.png",
                                                 "../assets/AK203/Set4_Normal.png" };
 
-            fileManager.loadTextures(texturePaths);
+            resourceManager.loadTexture(texturePaths);
 
-            mainScene->materials[2]->setTexture(mainScene->textures[0], 0);
-            mainScene->materials[2]->setTexture(mainScene->textures[1], 1);
-            mainScene->materials[2]->setTexture(mainScene->textures[2], 2);
-
-            mainScene->materials[0]->setTexture(mainScene->textures[3], 0);
-            mainScene->materials[0]->setTexture(mainScene->textures[4], 1);
-            mainScene->materials[0]->setTexture(mainScene->textures[5], 2);
-
-            mainScene->materials[3]->setTexture(mainScene->textures[6], 0);
-            mainScene->materials[3]->setTexture(mainScene->textures[7], 1);
-            mainScene->materials[3]->setTexture(mainScene->textures[8], 2);
-
-            mainScene->materials[1]->setTexture(mainScene->textures[9], 0);
-            mainScene->materials[1]->setTexture(mainScene->textures[10], 1);
-            mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
+            // mainScene->materials[2]->setTexture(mainScene->textures[0], 0);
+            // mainScene->materials[2]->setTexture(mainScene->textures[1], 1);
+            // mainScene->materials[2]->setTexture(mainScene->textures[2], 2);
+            //
+            // mainScene->materials[0]->setTexture(mainScene->textures[3], 0);
+            // mainScene->materials[0]->setTexture(mainScene->textures[4], 1);
+            // mainScene->materials[0]->setTexture(mainScene->textures[5], 2);
+            //
+            // mainScene->materials[3]->setTexture(mainScene->textures[6], 0);
+            // mainScene->materials[3]->setTexture(mainScene->textures[7], 1);
+            // mainScene->materials[3]->setTexture(mainScene->textures[8], 2);
+            //
+            // mainScene->materials[1]->setTexture(mainScene->textures[9], 0);
+            // mainScene->materials[1]->setTexture(mainScene->textures[10], 1);
+            // mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
         }
 
         if (resourceManager.loadModel("../assets/sponzaS.obj")) {
@@ -198,9 +196,8 @@ void Engine::frameBufferResizeCallback(GLFWwindow* window, int width, int height
     }
 }
 
-Engine::Engine() : engineUI(&window, &fileManager, &renderer)
+Engine::Engine() : resourceManager(fileManager), engineUI(&window, &resourceManager, &renderer)
 {
-
 }
 
 void Engine::setCallbacks()

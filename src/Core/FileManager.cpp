@@ -344,17 +344,9 @@ inline bool FileManager::checkFileExistence(const std::string& name)
 	return (stat(name.c_str(), &buffer) == 0);
 }
 
-void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
-{
+std::vector<RawTexture> FileManager::loadTextures(const std::vector<std::filesystem::path>& texturesPaths) const {
 	assert(running);
 
-	std::mutex textureMutex;
-	//will store the API calls to OpenGL that will be executed on the main thread
-	std::vector<std::function<void()>> commandVector;
-
-	std::vector<Texture*>& textures = Scene::activeScene->textures;
-	//alocating the needed size for the textures
-	unsigned texturesSize = textures.size();
 	unsigned texturesToAdd = 0;
 
 	//Check if the paths are valid files before resizing the vector to avoid creating invalid textures
@@ -366,53 +358,33 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 		}
 		else
 		{
-			LOG_ERROR("Texture not found: " + texturesPaths[i]);
+			LOG_ERROR("Texture not found: " + texturesPaths[i].string());
 		}
 	}
 
-	textures.resize(texturesSize + texturesToAdd);
+	std::vector<RawTexture> rawTextures(texturesToAdd);
 
 	{
 		std::vector<std::future<void>> futures;
 		for (unsigned i = 0; i < texturesToAdd; i++)
 		{
 			//We store the returned future objects in a vector, when they are destructed the program should wait untill the end of the async function
-			futures.push_back(std::async(std::launch::async, [&texturesPaths, i, &textureMutex, &commandVector, &textures, texturesSize]()
+			futures.push_back(std::async(std::launch::async, [&texturesPaths, i, &rawTextures]()
 				{
 					//Will carry the i index so we return the textures in order, since they are loaded asynchronous
 					int width, height, nrChannels;
-					unsigned char* data = stbi_load(texturesPaths[i].c_str(), &width, &height, &nrChannels, 0);
-					if (data)
+					if (unsigned char* data = stbi_load(texturesPaths[i].c_str(), &width, &height, &nrChannels, 0))
 					{
-
-						std::lock_guard<std::mutex> lock(textureMutex);
-						//OpenGL API calls should be made ONLY on the main thread, so we are storing them in a vector to call them later
-						commandVector.push_back([data, i, width, height, &textures, texturesSize, &texturesPaths]()
-						{
-							textures[texturesSize + i] = new Texture(data, width, height, texturesPaths[i].c_str());
-							stbi_image_free(data);
-						});
+						rawTextures[i] = {data, width, height, nrChannels};
 					}
 					else
 					{
-						std::lock_guard<std::mutex> lock(textureMutex);
-						commandVector.push_back([data, i, &texturesPaths]() 
-						{
-							LOG_ERROR("Failed to load texture: " + texturesPaths[i]);
-							stbi_image_free(data);
-						});
+						LOG_ERROR("Failed to load texture: " + texturesPaths[i].string());
 					}
 				}));
 		}
 	}
-	
-	std::lock_guard<std::mutex> lock(textureMutex);
-
-	for(unsigned i = 0; i < commandVector.size(); i++)
-	{
-		auto command = commandVector[i];
-		command();
-	}
+	return rawTextures;
 }
 
 std::vector<std::string> FileManager::loadShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath, const std::filesystem::path& geometryPath) const

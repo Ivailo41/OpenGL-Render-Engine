@@ -26,11 +26,6 @@ public:
 	void setActiveCamera(Camera* camera);
 	Camera* getActiveCamera() const { return activeCamera; }
 
-	Material* getMaterial(const std::string& name) const;
-	unsigned isMaterialInList(const std::string& name) const;
-	Material* addMaterial(const std::string name);
-	bool removeMaterial(const std::string name);
-
 	//void clear();
 
 public:

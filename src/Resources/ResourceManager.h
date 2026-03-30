@@ -14,7 +14,7 @@ class ResourceManager {
 
 public:
 
-    void loadTexture(const std::filesystem::path& path);
+    void loadTexture(const std::vector<std::filesystem::path>& path);
     void loadShader(const std::string& name, const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath, const std::filesystem::path& geometryPath);
     bool loadModel(const std::filesystem::path& path);
 

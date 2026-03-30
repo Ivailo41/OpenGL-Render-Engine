@@ -6,6 +6,7 @@
 #include "Layers/UI_ObjectProperties.h"
 #include "Layers/UI_CameraProperties.h"
 #include "Layers/UI_Console.h"
+#include "../Resources/ResourceManager.h"
 #include "../Core/Window.h"
 #include "../Renderer/Renderer.h"
 
@@ -29,7 +30,7 @@ public:
 	UI_Console& getConsoleLayer() { return uiConsole; }
 
 public:
-	EngineUI(Window* window, FileManager* fileman, Renderer* renderer);
+	EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer);
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
 	~EngineUI();
@@ -50,7 +51,7 @@ private:
 	UI_Console uiConsole;
 
 	Window* window = nullptr;
-	FileManager* fileman = nullptr;
+	ResourceManager* resourceManager = nullptr;
 	Renderer* renderer = nullptr;
 };
 

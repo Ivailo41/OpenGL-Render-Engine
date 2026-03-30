@@ -3,9 +3,6 @@
 #include "../../Resources/Shader.h"
 #include "../../Renderer/Renderer.h"
 
-//temp
-#include "../../Core/FileManager.h"
-
 class UI_Settings : public UILayer
 {
 public:
@@ -13,10 +10,8 @@ public:
 	virtual UI_Settings* clone() override;
 
 public:
-	UI_Settings(FileManager* fileman, Renderer* renderer);
+	UI_Settings(Renderer* renderer);
 
 private:
-	//temp code for the model importing
-	FileManager* fileman;
 	Renderer* renderer;
 };

@@ -9,14 +9,14 @@
 
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window, FileManager* fileman, Renderer* renderer) : window(window), fileman(fileman), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(fileman, renderer)
+EngineUI::EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer) : window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer)
 {
 
 }
 
 bool EngineUI::init()
 {
-    if(!window->isRunning() || !fileman->isRunning() || !renderer->isRunning())
+    if(!window->isRunning() || !renderer->isRunning())
     {
         return false;
     }
@@ -164,16 +164,16 @@ void EngineUI::renderUI()
             {
 				std::string filePath = OpenFolderDialog();
                 //check path correctnes
-				fileman->loadOBJ(filePath);
+				resourceManager->loadModel(filePath);
 
             }
             if (ImGui::MenuItem("Import Texture"))
             {
                 std::string path = OpenFolderDialog();
-                std::vector<std::string> paths;
+                std::vector<std::filesystem::path> paths;
                 paths.push_back(path);
                 //check path correctnes
-                fileman->loadTextures(paths);
+                resourceManager->loadTexture(paths);
             }
             ImGui::EndMenu();
         }
