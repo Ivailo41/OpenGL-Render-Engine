@@ -51,7 +51,7 @@ bool Engine::init()
 
     //SCENE CREATION ABSTRACT THIS PART LATER INTO SCENE MANAGER OR SCENE LOADER
     //this getting of pointer causes sometimes the scene to be a deleted pointer!!
-    scenes.push_back(Scene());
+    scenes.push_back(Scene(resourceManager));
     Scene* mainScene = &scenes[0];
     Scene::activeScene = mainScene;
 
@@ -128,6 +128,8 @@ bool Engine::init()
 
         }
     }
+
+    mainScene->instanceModel("AK74M.obj");
 
     //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
     mainScene->getActiveCamera()->rotateCam(glm::vec3(0, 0, 0));

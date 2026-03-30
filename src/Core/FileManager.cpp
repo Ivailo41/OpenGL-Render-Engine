@@ -65,7 +65,7 @@ RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
 
-	std::vector<MaterialGroup> materialGroups;
+	std::vector<RawMaterialGroup> materialGroups;
 
 	std::vector<char*> tokens;
 	tokens.reserve(10); //reserve space for 10 tokens, can be adjusted based on expected face size
@@ -81,6 +81,7 @@ RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 	unsigned vnOffset = 0;
 
 	RawModel object;
+	object.name = objectName;
 
 	while (!objFile.eof())
 	{
@@ -307,7 +308,7 @@ RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 			tokens.clear();
 			unsigned inputs = tokenizeOBJFaceLine(tokens, buffer);
 
-			materialGroups.push_back(MaterialGroup());
+			materialGroups.emplace_back();
 			materialGroups.back().offset = indices.size();
 
 			materialGroups.back().materialName = tokens[1];

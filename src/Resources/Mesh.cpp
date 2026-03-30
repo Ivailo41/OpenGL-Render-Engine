@@ -1,11 +1,16 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, const std::string &name, const std::vector<MaterialGroup> &matGroups)
-: VAO(0), VBO(0), EBO(0) {
+Mesh::Mesh(const RawMesh& rawMesh, const std::unordered_map<std::string, Material>& materialsList)
+: VAO(0), VBO(0), EBO(0), materialGroups(rawMesh.rawMaterialGroups.size()) {
     generateBuffers();
-    initialize(vertices, indices);
-    materialGroups = matGroups;
-    this->name = name;
+    initialize(rawMesh.vertices, rawMesh.indices);
+    name = rawMesh.name;
+
+    for (int i = 0; i < materialGroups.size(); i++) {
+        materialGroups[i].indicesCount = rawMesh.rawMaterialGroups[i].indicesCount;
+        materialGroups[i].offset = rawMesh.rawMaterialGroups[i].offset;
+        materialGroups[i].material = &materialsList.find(rawMesh.rawMaterialGroups[i].materialName)->second;
+    }
 }
 
 Mesh::~Mesh() {

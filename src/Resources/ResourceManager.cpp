@@ -25,12 +25,23 @@ void ResourceManager::loadShader(const std::string& name, const std::filesystem:
 
 bool ResourceManager::loadModel(const std::filesystem::path& path) {
 
+    RawModel rawModel;
+
     try {
-        models.emplace(path.filename(), Model(fileManager.loadOBJ(path)));
+        rawModel = fileManager.loadOBJ(path);
     }
     catch (std::runtime_error& e) {
         return false;
     }
+
+    //There might be better way of loading the unique materials
+    for (auto& rawMesh : rawModel.meshes) {
+        for(auto& materialGroup : rawMesh.rawMaterialGroups) {
+            materials.insert({materialGroup.materialName, Material(materialGroup.materialName)});
+        }
+    }
+
+    models.emplace(path.filename(), Model(rawModel, materials));
 
     LOG_TRACE("Loaded model: " + path.string());
     return true;
@@ -38,5 +49,13 @@ bool ResourceManager::loadModel(const std::filesystem::path& path) {
 
 ResourceManager::ResourceManager(const FileManager &fileManager) : fileManager(fileManager) {
     //nothing to do here
+}
+
+const Model* ResourceManager::getModel(const std::string& name) const {
+    auto it = models.find(name);
+    if (it == models.end()) {
+        return nullptr;
+    }
+    return &it->second;
 }
 

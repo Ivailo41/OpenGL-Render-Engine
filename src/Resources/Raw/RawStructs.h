@@ -3,20 +3,20 @@
 #include <vector>
 #include "../../Renderer/Primitives.h"
 
-struct MaterialGroup
+struct RawMaterialGroup
 {
     unsigned offset;
     unsigned indicesCount;
     std::string materialName;
 
-    MaterialGroup() : offset(0), indicesCount(0) {}
+    RawMaterialGroup() : offset(0), indicesCount(0) {}
 };
 
 struct RawMesh {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::string name;
-    std::vector<MaterialGroup> materialGroups;
+    std::vector<RawMaterialGroup> rawMaterialGroups;
 };
 
 struct RawModelNode {

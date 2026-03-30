@@ -7,10 +7,26 @@
 #include "Raw/RawStructs.h"
 #include <vector>
 
+#include "Material.h"
+
+struct MaterialGroup
+{
+    unsigned offset;
+    unsigned indicesCount;
+    const Material* material;
+
+    MaterialGroup() : offset(0), indicesCount(0) {}
+};
+
 class Mesh {
 
 public:
-    Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups);
+    const std::string& getName() const { return name; }
+    const std::vector<MaterialGroup>& getMaterialGroups() const { return materialGroups; }
+    unsigned getVAO() const { return VAO; }
+
+public:
+    Mesh(const RawMesh& rawMesh, const std::unordered_map<std::string, Material>& materialsList);
     ~Mesh();
 
 private:

@@ -5,12 +5,14 @@
 #include <string>
 #include <vector>
 #include "Skybox.h"
+#include "../Resources/ResourceManager.h"
 
 class Scene
 {
 public:
 	//bool loadObject(const std::string& path);
 
+	bool instanceModel(const std::string& name);
 	bool addObject(BaseObject* object);
 	void removeObject(BaseObject* object);
 
@@ -29,8 +31,8 @@ public:
 	//void clear();
 
 public:
-	Scene();
-	Scene(const std::string& sceneName);
+	Scene(const ResourceManager& resourceManager);
+	Scene(const std::string& sceneName, const ResourceManager& resourceManager);
 	~Scene();
 
 public:
@@ -48,9 +50,9 @@ public:
 
 private:
 	std::string name;
-
-	//might move these pointers elsewhere
 	Camera* activeCamera;
 	BaseObject* selectedObject;
+
+	const ResourceManager& resourceManager;
 };
 

@@ -3,12 +3,12 @@
 
 Scene* Scene::activeScene = nullptr;
 
-Scene::Scene() : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr),  root("Scene")
+Scene::Scene(const ResourceManager& resourceManager) : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr),  root("Scene"), resourceManager(resourceManager)
 {
 	//nothing to do here
 }
 
-Scene::Scene(const std::string& sceneName) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr), root("Scene")
+Scene::Scene(const std::string& sceneName, const ResourceManager& resourceManager) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr), root("Scene"), resourceManager(resourceManager)
 {
 	//nothing to do here
 }
@@ -48,8 +48,29 @@ void Scene::setActiveCamera(Camera* camera)
 	activeCamera = camera;
 }
 
-bool Scene::addObject(BaseObject* object)
+bool Scene::instanceModel(const std::string& modelName)
 {
+	const Model* model = resourceManager.getModel(modelName);
+	if (model == nullptr) {
+		LOG_ERROR("Scene could not find model \"" + modelName + "\"");
+		return false;
+	}
+
+	//Not preserving hierarchy yet
+	BaseObject* object = new BaseObject(model->getName());
+	const std::vector<Mesh>& meshes = model->getMeshes();
+
+	for (auto& mesh : meshes) {
+		ObjectMesh* objectMesh = new ObjectMesh(mesh.getName(), &mesh);
+		objectMesh->attachTo(object);
+	}
+
+	root.addChild(object);
+	return true;
+}
+
+bool Scene::addObject(BaseObject *object) {
+
 	if (object == nullptr)
 		return false;
 

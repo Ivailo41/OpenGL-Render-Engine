@@ -18,10 +18,10 @@ public:
     void loadShader(const std::string& name, const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath, const std::filesystem::path& geometryPath);
     bool loadModel(const std::filesystem::path& path);
 
-    Texture* getTexture(const std::string name);
-    Shader* getShader(const std::string name);
-    Model* getModel(const std::string name);
-    Material* getMaterial(const std::string name);
+    const Texture* getTexture(const std::string& name) const;
+    const Shader* getShader(const std::string& name) const;
+    const Model* getModel(const std::string& name) const;
+    const Material* getMaterial(const std::string& name) const;
 
 
 public:

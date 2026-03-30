@@ -9,25 +9,13 @@ ObjectMesh::ObjectMesh(const std::string& name, const Mesh* mesh) : BaseObject()
 	this->mesh = mesh;
 }
 
-ObjectMesh::~ObjectMesh() //EACH COPY WILL SHARE ONE VERTEX BUFFER SO USE A SHARED POINTER AND AFTER ALL INSTANCES ARE DELETED, DELETE THE BUFFER
-{
-	//glDeleteVertexArrays(1, &VAO);
-	//glDeleteBuffers(1, &VBO);
-	//glDeleteBuffers(1, &EBO);
-}
-
 void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
 {
 	BaseObject::draw(overrideShader);
 
-	/*if(vertices.size() == 0 || vIndices.size() == 0)
+	for (auto materialGroup : mesh->getMaterialGroups())
 	{
-		return;
-	}
-
-	for (auto materialGroup : materialGroups)
-	{
-		glBindVertexArray(VAO);
+		glBindVertexArray(mesh->getVAO());
 
 		//this binds the shader asigned to the material
 		if (overrideShader != nullptr)
@@ -50,7 +38,7 @@ void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
 
 		glDrawElements(drawMode, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));
 		glBindVertexArray(0);
-	}*/
+	}
 }
 
 void ObjectMesh::update(float deltaTime)

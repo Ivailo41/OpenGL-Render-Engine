@@ -1,10 +1,10 @@
 #include "Model.h"
 
-Model::Model(const RawModel &rawModel) {
+Model::Model(const RawModel &rawModel, const std::unordered_map<std::string, Material>& materialsList) {
     this->root = rawModel.root;
     this->name = rawModel.name;
 
-    for (const auto&[vertices, indices, name, materialGroups] : rawModel.meshes) {
-        this->meshes.push_back(Mesh(vertices, indices, name, materialGroups));
+    for (const auto& rawMesh: rawModel.meshes) {
+        this->meshes.emplace_back(rawMesh, materialsList);
     }
 }
