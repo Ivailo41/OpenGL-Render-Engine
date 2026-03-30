@@ -124,7 +124,7 @@ bool Engine::init()
             // mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
         }
 
-        if (resourceManager.loadModel("../assets/sponzaS.obj")) {
+        if (resourceManager.loadModel("../assets/Cube.obj")) {
 
         }
     }

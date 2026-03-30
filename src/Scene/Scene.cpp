@@ -58,10 +58,10 @@ bool Scene::instanceModel(const std::string& modelName)
 
 	//Not preserving hierarchy yet
 	BaseObject* object = new BaseObject(model->getName());
-	const std::vector<Mesh>& meshes = model->getMeshes();
+	const std::vector<std::unique_ptr<Mesh>>& meshes = model->getMeshes();
 
 	for (auto& mesh : meshes) {
-		ObjectMesh* objectMesh = new ObjectMesh(mesh.getName(), &mesh);
+		ObjectMesh* objectMesh = new ObjectMesh(mesh->getName(), mesh.get()); //Carefully with mesh.get()
 		objectMesh->attachTo(object);
 	}
 

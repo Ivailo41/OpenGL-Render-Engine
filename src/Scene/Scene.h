@@ -10,8 +10,6 @@
 class Scene
 {
 public:
-	//bool loadObject(const std::string& path);
-
 	bool instanceModel(const std::string& name);
 	bool addObject(BaseObject* object);
 	void removeObject(BaseObject* object);
@@ -19,7 +17,6 @@ public:
 	BaseObject* getSelectedObject() const;
 	void setSelectedObject(BaseObject* object);
 
-	//remove that draw function
 	void updateObjects(float deltaTime);
 
 	void setName(const std::string& name);
@@ -37,12 +34,7 @@ public:
 
 public:
 	static Scene* activeScene;
-	//std::vector<BaseObject*> sceneObjects;
 	BaseObject root;
-
-	std::vector<Texture*> textures;
-	//make it a map
-	std::vector<Material*> materials;
 	//add container for cameras
 	std::vector<Light*> lights;
 

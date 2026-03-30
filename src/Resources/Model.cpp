@@ -5,6 +5,6 @@ Model::Model(const RawModel &rawModel, const std::unordered_map<std::string, Mat
     this->name = rawModel.name;
 
     for (const auto& rawMesh: rawModel.meshes) {
-        this->meshes.emplace_back(rawMesh, materialsList);
+        this->meshes.push_back(std::make_unique<Mesh>(rawMesh, materialsList));
     }
 }
