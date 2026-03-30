@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "../Renderer/Shader.h"
+#include "../Resources/Shader.h"
 
 void Camera::setFOV(float fov)
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include "../BaseObject.h"
-#include "../Mesh.h"
-#include "../../Renderer/Shader.h"
+#include "../ObjectMesh.h"
+#include "../../Resources/Shader.h"
 
 enum class LightType
 {

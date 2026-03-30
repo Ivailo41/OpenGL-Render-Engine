@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+#include "../Resources/ResourceManager.h"
+
 bool Engine::init()
 {
     Logger::getInstance().addSink(std::make_shared<ConsoleLogSink>());
@@ -17,16 +19,18 @@ bool Engine::init()
         return 1;
     }
 
+    ResourceManager resourceManager(fileManager);
+
     fileManager.createDirectory("../assets");
 
-    fileManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl");
-    fileManager.loadShader("BloomShader", "../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl", "../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl");
-    fileManager.loadShader("BlurShader", "../assets/Shaders/PostProcess/Blur/blurVertex.glsl", "../assets/Shaders/PostProcess/Blur/blurFrag.glsl");
-    fileManager.loadShader("DebugShader", "../assets/Shaders/Debug/debugVertex.glsl", "../assets/Shaders/Debug/debugFrag.glsl");
-    fileManager.loadShader("FramequadShader", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl");
-    fileManager.loadShader("SkyboxShader", "../assets/Shaders/Skybox/SkyboxVertex.glsl", "../assets/Shaders/Skybox/SkyboxFrag.glsl");
-    fileManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
-    fileManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
+    resourceManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl", "");
+    resourceManager.loadShader("BloomShader", "../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl", "../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl", "");
+    resourceManager.loadShader("BlurShader", "../assets/Shaders/PostProcess/Blur/blurVertex.glsl", "../assets/Shaders/PostProcess/Blur/blurFrag.glsl", "");
+    resourceManager.loadShader("DebugShader", "../assets/Shaders/Debug/debugVertex.glsl", "../assets/Shaders/Debug/debugFrag.glsl", "");
+    resourceManager.loadShader("FramequadShader", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl", "");
+    resourceManager.loadShader("SkyboxShader", "../assets/Shaders/Skybox/SkyboxVertex.glsl", "../assets/Shaders/Skybox/SkyboxFrag.glsl", "");
+    resourceManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
+    resourceManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
 
     if (!renderer.init(&window))
     {
@@ -87,7 +91,7 @@ bool Engine::init()
     //Loading textures and setting materials
     {
         // dynamically loaded object
-        if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
+        if (resourceManager.loadModel("../assets/AK203/AK203.obj"))
         {
             std::vector<std::string> texturePaths = {
                                                 "../assets/AK203/Set1_Base.png",
@@ -122,7 +126,7 @@ bool Engine::init()
             mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
         }
 
-        if (fileManager.loadOBJ("../assets/sponzaS.obj")) {
+        if (resourceManager.loadModel("../assets/sponzaS.obj")) {
 
         }
     }

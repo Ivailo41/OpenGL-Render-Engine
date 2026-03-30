@@ -1,9 +1,8 @@
 #pragma once
 
-//#define GLEW_STATIC
-#include <GL/glew.h>
+/*#include <GL/glew.h>
 #include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
+#include <gtc/matrix_transform.hpp>*/
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/matrix_decompose.hpp"

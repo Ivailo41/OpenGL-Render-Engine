@@ -2,7 +2,7 @@
 //TEMP INCLUDES FOR TESTING
 #include "../../Scene/BaseObject.h"
 
-#include "../../Renderer/Material.h"
+#include "../../Resources/Material.h"
 
 UI_CameraProperties::UI_CameraProperties() : UILayer("Camera Properties")
 {

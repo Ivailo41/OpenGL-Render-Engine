@@ -34,30 +34,20 @@ void FileManager::stop()
 	}
 }
 
-bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
+RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 {
 	assert(running);
 
-	if (!scene)
-	{
-		scene = Scene::activeScene;
-		if(!scene)
-		{
-			LOG_ERROR("No active scene found to load the object into!");
-			return false;
-		}
-	}
-
-	std::ifstream objFile(fileName, std::ios::in);
+	std::ifstream objFile(filePath, std::ios::in);
 	if (!objFile.is_open())
 	{
-		LOG_ERROR("Could not open mesh file for read: " + fileName);
-		return false;
+		LOG_ERROR("Could not open mesh file for read: " + filePath.string());
+		throw std::runtime_error("Could not open mesh file for read: " + filePath.string());
 	}
 
 
 	//Get the name of the file without its extention to name the object
-	std::string objectName = fileName;
+	std::string objectName = filePath.filename();
 	std::replace(objectName.begin(), objectName.end(), '\\', '/'); //replace backslash with forward slash for compatibility
 	size_t substrStart = objectName.find_last_of('/') + 1;
 	size_t substrEnd = objectName.find_last_of('.');
@@ -90,7 +80,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 	unsigned vtOffset = 0;
 	unsigned vnOffset = 0;
 
-	BaseObject* object = new BaseObject(objectName);
+	RawModel object;
 
 	while (!objFile.eof())
 	{
@@ -114,8 +104,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 				if (inputs != 2)
 				{
 					LOG_ERROR("Model has incorrect vertex textures");
-					delete object;
-					return false;
+					throw std::runtime_error("Model has incorrect vertex textures");
 				}
 
 				vertTextureList.push_back(glm::vec2(x,-y));
@@ -128,8 +117,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 				if (inputs != 3)
 				{
 					LOG_ERROR("Model has incorrect vertex normals");
-					delete object;
-					return false;
+					throw std::runtime_error("Model has incorrect vertex normals");
 				}
 
 				vertNormalList.push_back(glm::vec3(x, y, z));
@@ -142,8 +130,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 				if (inputs != 3)
 				{
 					LOG_ERROR("Model has incorrect vertex coordinates");
-					delete object;
-					return false;
+					throw std::runtime_error("Model has incorrect vertex coordinates");
 				}
 
 				vertPosList.push_back(glm::vec3(x, y, z));
@@ -203,17 +190,6 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 					hasNormalData = true;
 				}
 
-				//This method allows to not have duplicate vertices but takes longer time to load a model
-				/*unsigned Indx;
-				if (vertTable.find(face) == vertTable.end())
-				{
-					vertTable[face] = vertices.size();
-					vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
-				}
-				Indx = vertTable[face];
-				faceVertIndices[i] = Indx;*/
-
-				//This method allows to have duplicate vertices but is faster to load a model
 				vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
 				faceVertIndices[i] = vertices.size() - 1;
 			}
@@ -303,8 +279,12 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 			}
 
 			//if we read the prefix 'o' we create a new mesh with the vertices we have read.
-			Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
-			mesh->attachTo(object);
+			RawMesh mesh = {vertices, indices, currentMeshName, materialGroups};
+			RawModelNode modelNode;
+			modelNode.meshIndices.push_back(object.meshes.size());
+
+			object.meshes.push_back(mesh);
+			object.root.children.push_back(modelNode);
 
 			currentMeshName = tokens[1];
 
@@ -330,29 +310,23 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 			materialGroups.push_back(MaterialGroup());
 			materialGroups.back().offset = indices.size();
 
-			std::string name = tokens[1];
-			if (scene->isMaterialInList(name))
-			{
-				materialGroups.back().material = scene->getMaterial(name);
-			}
-			else
-			{
-				materialGroups.back().material = scene->addMaterial(name);
-			}
+			materialGroups.back().materialName = tokens[1];
 		}
 	}
 
 	objFile.close();
 	//At the end add the final mesh with the last vertices and close the file
-	Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
-	mesh->attachTo(object);
+	RawMesh mesh = {vertices, indices, currentMeshName, materialGroups};
+	RawModelNode modelNode;
+	modelNode.meshIndices.push_back(object.meshes.size());
 
-	scene->root.addChild(object);
-	return true;
+	object.meshes.push_back(mesh);
+	object.root.children.push_back(modelNode);
+
+	return object;
 }
 
-void FileManager::createDirectory(const std::string& path)
-{
+void FileManager::createDirectory(const std::string& path) const {
 	assert(running);
 
 	struct stat info;
@@ -364,7 +338,7 @@ void FileManager::createDirectory(const std::string& path)
 	}
 }
 
-inline bool FileManager::checkFileExistance(const std::string& name)
+inline bool FileManager::checkFileExistence(const std::string& name)
 {
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
@@ -386,7 +360,7 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 	//Check if the paths are valid files before resizing the vector to avoid creating invalid textures
 	for (size_t i = 0; i < texturesPaths.size(); i++)
 	{
-		if(checkFileExistance(texturesPaths[i]))
+		if(checkFileExistence(texturesPaths[i]))
 		{
 			texturesToAdd++;
 		}
@@ -441,27 +415,26 @@ void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
 	}
 }
 
-bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader) const
+std::vector<std::string> FileManager::loadShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath, const std::filesystem::path& geometryPath) const
 {
 	assert(running);
 
 	//check if shader exists in map and return it if so
-
-	const std::string* paths[] = { &vertexShaderPath , &fragShaderPath, &geometryShader};
-	std::string result[3];
+	std::filesystem::path paths[] = {vertexPath, fragmentPath, geometryPath};
+	std::vector<std::string> result(3);
 
 	for (size_t i = 0; i < 3; i++)
 	{
-		if (paths[i]->empty())
+		if (paths[i].empty())
 		{
 			result[i] = "";
 			continue;
 		}
 
-		std::ifstream shaderFile(*paths[i], std::ios::in);
+		std::ifstream shaderFile(paths[i], std::ios::in);
 		if (!shaderFile.is_open())
 		{
-			return false;
+			throw std::runtime_error("Failed to open shader file: " + paths[i].string());
 		}
 
 		std::string line;
@@ -475,28 +448,7 @@ bool FileManager::loadShader(const std::string& shaderName, const std::string& v
 		shaderFile.close();
 	}
 
-	//RETURN THE RESULT STRING VECTOR, THE REST WILL BE MANAGED BY RESOURCE MANAGER
-
-	//create a shader, if the shader cannot be created print the throw message
-	//the shader constructor adds it to the shader map
-	try
-	{
-		Shader shader(shaderName, result[0], result[1], result[2]);
-	}
-	catch(std::exception error)
-	{
-		LOG_ERROR(error.what());
-		return false;
-	}
-
-	return true;
-}
-
-Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups)
-{
-	Mesh* mesh = new Mesh(vertices, indices, name, matGroups);
-
-	return mesh;
+	return result;
 }
 
 unsigned FileManager::tokenizeOBJFaceLine(std::vector<char*>& tokens, char* line)
