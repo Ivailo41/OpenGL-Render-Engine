@@ -1,7 +1,5 @@
 #include "ObjectMesh.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
 
 ObjectMesh::ObjectMesh(const std::string& name, const Mesh* mesh) : BaseObject()
 {

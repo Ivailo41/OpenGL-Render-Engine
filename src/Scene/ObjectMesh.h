@@ -1,9 +1,7 @@
 #pragma once
 
-#include "../Renderer/Primitives.h"
 #include <string>
 #include "BaseObject.h"
-#include "../Resources/Texture.h"
 #include "../Resources/Material.h"
 #include "../Resources/Mesh.h"
 

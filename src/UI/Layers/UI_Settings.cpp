@@ -32,58 +32,52 @@ void UI_Settings::renderLayer()
 	//TEST to see the loaded materials and textures
 	if(ImGui::CollapsingHeader("Materials"))
 	{
-		// std::vector<Material*>& materials = Scene::activeScene->materials;
-		// unsigned matCount = materials.size();
-		//
-		// for (size_t i = 0; i < matCount; i++)
-		// {
-		// 	if(ImGui::CollapsingHeader(materials[i]->getName().c_str()))
-		// 	{
-		// 		if(ImGui::CollapsingHeader("Diffuse texture"))
-		// 		{
-		// 			std::vector<Texture*>& textures = Scene::activeScene->textures;
-		// 			unsigned matCount = textures.size();
-		//
-		// 			for (size_t j = 0; j < matCount; j++)
-		// 			{
-		// 				if (ImGui::Selectable(textures[j]->path.c_str()))
-		// 				{
-		// 					materials[i]->setTexture(textures[j], 0);
-		// 				}
-		// 			}
-		// 			//ImGui::BeginCombo("test", "");
-		//
-		// 		}
-		//
-		// 		if (ImGui::CollapsingHeader("ORM texture"))
-		// 		{
-		// 			std::vector<Texture*>& textures = Scene::activeScene->textures;
-		// 			unsigned matCount = textures.size();
-		//
-		// 			for (size_t j = 0; j < matCount; j++)
-		// 			{
-		// 				if (ImGui::Selectable(textures[j]->path.c_str()))
-		// 				{
-		// 					materials[i]->setTexture(textures[j], 1);
-		// 				}
-		// 			}
-		// 		}
-		//
-		// 		if (ImGui::CollapsingHeader("Normal texture"))
-		// 		{
-		// 			std::vector<Texture*>& textures = Scene::activeScene->textures;
-		// 			unsigned matCount = textures.size();
-		//
-		// 			for (size_t j = 0; j < matCount; j++)
-		// 			{
-		// 				if (ImGui::Selectable(textures[j]->path.c_str()))
-		// 				{
-		// 					materials[i]->setTexture(textures[j], 2);
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
+		auto& materials = resourceManager->getMaterials();
+
+		for (auto& material : materials)
+		{
+			if(ImGui::CollapsingHeader(material.first.c_str()))
+			{
+				if(ImGui::CollapsingHeader("Diffuse texture"))
+				{
+					auto& textures = resourceManager->getTextures();
+
+					for (auto& texture : textures)
+					{
+						if (ImGui::Selectable(texture.first.c_str()))
+						{
+							material.second.setTexture(&texture.second, 0);
+						}
+					}
+				}
+
+				if (ImGui::CollapsingHeader("ORM texture"))
+				{
+					auto& textures = resourceManager->getTextures();
+
+					for (auto& texture : textures)
+					{
+						if (ImGui::Selectable(texture.first.c_str()))
+						{
+							material.second.setTexture(&texture.second, 1);
+						}
+					}
+				}
+
+				if (ImGui::CollapsingHeader("Normal texture"))
+				{
+					auto& textures = resourceManager->getTextures();
+
+					for (auto& texture : textures)
+					{
+						if (ImGui::Selectable(texture.first.c_str()))
+						{
+							material.second.setTexture(&texture.second, 2);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	ImGui::End();
@@ -94,7 +88,7 @@ UI_Settings* UI_Settings::clone()
 	return new UI_Settings(*this);
 }
 
-UI_Settings::UI_Settings(Renderer* renderer) : UILayer("Settings"), renderer(renderer)
+UI_Settings::UI_Settings(Renderer* renderer, ResourceManager* resourceManager) : UILayer("Settings"), renderer(renderer), resourceManager(resourceManager)
 {
 
 }

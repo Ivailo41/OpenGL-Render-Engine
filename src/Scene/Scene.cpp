@@ -1,5 +1,4 @@
 #include "Scene.h"
-//#include "../FileManager.h"
 
 Scene* Scene::activeScene = nullptr;
 
