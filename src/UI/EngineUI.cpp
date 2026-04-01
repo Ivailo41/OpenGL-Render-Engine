@@ -54,7 +54,7 @@ bool EngineUI::init()
     config.MergeMode = true;
     config.GlyphMinAdvanceX = 13.0f;
     static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-    io.Fonts->AddFontFromFileTTF("../assets/icons_font.otf", 50.0f, &config, icon_ranges);
+    io.Fonts->AddFontFromFileTTF("../assets/fonts/icons_font.otf", 50.0f, &config, icon_ranges);
     io.Fonts->Build();
 
     //Create default UI layers

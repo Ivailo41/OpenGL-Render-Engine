@@ -28,7 +28,6 @@ public:
     const std::unordered_map<std::string, Model>& getModels() const { return models; }
     std::unordered_map<std::string, Material>& getMaterials() { return materials; }
 
-
 public:
     ResourceManager(const FileManager& fileManager);
 

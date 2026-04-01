@@ -59,3 +59,11 @@ const Model* ResourceManager::getModel(const std::string& name) const {
     return &it->second;
 }
 
+const Material *ResourceManager::getMaterial(const std::string &name) const {
+    auto it = materials.find(name);
+    if (it == materials.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+

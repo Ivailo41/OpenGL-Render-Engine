@@ -89,7 +89,7 @@ bool Engine::init()
     //Loading textures and setting materials
     {
         // dynamically loaded object
-        if (resourceManager.loadModel("../assets/AK74M.obj"))
+        if (resourceManager.loadModel("../assets/AK203/ak203.obj"))
         {
             std::vector<std::filesystem::path> texturePaths = {
                                                 "../assets/AK203/Set1_Base.png",
@@ -129,7 +129,7 @@ bool Engine::init()
         }
     }
 
-    mainScene->instanceModel("AK74M.obj");
+    mainScene->instanceModel("ak203.obj");
 
     //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
     mainScene->getActiveCamera()->rotateCam(glm::vec3(0, 0, 0));
