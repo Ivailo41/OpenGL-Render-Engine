@@ -1,15 +1,16 @@
 # 3D Render Engine using OpenGL
 This project is a 3D rendering engine implemented using `OpenGL`, created as part of my exploration into computer graphics and low-level programming. It serves as a practical learning tool to deepen my understanding of rendering pipelines, graphics APIs, and performance optimization, while also improving my overall software development skills.
 
-`This image is from the latest push in the Developing branch`
-![RenderEngine](https://github.com/user-attachments/assets/6eef5678-496a-42fd-9ca7-5d1011d6a4eb)
+<img width="1919" height="1035" alt="RE_scrn4" src="https://github.com/user-attachments/assets/a1e177cd-1d43-4a74-9900-63e86bb2a766" />
 
 # Features:
 - PBR shading
 - 3D models loading
 - multithreaded textures loading
+- Materials editing
 - post-processing
 - GUI
+- Windows & Linux support
 
 # Build and How to run the project
 The project can be built with CMake. All the libraries are present in the repository so no extra downloads are needed.
@@ -34,20 +35,14 @@ The parser can read ONLY OBJ files at the moment. <br />
 If you want to use the UI loading, navigate to the `Import Model` button in the `Settings` pannel and find your model. <br />
 If you want to hardcode the model loading (which later will be moved to Scene loading) inside the src/Core/Engine.cpp navigate to line 90 <br />
 ```cpp
-if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
+if (resourceManager.loadOBJ("../assets/AK203/AK203.obj"))
 {
   std::vector<std::string> texturePaths = {..}
 
-  fileManager.loadTextures(texturePaths);
-
-  mainScene.materials[2]->setTexture(mainScene.textures[0], 0);
-  mainScene.materials[2]->setTexture(mainScene.textures[1], 1);
-  mainScene.materials[2]->setTexture(mainScene.textures[2], 2);
+  resourceManager.loadTexture(texturePaths);
 }
 ```
 Set the path to the model location (preferably in the `assets` folder) <br />
-The code inside the if block is to set the textures of the materials manually by specifying the texture and the material slot. <br />
-the 1st material slot is for Occolusion, Roughness, Metallic texture which is combined.
 
 # Load your textures
 
@@ -60,7 +55,7 @@ Or they can be batch-loaded with this function inside the if block from model lo
                                             "../assets/AK203/Set1_Normal.png",
                                          };
 
-fileManager.loadTextures(texturePaths);
+resourceManager.loadTextures(texturePaths);
 ```
 
 # Libraries
@@ -71,14 +66,13 @@ I made use of these libraries:
 - glew - OpenGL API
 - glm - Math functions with matrices and vectors
 - stbi_image - Image loader
+- tinyfiledialogs - OS agnostic file dialogs
 
 # More Screenshots
 
 ## The AK 3D model is made by me, here is a link to renders done using Marmoset https://www.artstation.com/artwork/9NOP8q
-![RenderEngine2](https://github.com/user-attachments/assets/c78f693a-14a7-4509-8e63-6a446a2dbac6)
+<img width="1920" height="1036" alt="RE_scrn7" src="https://github.com/user-attachments/assets/1a97797e-915a-410b-99d4-b3fa04686c29" />
+<img width="1920" height="1034" alt="RE_scrn6" src="https://github.com/user-attachments/assets/7a7ba8f2-34c3-403a-bb2f-0d120b9c8794" />
+<img width="1919" height="1027" alt="RE_scrn3" src="https://github.com/user-attachments/assets/27ac1e58-cf0a-472e-9315-ddf06c05ad8c" />
+<img width="1920" height="1036" alt="RE_scrn5" src="https://github.com/user-attachments/assets/a1e0d0c4-e3f0-41f0-9c80-d7720224bb2b" />
 
-![RenderEngine3](https://github.com/user-attachments/assets/692df58e-1ad8-4b80-a145-1503feaf9c13)
-
-![Bloom2](https://github.com/user-attachments/assets/58929429-59f5-454f-9eb0-49c80a655c56)
-
-![RenderEngine4](https://github.com/user-attachments/assets/7fe92eab-8b4a-4869-bc61-7912920bf808)
