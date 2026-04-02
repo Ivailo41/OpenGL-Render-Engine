@@ -6,7 +6,12 @@ void ResourceManager::loadTexture(const std::vector<std::filesystem::path>& path
     std::vector<RawTexture> rawTextures = fileManager.loadTextures(paths);
 
     for (int i = 0; i < rawTextures.size(); ++i) {
-        textures.emplace(paths[i], Texture(rawTextures[i].data, rawTextures[i].width, rawTextures[i].height, paths[i].c_str()));
+
+        if(rawTextures[i].data == nullptr) {
+            continue;
+		}
+		Texture texture(rawTextures[i].data, rawTextures[i].width, rawTextures[i].height, paths[i]);
+        textures.emplace(paths[i].filename().string(), texture);
         //free the image data loaded with stbi
         stbi_image_free((rawTextures[i].data));
     }
@@ -41,7 +46,7 @@ bool ResourceManager::loadModel(const std::filesystem::path& path) {
         }
     }
 
-    models.emplace(path.filename(), Model(rawModel, materials));
+    models.emplace(path.filename().string(), Model(rawModel, materials));
 
     LOG_TRACE("Loaded model: " + path.string());
     return true;

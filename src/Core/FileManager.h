@@ -24,7 +24,7 @@ public:
 	void createDirectory(const std::string& path) const;
 
 	//Function that checks the file existence found from stackoverflow answer
-	static inline bool checkFileExistence(const std::string& name);
+	static inline bool checkFileExistence(const std::filesystem::path& name);
 
 	//Using multithreading to load multiple textures faster
 	std::vector<RawTexture> loadTextures(const std::vector<std::filesystem::path>& texturesPaths) const;

@@ -47,11 +47,11 @@ RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 
 
 	//Get the name of the file without its extention to name the object
-	std::string objectName = filePath.filename();
-	std::replace(objectName.begin(), objectName.end(), '\\', '/'); //replace backslash with forward slash for compatibility
-	size_t substrStart = objectName.find_last_of('/') + 1;
-	size_t substrEnd = objectName.find_last_of('.');
-	objectName = objectName.substr(substrStart, substrEnd - substrStart);
+	std::string objectName = filePath.filename().generic_string();
+	//std::replace(objectName.begin(), objectName.end(), '\\', '/'); //replace backslash with forward slash for compatibility
+	//size_t substrStart = objectName.find_last_of('/') + 1;
+	//size_t substrEnd = objectName.find_last_of('.');
+	//objectName = objectName.substr(substrStart, substrEnd - substrStart);
 
 	char buffer[2048];
 	char prefix[7];
@@ -341,10 +341,10 @@ void FileManager::createDirectory(const std::string& path) const {
 	}
 }
 
-inline bool FileManager::checkFileExistence(const std::string& name)
+inline bool FileManager::checkFileExistence(const std::filesystem::path& name)
 {
 	struct stat buffer;
-	return (stat(name.c_str(), &buffer) == 0);
+	return (stat((char*)name.c_str(), &buffer) == 0);
 }
 
 std::vector<RawTexture> FileManager::loadTextures(const std::vector<std::filesystem::path>& texturesPaths) const {
@@ -376,7 +376,7 @@ std::vector<RawTexture> FileManager::loadTextures(const std::vector<std::filesys
 				{
 					//Will carry the i index so we return the textures in order, since they are loaded asynchronous
 					int width, height, nrChannels;
-					if (unsigned char* data = stbi_load(texturesPaths[i].c_str(), &width, &height, &nrChannels, 0))
+					if (unsigned char* data = stbi_load(texturesPaths[i].string().c_str(), &width, &height, &nrChannels, 0))
 					{
 						rawTextures[i] = {data, width, height, nrChannels};
 					}
