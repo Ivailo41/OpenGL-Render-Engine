@@ -123,10 +123,6 @@ bool Engine::init()
             // mainScene->materials[1]->setTexture(mainScene->textures[10], 1);
             // mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
         }
-
-        if (resourceManager.loadModel("../assets/Cube.obj")) {
-
-        }
     }
 
     mainScene->instanceModel("ak203.obj");

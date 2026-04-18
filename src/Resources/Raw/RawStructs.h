@@ -10,6 +10,8 @@ struct RawMaterialGroup
     std::string materialName;
 
     RawMaterialGroup() : offset(0), indicesCount(0) {}
+    RawMaterialGroup(unsigned offset, unsigned indicesCount, const char* materialName)
+        : offset(offset), indicesCount(indicesCount), materialName(materialName) {}
 };
 
 struct RawMesh {

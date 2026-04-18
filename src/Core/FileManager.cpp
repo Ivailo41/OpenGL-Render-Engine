@@ -282,6 +282,9 @@ RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 			}
 
 			//if we read the prefix 'o' we create a new mesh with the vertices we have read.
+			if (materialGroups.empty()) {
+				materialGroups.emplace_back(0, indices.size(), "Default");
+			}
 			RawMesh mesh = {vertices, indices, currentMeshName, materialGroups};
 			RawModelNode modelNode;
 			modelNode.meshIndices.push_back(object.meshes.size());
@@ -319,6 +322,9 @@ RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 
 	objFile.close();
 	//At the end add the final mesh with the last vertices and close the file
+	if (materialGroups.empty()) {
+		materialGroups.emplace_back(0, indices.size(), "Default");
+	}
 	RawMesh mesh = {vertices, indices, currentMeshName, materialGroups};
 	RawModelNode modelNode;
 	modelNode.meshIndices.push_back(object.meshes.size());
