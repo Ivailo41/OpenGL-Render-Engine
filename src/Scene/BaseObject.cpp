@@ -127,6 +127,7 @@ void BaseObject::setTransform(const glm::mat4& transformMat)
 
 void BaseObject::updateModelMat()
 {
+	//EVERY TIME THE MATRIX IS RECONSTRUCTED, THINK OF CHANGING THAT
 	//update the matrix with the current transform
 	transform.modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
 
@@ -246,6 +247,7 @@ void BaseObject::update(float deltaTime)
 	{
 		if (moved)
 		{
+			children[i]->moved = true;
 			updateModelMat();
 			children[i]->updateModelMat();
 		}
