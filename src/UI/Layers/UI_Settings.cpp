@@ -29,57 +29,6 @@ void UI_Settings::renderLayer()
 		}
 	}
 
-	//TEST to see the loaded materials and textures
-	if(ImGui::CollapsingHeader("Materials"))
-	{
-		auto& materials = resourceManager->getMaterials();
-
-		for (auto& material : materials)
-		{
-			if(ImGui::CollapsingHeader(material.first.c_str()))
-			{
-				if(ImGui::CollapsingHeader("Diffuse texture"))
-				{
-					auto& textures = resourceManager->getTextures();
-
-					for (auto& texture : textures)
-					{
-						if (ImGui::Selectable(texture.first.c_str()))
-						{
-							material.second.setTexture(&texture.second, 0);
-						}
-					}
-				}
-
-				if (ImGui::CollapsingHeader("ORM texture"))
-				{
-					auto& textures = resourceManager->getTextures();
-
-					for (auto& texture : textures)
-					{
-						if (ImGui::Selectable(texture.first.c_str()))
-						{
-							material.second.setTexture(&texture.second, 1);
-						}
-					}
-				}
-
-				if (ImGui::CollapsingHeader("Normal texture"))
-				{
-					auto& textures = resourceManager->getTextures();
-
-					for (auto& texture : textures)
-					{
-						if (ImGui::Selectable(texture.first.c_str()))
-						{
-							material.second.setTexture(&texture.second, 2);
-						}
-					}
-				}
-			}
-		}
-	}
-
 	ImGui::End();
 }
 

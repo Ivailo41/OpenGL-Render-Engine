@@ -13,7 +13,7 @@
 bool EngineUI::isUIOpen = false;
 
 EngineUI::EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer)
-: window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer, resourceManager), uiAssetBrowser(resourceManager)
+: window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer, resourceManager), uiAssetBrowser(resourceManager), uiMaterials(resourceManager)
 {
 
 }
@@ -65,6 +65,7 @@ bool EngineUI::init()
     addUILayer(&uiSettingsLayer);
 	addUILayer(&uiConsole);
     addUILayer(&uiAssetBrowser);
+    addUILayer(&uiMaterials);
 
     return true;
 }

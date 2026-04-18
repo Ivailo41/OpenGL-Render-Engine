@@ -9,7 +9,9 @@ add_executable(Application
 		Resources/Model.h
 		UI/Layers/UI_AssetBrowser.cpp
 		UI/Layers/UI_AssetBrowser.h
-		UI/IconsFontAwesome7.h)
+		UI/IconsFontAwesome7.h
+		UI/Layers/UI_Materials.h
+		UI/Layers/UI_Materials.cpp)
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 

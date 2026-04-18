@@ -12,6 +12,7 @@
 
 #include "ImGuizmo.h"
 #include "Layers/UI_AssetBrowser.h"
+#include "Layers/UI_Materials.h"
 
 class EngineUI
 {
@@ -51,6 +52,7 @@ private:
 	UI_CameraProperties uiCameraProperties;
 	UI_Console uiConsole;
 	UI_AssetBrowser uiAssetBrowser;
+	UI_Materials uiMaterials;
 
 	Window* window = nullptr;
 	ResourceManager* resourceManager = nullptr;
