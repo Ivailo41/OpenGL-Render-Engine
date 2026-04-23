@@ -43,7 +43,7 @@ void UI_Materials::renderLayer() {
             {
                 if (ImGui::Selectable(texture.first.c_str()))
                 {
-                    selectedMaterial->setTexture(&texture.second, 0);
+                    selectedMaterial->setTexture(texture.second.get(), 0);
                 }
             }
         }
@@ -56,7 +56,7 @@ void UI_Materials::renderLayer() {
             {
                 if (ImGui::Selectable(texture.first.c_str()))
                 {
-                    selectedMaterial->setTexture(&texture.second, 1);
+                    selectedMaterial->setTexture(texture.second.get(), 1);
                 }
             }
         }
@@ -69,7 +69,7 @@ void UI_Materials::renderLayer() {
             {
                 if (ImGui::Selectable(texture.first.c_str()))
                 {
-                    selectedMaterial->setTexture(&texture.second, 2);
+                    selectedMaterial->setTexture(texture.second.get(), 2);
                 }
             }
         }

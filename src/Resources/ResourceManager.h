@@ -23,18 +23,18 @@ public:
     const Model* getModel(const std::string& name) const;
     const Material* getMaterial(const std::string& name) const;
 
-    std::unordered_map<std::string, Texture>& getTextures() { return textures; }
-    const std::unordered_map<std::string, Shader>& getShaders() const { return shaders; }
-    const std::unordered_map<std::string, Model>& getModels() const { return models; }
+    std::unordered_map<std::string, std::unique_ptr<Texture>>& getTextures() { return textures; }
+    const std::unordered_map<std::string, std::unique_ptr<Shader>>& getShaders() const { return shaders; }
+    const std::unordered_map<std::string, std::unique_ptr<Model>>& getModels() const { return models; }
     std::unordered_map<std::string, Material>& getMaterials() { return materials; }
 
 public:
     ResourceManager(const FileManager& fileManager);
 
 private:
-    std::unordered_map<std::string, Texture> textures;
-    std::unordered_map<std::string, Shader> shaders;
-    std::unordered_map<std::string, Model> models;
+    std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
+    std::unordered_map<std::string, std::unique_ptr<Shader>> shaders;
+    std::unordered_map<std::string, std::unique_ptr<Model>> models;
 
     std::unordered_map<std::string, Material> materials;
 

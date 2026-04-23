@@ -10,8 +10,7 @@ void ResourceManager::loadTexture(const std::vector<std::filesystem::path>& path
         if(rawTextures[i].data == nullptr) {
             continue;
 		}
-		Texture texture(rawTextures[i].data, rawTextures[i].width, rawTextures[i].height, paths[i]);
-        textures.emplace(paths[i].filename().string(), texture);
+        textures.emplace(paths[i].filename().string(), std::make_unique<Texture>(rawTextures[i].data, rawTextures[i].width, rawTextures[i].height, paths[i]));
         //free the image data loaded with stbi
         stbi_image_free((rawTextures[i].data));
     }
@@ -24,8 +23,7 @@ void ResourceManager::loadShader(const std::string& name, const std::filesystem:
         //log error or throw later
         return;
     }
-    Shader shader(name, shaderSources[0], shaderSources[1], shaderSources[2]);
-    shaders.emplace(name, shader);
+    shaders.emplace(name, std::make_unique<Shader>(name, shaderSources[0], shaderSources[1], shaderSources[2]));
 }
 
 bool ResourceManager::loadModel(const std::filesystem::path& path) {
@@ -46,7 +44,7 @@ bool ResourceManager::loadModel(const std::filesystem::path& path) {
         }
     }
 
-    models.emplace(path.filename().string(), Model(rawModel, materials));
+    models.emplace(path.filename().string(), std::make_unique<Model>(rawModel, materials));
 
     LOG_TRACE("Loaded model: " + path.string());
     return true;
@@ -61,7 +59,7 @@ const Model* ResourceManager::getModel(const std::string& name) const {
     if (it == models.end()) {
         return nullptr;
     }
-    return &it->second;
+    return it->second.get();
 }
 
 const Material *ResourceManager::getMaterial(const std::string &name) const {
