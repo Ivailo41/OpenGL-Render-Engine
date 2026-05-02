@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include <queue>
 
 Scene* Scene::activeScene = nullptr;
 
@@ -14,9 +15,9 @@ Scene::Scene(const std::string& sceneName, const ResourceManager& resourceManage
 
 Scene::~Scene()
 {
-	//unsigned sceneOjectsCount = sceneObjects.size();
-	unsigned sceneOjectsCount = root.getChildrenCount();
-	for (size_t i = 0; i < sceneOjectsCount; i++)
+	//unsigned sceneObjectsCount = sceneObjects.size();
+	unsigned sceneObjectsCount = root.getChildrenCount();
+	for (size_t i = 0; i < sceneObjectsCount; i++)
 	{
 		//delete sceneObjects[i];
 	}
@@ -55,13 +56,26 @@ bool Scene::instanceModel(const std::string& modelName)
 		return false;
 	}
 
-	//Not preserving hierarchy yet
-	BaseObject* object = new BaseObject(model->getName());
+	auto object = new BaseObject(model->getName());
 	const std::vector<std::unique_ptr<Mesh>>& meshes = model->getMeshes();
 
-	for (auto& mesh : meshes) {
-		ObjectMesh* objectMesh = new ObjectMesh(mesh->getName(), mesh.get()); //Carefully with mesh.get()
-		objectMesh->attachTo(object);
+	std::queue<RawModelNode> nodesQueue;
+	nodesQueue.push(model->getRoot());
+
+	//This BFS implementation skips adding mesh for the root node but as the models are implemented they don't have meshes at root
+	//This could be changed by making RawModelNode store vector of children instead root.
+	while (!nodesQueue.empty()) {
+		RawModelNode currentNode = nodesQueue.front();
+		nodesQueue.pop();
+
+		for (const RawModelNode& child : currentNode.children) {
+			//make mesh and attach to object
+			nodesQueue.push(child);
+			for (unsigned index : child.meshIndices) {
+				const auto objectMesh = new ObjectMesh(meshes[index]->getName(), meshes[index].get()); //Carefully with mesh.get()
+				objectMesh->attachTo(object);
+			}
+		}
 	}
 
 	root.addChild(object);
