@@ -1,7 +1,15 @@
 #pragma once
 #include "../BaseObject.h"
-#include "../Mesh.h"
-#include "../../Renderer/Shader.h"
+#include "../ObjectMesh.h"
+#include "../../Resources/Shader.h"
+
+enum class LightType
+{
+	POINT,
+	DIRECTIONAL,
+	SPOTLIGHT,
+	UNDEFINED = -1
+};
 
 class Light : public BaseObject
 {
@@ -19,15 +27,25 @@ public:
 	float getIntensity() const { return intensity; }
 	float getAmbientStrength() const { return ambientStrength; }
 	glm::vec3 getLightColor() const { return lightColor; }
+	LightType getLightType() const { return type; }
 
 	float* ambientRef() { return &ambientStrength; }
 
-	virtual void draw() const override;
-	virtual void sendToShader(unsigned shaderProgram, unsigned lightIndex) const = 0;
+	virtual void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const override;
+	virtual void update(float deltaTime) override;
+	virtual void sendToShader(const Shader& shaderProgram, unsigned lightIndex) const = 0;
+	virtual void sendShadowDataToShader(const Shader& shaderProgram, unsigned lightIndex) const = 0;
+
+public:
+	static uint16_t SHADOW_WIDTH;
+	static uint16_t SHADOW_HEIGHT;
 
 protected:
 	float intensity;
 	float ambientStrength;
 	glm::vec3 lightColor;
+
+	LightType type;
+
 };
 

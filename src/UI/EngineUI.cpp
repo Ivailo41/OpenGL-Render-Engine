@@ -1,15 +1,33 @@
 #include "EngineUI.h"
+
+#include "IconsFontAwesome7.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "../tinyfiledialogs/tinyfiledialogs.h"
+//#include <windows.h>
+//#include <shobjidl.h>
+
+
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window), fileman(fileman), uiSettingsLayer(fileman), uiCameraProperties(Scene::activeScene->getActiveCamera())
+EngineUI::EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer)
+: window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer, resourceManager), uiAssetBrowser(resourceManager), uiMaterials(resourceManager)
 {
+
+}
+
+bool EngineUI::init()
+{
+    if(!window->isRunning() || !renderer->isRunning())
+    {
+        return false;
+    }
+
     if(isUIOpen)
     {
-        return;
+        return false;
     }
     isUIOpen = true;
 
@@ -30,12 +48,26 @@ EngineUI::EngineUI(Window* window, FileManager* fileman) : uiSceneLayer(window),
     ImGui_ImplGlfw_InitForOpenGL(window->getGLWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
+    io.Fonts->AddFontDefault();
+
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = 13.0f;
+    static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+    io.Fonts->AddFontFromFileTTF("../assets/fonts/icons_font.otf", 50.0f, &config, icon_ranges);
+    io.Fonts->Build();
+
     //Create default UI layers
     addUILayer(&uiSceneTree);
     addUILayer(&uiObjectProperties);
     addUILayer(&uiCameraProperties);
     addUILayer(&uiSceneLayer);
     addUILayer(&uiSettingsLayer);
+	addUILayer(&uiConsole);
+    addUILayer(&uiAssetBrowser);
+    addUILayer(&uiMaterials);
+
+    return true;
 }
 
 EngineUI::~EngineUI()
@@ -145,11 +177,18 @@ void EngineUI::renderUI()
         {
             if(ImGui::MenuItem("Import model")) 
             {
+				std::string filePath = OpenFolderDialog();
+                //check path correctnes
+				resourceManager->loadModel(filePath);
 
             }
             if (ImGui::MenuItem("Import Texture"))
             {
-
+                std::string path = OpenFolderDialog();
+                std::vector<std::filesystem::path> paths;
+                paths.push_back(path);
+                //check path correctnes
+                resourceManager->loadTexture(paths);
             }
             ImGui::EndMenu();
         }
@@ -174,7 +213,7 @@ void EngineUI::renderUI()
     }
 
     //ImGui::ShowStyleEditor();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 
     //ImGuiStyle& style = ImGui::GetStyle();
     //style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2, 0.2, 0.2, 1);
@@ -189,4 +228,17 @@ void EngineUI::renderUI()
         ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backup_current_context);
     }
+}
+
+std::string EngineUI::OpenFolderDialog()
+{
+	// Show a folder picker dialog
+	const char* path = tinyfd_openFileDialog("Select OBJ file", "", 0, nullptr, "path", 0);
+
+	// If the user canceled, path will be nullptr
+	if (!path)
+		return {}; // empty string
+
+	// Return the selected path as std::string
+	return std::string(path);
 }

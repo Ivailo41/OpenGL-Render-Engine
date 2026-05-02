@@ -2,20 +2,18 @@
 //TEMP INCLUDES FOR TESTING
 #include "../../Scene/BaseObject.h"
 
-#include "../../Renderer/Material.h"
+#include "../../Resources/Material.h"
 
-UI_CameraProperties::UI_CameraProperties(Camera* currentCamera) : UILayer("Camera Properties")
+UI_CameraProperties::UI_CameraProperties() : UILayer("Camera Properties")
 {
     FOV = 45.0f;
 	camSpeed = 1.0f;
-	this->currentCamera = currentCamera;
 }
 
-UI_CameraProperties::UI_CameraProperties(const char* layerName, Camera* currentCamera) : UILayer(layerName)
+UI_CameraProperties::UI_CameraProperties(const char* layerName) : UILayer(layerName)
 {
     FOV = 45.0f;
     camSpeed = 1.0f;
-    this->currentCamera = currentCamera;
 }
 
 void UI_CameraProperties::renderLayer()
@@ -25,31 +23,21 @@ void UI_CameraProperties::renderLayer()
 
     if (ImGui::SliderFloat("camera FOV", &FOV, 0.0f, 180.0f))
     {
-        currentCamera->setFOV(FOV);
+        Scene::activeScene->getActiveCamera()->setFOV(FOV);
     }
-    if (ImGui::SliderFloat("camera Speed", &camSpeed, 0.01f, 2.0f))
+    if (ImGui::DragFloat("camera Speed", &camSpeed, 0.1f, 0.1f, 0.0f))
     {
-        currentCamera->setSpeed(camSpeed);
+        Scene::activeScene->getActiveCamera()->setSpeed(camSpeed);
     }
     if (ImGui::SliderFloat("Near plane", &near, 0.01f, 100.0f))
     {
-        currentCamera->setNear(near);
+        Scene::activeScene->getActiveCamera()->setNear(near);
     }
     if (ImGui::SliderFloat("Far plane", &far, 0.01f, 100.0f))
     {
-        currentCamera->setFar(far);
+        Scene::activeScene->getActiveCamera()->setFar(far);
     }
 
-    //TEMPORARY
-    ImGui::Text("Controls the default material settings, for test purposes");
-    if (ImGui::SliderFloat("roughness", &roughness, 0.01f, 1))
-    {
-        Scene::activeScene->materials[0]->setRoughness(roughness);
-    }
-    if (ImGui::SliderFloat("Metalic", &metalic, 0.01f, 1))
-    {
-        Scene::activeScene->materials[0]->setMetalic(metalic);
-    }
     
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

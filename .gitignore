@@ -1,8 +1,11 @@
 out/*
-!out/imgui.ini
 .vs/*
 assets/*
 !assets/Shaders
+!assets/fonts/
 *.exe
 *.pdb
 *.ilk
+.idea
+
+*.drawio*

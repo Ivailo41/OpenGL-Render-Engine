@@ -1,20 +1,18 @@
 #pragma once
 #include "../Renderer/Cubemap.h"
-#include "../Renderer/Shader.h"
+#include "../Resources/Shader.h"
 #include "../Renderer/Primitives.h"
-#include "../Scene/Camera.h"
 
 class Skybox
 {
 public:
-	void render(const Camera* camera) const;
+	void render() const;
 
 public:
-	Skybox(const Cubemap* cubemap, const Shader* skyboxShader);
+	Skybox(const std::string cubemapPath[6]);
 	~Skybox();
 
 private:
-	const Cubemap* cubemap;
-	const Shader* skyboxShader;
+	const Cubemap cubemap;
 	unsigned VAO, VBO;
 };

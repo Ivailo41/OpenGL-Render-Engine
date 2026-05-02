@@ -1,20 +1,32 @@
-#include "Shader.h"
+#include "../Resources/Shader.h"
+#include <iostream>
 
 std::unordered_map<std::string, Shader> Shader::shadersList;
 const Shader* Shader::activeShader = nullptr;
 
-Shader::Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource) : shaderProgram(0), name(shaderName)
+Shader::Shader()
+{
+	//default constructor
+}
+
+Shader::Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource) : shaderProgram(0), name(shaderName)
 {
 	if (vertexSource.size() == 0 || fragmentSource.size() == 0)
 	{
-		throw std::exception("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
+		throw std::runtime_error("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n");
 	}
 	try
 	{
 		unsigned int vertexShader = createShader(vertexSource, GL_VERTEX_SHADER);
 		unsigned int fragmentShader = createShader(fragmentSource, GL_FRAGMENT_SHADER);
+		unsigned int geometryShader = 0;
 
-		createShaderProgram(vertexShader, fragmentShader);
+		if (geometrySource.size() > 0)
+		{
+			geometryShader = createShader(geometrySource, GL_GEOMETRY_SHADER);
+		}
+
+		createShaderProgram(vertexShader, fragmentShader, geometryShader);
 	}
 	catch (std::exception& e)
 	{
@@ -41,6 +53,13 @@ Shader::operator unsigned() const
 	return shaderProgram;
 }
 
+GLuint Shader::setBool(const char* paramName, bool value) const
+{
+	GLuint location = glGetUniformLocation(shaderProgram, paramName);
+	glUniform1i(location, (int)value); // OpenGL uses int for boolean uniforms
+	return location;
+}
+
 GLint Shader::setInt(const char* paramName, int value) const
 {
 	GLint location = glGetUniformLocation(shaderProgram, paramName);
@@ -55,14 +74,21 @@ GLint Shader::setFloat(const char* paramName, float value) const
 	return location;
 }
 
-GLuint Shader::setMat4(const char* paramName, glm::mat4 value) const
+GLuint Shader::setMat4(const char* paramName, const glm::mat4& value) const
 {
 	GLuint location = glGetUniformLocation(shaderProgram, paramName);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 	return location;
 }
 
-const Shader* Shader::findShader(const std::string& shaderName)
+GLuint Shader::setVec3(const char* paramName, const glm::vec3& value) const
+{
+	GLuint location = glGetUniformLocation(shaderProgram, paramName);
+	glUniform3fv(location, 1, glm::value_ptr(value));
+	return location;
+}
+
+Shader* Shader::findShader(const std::string& shaderName)
 {
 	auto shaderItt = shadersList.find(shaderName);
 
@@ -90,7 +116,7 @@ unsigned Shader::createShader(const std::string& shaderSource, const unsigned ty
 	{
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
 
-		throw std::exception("ERROR::SHADER::COMPILATION_FAILED\n");
+		throw std::runtime_error("ERROR::SHADER::COMPILATION_FAILED\n");
 
 		return 0;
 	}
@@ -98,12 +124,18 @@ unsigned Shader::createShader(const std::string& shaderSource, const unsigned ty
 	return shader;
 }
 
-void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader)
+void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader, const unsigned geometryShader)
 {
 	unsigned shaderProgram = glCreateProgram();
 
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
+
+	if (geometryShader != 0)
+	{
+		glAttachShader(shaderProgram, geometryShader);
+	}
+
 	glLinkProgram(shaderProgram);
 
 	int  success;
@@ -114,7 +146,7 @@ void Shader::createShaderProgram(const unsigned vertexShader, const unsigned fra
 	{
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 
-		throw std::exception("ERROR::SHADER::PROGRAM::LINKING_FAILED\n");
+		throw std::runtime_error("ERROR::SHADER::PROGRAM::LINKING_FAILED\n");
 	}
 
 	glDeleteShader(vertexShader);

@@ -37,18 +37,17 @@ public:
 
 	void rotateCam(const glm::vec3& rotation);
 
-	void cameraController(GLFWwindow* window, int winX, int winY);
+	void cameraController(GLFWwindow* window, int winX, int winY, float deltaTime);
 
-	void draw() const override;
+	void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const override;
+	void update(float deltaTime);
 	BaseObject* clone() const override { return new Camera(*this);}
 
 	void updateCamera();
 
 public:
 	Camera();
-	Camera(const Camera& other);
-	Camera& operator=(const Camera& other);
-	~Camera();
+	virtual ~Camera() = default;
 
 private:
 
@@ -60,9 +59,10 @@ private:
 	glm::mat4 viewMat;
 	glm::mat4 perspectiveMat;
 
-	float FOV;
-	float cameraSpeed = 0.01f;
-	float near, far;
+	float FOV = 90.0f;
+	float cameraSpeed = 1.0f;
+	float near = 0.1f;
+	float far = 100.0f;
 	float aspectRatio;
 };
 

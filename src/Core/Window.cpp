@@ -3,13 +3,13 @@
 
 bool Window::init(const std::string& name, unsigned width, unsigned height)
 {
-    std::cout << "Initializing window!" << std::endl;
+    LOG_TRACE("Initializing window!");
 
-    assert(!isRunning); //Make sure init() is called only once
+    assert(!running); //Make sure init() is called only once
 
     if (!glfwInit())
     {
-        std::cout << "Could not initialise glfw!" << std::endl;
+		LOG_ERROR("Could not initialise glfw!");
         return false;
     }
 
@@ -18,7 +18,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     if (!window)
     {
         glfwTerminate();
-        std::cout << "Could not initialise window!" << std::endl;
+		LOG_ERROR("Could not initialise window!");
         return false;
     }
 
@@ -51,7 +51,7 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     if (glewInit() != GLEW_OK)
     {
         stop();
-        std::cout << "GLEW ERROR!" << std::endl;
+		LOG_ERROR("Could not initialise GLEW!");
         return false;
     }
 
@@ -65,19 +65,20 @@ bool Window::init(const std::string& name, unsigned width, unsigned height)
     }
     else
     {
-        std::cout << "Couldn't load icon!" << std::endl;
+		LOG_ERROR("Couldn't load icon!");
     }
 
-    isRunning = true;
+    running = true;
+    return true;
     //End of initialization
 }
 
 void Window::stop()
 {
-    std::cout << "Shutting down window!" << std::endl;
+	LOG_TRACE("Shutting down window!");
     glfwDestroyWindow(window);
     glfwTerminate();
-    isRunning = false;
+    running = false;
 }
 
 //Window* Window::getInstance()
@@ -99,12 +100,32 @@ unsigned Window::getHeight() const
     return height;
 }
 
+void Window::onWindowResize(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+    glViewport(0, 0, width, height);
+}
+
+void Window::setSize(unsigned width, unsigned height)
+{
+	this->width = width;
+	this->height = height;
+	glfwSetWindowSize(window, width, height);
+	glViewport(0, 0, width, height);
+}
+
 bool Window::shouldClose() const
 {
     return glfwWindowShouldClose(window);
 }
 
-Window::Window() : isRunning(false), window(nullptr), width(0), height(0), name("Uninitialised Window")
+void Window::pollEvents() const
+{
+	glfwPollEvents();
+}
+
+Window::Window() : running(false), window(nullptr), width(0), height(0), name("Uninitialised Window")
 {
 
 }

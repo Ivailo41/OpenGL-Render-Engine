@@ -2,13 +2,17 @@
 
 void FrameBuffer::genFrameBuffer(unsigned width, unsigned height)
 {
-    deleteFrameBuffer();
+	if (frameBufferID != 0)
+    {
+		// If the framebuffer already exists, delete it
+		deleteFrameBuffer();
+    }
 
     this->width = width;
     this->height = height;
 
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glGenFramebuffers(1, &frameBufferID);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 
     for (size_t i = 0; i < buffersCount; i++)
     {
@@ -34,12 +38,12 @@ void FrameBuffer::genFrameBuffer(unsigned width, unsigned height)
     }
 
     //generate depth buffer if we need it
-    if(hasDepth)
+    if (hasDepth)
     {
-        glGenRenderbuffers(1, &rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+        glGenRenderbuffers(1, &depthBufferID);
+        glBindRenderbuffer(GL_RENDERBUFFER, depthBufferID);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBufferID);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -47,7 +51,11 @@ void FrameBuffer::genFrameBuffer(unsigned width, unsigned height)
 
 void FrameBuffer::bind() const
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {}
+        // log message when logging class is complete
 }
 
 void FrameBuffer::unbind() const
@@ -56,20 +64,47 @@ void FrameBuffer::unbind() const
 }
 
 FrameBuffer::FrameBuffer(unsigned buffersCount, bool depth) : buffersCount(buffersCount), width(0), height(0), hasDepth(depth),
-                                                              fbo(0), rbo(0)
+frameBufferID(0), depthBufferID(0)
 {
     //Nothing to do here
 }
 
 FrameBuffer::~FrameBuffer()
 {
-    glDeleteTextures(buffersCount, &buffers[0]);
+    if (!buffersCount == 0) 
+    {
+        glDeleteTextures(buffersCount, &buffers[0]);
+    }
+
     deleteFrameBuffer();
 }
 
 void FrameBuffer::deleteFrameBuffer()
 {
-    glDeleteFramebuffers(1, &fbo);
+    glDeleteFramebuffers(1, &frameBufferID);
 }
 
+void ShadowFrameBuffer::genFrameBuffer(unsigned width, unsigned height)
+{
+    glGenFramebuffers(1, &frameBufferID);
+    bind();
 
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) 
+    {
+        // Log or handle error
+    }
+}
+
+void ShadowFrameBuffer::attachCubemap(const Cubemap& cubemap)
+{
+    depthBufferID = cubemap;
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthBufferID, 0);
+}
+
+ShadowFrameBuffer::ShadowFrameBuffer() : FrameBuffer(0, false)
+{
+
+}

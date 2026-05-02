@@ -5,15 +5,21 @@
 #include "Layers/UI_Settings.h"
 #include "Layers/UI_ObjectProperties.h"
 #include "Layers/UI_CameraProperties.h"
+#include "Layers/UI_Console.h"
+#include "../Resources/ResourceManager.h"
 #include "../Core/Window.h"
+#include "../Renderer/Renderer.h"
 
 #include "ImGuizmo.h"
-
-
+#include "Layers/UI_AssetBrowser.h"
+#include "Layers/UI_Materials.h"
 
 class EngineUI
 {
 public:
+
+	bool init(); //Initing ImGUI here
+
 	void addUILayer(UILayer* layer);
 	void removeUILayer(unsigned index);
 	void removeUILayer(UILayer* layer);
@@ -21,24 +27,35 @@ public:
 
 	void renderUI();
 
-	const UI_Scene& getSceneLayer() const { return uiSceneLayer; }
+	UI_Scene& getSceneLayer() { return uiSceneLayer; }
 	const UI_Settings& getSettingsLayer() const { return uiSettingsLayer; }
+	UI_Console& getConsoleLayer() { return uiConsole; }
 
 public:
-	EngineUI(Window* window, FileManager* fileman); //Initing ImGUI here
+	EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer);
 	EngineUI(const EngineUI& other) = delete;
 	EngineUI& operator=(const EngineUI& other) = delete;
 	~EngineUI();
 
 private:
+	static std::string OpenFolderDialog() ;
+
+private:
 	std::vector<UILayer*> UIElements;
 	static bool isUIOpen;
-	FileManager* fileman;
+
 
 	UI_Scene uiSceneLayer;
 	UI_Settings uiSettingsLayer;
 	UI_SceneTree uiSceneTree;
 	UI_ObjectProperties uiObjectProperties;
 	UI_CameraProperties uiCameraProperties;
+	UI_Console uiConsole;
+	UI_AssetBrowser uiAssetBrowser;
+	UI_Materials uiMaterials;
+
+	Window* window = nullptr;
+	ResourceManager* resourceManager = nullptr;
+	Renderer* renderer = nullptr;
 };
 

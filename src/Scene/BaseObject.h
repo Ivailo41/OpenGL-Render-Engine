@@ -1,9 +1,8 @@
 #pragma once
 
-//#define GLEW_STATIC
-#include <GL/glew.h>
+/*#include <GL/glew.h>
 #include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
+#include <gtc/matrix_transform.hpp>*/
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/matrix_decompose.hpp"
@@ -49,7 +48,8 @@ public:
 	const glm::mat4 getGlobalModelMat();
 	const glm::mat4 globalToLocalMat(const glm::mat4& matrix) const;
 
-	virtual void draw() const;
+	virtual void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const;
+	virtual void update(float deltaTime);
 	virtual BaseObject* clone() const { return new BaseObject(*this); }
 
 	void setParent(BaseObject* parent);
@@ -84,6 +84,7 @@ protected:
 	Transform transform;
 
 	BaseObject* parentPtr;
+	bool moved;
 
 private:
 	void updateModelMat();

@@ -19,8 +19,9 @@
 
         void main()
         {
-            vec3 T = normalize(vec3(transform * vec4(aTangent,   0.0)));
             vec3 B = normalize(vec3(transform * vec4(cross(aNormal, aTangent),   0.0)));
+            //vec3 T = normalize(vec3(transform * vec4(aTangent,   0.0)));
+            vec3 T = normalize(vec3(transform * vec4(cross(B, aNormal),   0.0)));
             vec3 N = normalize(vec3(transform * vec4(aNormal,    0.0)));
 
             mat3 TBN = transpose(mat3(T, B, N));
@@ -28,7 +29,6 @@
             vs_out.FragPos = vec3(transform * vec4(aPos, 1.0f)); //pass vertices in world position to the fragmet shader
             vs_out.TexCoord = aTexCoord;
             vs_out.TanMatrix = TBN;
-
 
             gl_Position = perspectiveMat * viewMat * transform * vec4(aPos.x, aPos.y, aPos.z, 1.0);
         }

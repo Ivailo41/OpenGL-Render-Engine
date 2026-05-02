@@ -1,22 +1,23 @@
 #pragma once
-#include "../Scene/Camera.h"
-#include "../Scene/BaseObject.h"
+#include "Camera.h"
+#include "BaseObject.h"
 #include "Lights/Light.h"
 #include <string>
 #include <vector>
+#include "Skybox.h"
+#include "../Resources/ResourceManager.h"
 
 class Scene
 {
 public:
-	//bool loadObject(const std::string& path);
-
+	bool instanceModel(const std::string& name);
 	bool addObject(BaseObject* object);
 	void removeObject(BaseObject* object);
 
 	BaseObject* getSelectedObject() const;
 	void setSelectedObject(BaseObject* object);
 
-	void drawObjects() const;
+	void updateObjects(float deltaTime);
 
 	void setName(const std::string& name);
 	std::string getName() const;
@@ -27,25 +28,23 @@ public:
 	//void clear();
 
 public:
-	Scene();
-	Scene(const std::string& sceneName);
+	Scene(const ResourceManager& resourceManager);
+	Scene(const std::string& sceneName, const ResourceManager& resourceManager);
 	~Scene();
 
 public:
 	static Scene* activeScene;
-	//std::vector<BaseObject*> sceneObjects;
 	BaseObject root;
-
-	std::vector<Texture*> textures;
-	std::vector<Material*> materials;
 	//add container for cameras
-	//add container for lights
+	std::vector<Light*> lights;
+
+	Skybox* activeSkybox = nullptr;
 
 private:
 	std::string name;
-
-	//might move these pointers elsewhere
 	Camera* activeCamera;
 	BaseObject* selectedObject;
+
+	const ResourceManager& resourceManager;
 };
 

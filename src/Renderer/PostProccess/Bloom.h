@@ -1,7 +1,7 @@
 #pragma once
 #include "../FrameBuffer.h"
 #include "../FrameQuad.h"
-#include "../Shader.h"
+#include "../../Resources/Shader.h"
 
 class Bloom
 {

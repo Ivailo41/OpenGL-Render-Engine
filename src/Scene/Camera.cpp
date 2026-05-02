@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "../Renderer/Shader.h"
+#include "../Resources/Shader.h"
 
 void Camera::setFOV(float fov)
 {
@@ -14,41 +14,10 @@ void Camera::setFOV(float fov)
 
 Camera::Camera() : BaseObject("New Camera"), near(0.1f), far(100.0f), aspectRatio(4.0f/3.0f)
 {
-	setFOV(45.0f);
+	setFOV(90.0f);
 	viewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 	rightVector = glm::vec3(1.0f, 0.0f, 0.0f);
 	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
-}
-
-Camera::Camera(const Camera& other) : BaseObject(other), near(other.near), far(other.far), aspectRatio(other.aspectRatio)
-{
-	viewDirection = other.viewDirection;
-	viewMat = other.viewMat;
-	rightVector = other.rightVector;
-	perspectiveMat = other.perspectiveMat;
-	FOV = other.FOV;
-}
-
-Camera& Camera::operator=(const Camera& other)
-{
-	if (this != &other)
-	{
-		BaseObject::operator=(other);
-		viewDirection = other.viewDirection;
-		viewMat = other.viewMat;
-		rightVector = other.rightVector;
-		perspectiveMat = other.perspectiveMat;
-		FOV = other.FOV;
-
-		near = other.near;
-		far = other.far;
-		aspectRatio = other.aspectRatio;
-	}
-	return *this;
-}
-
-Camera::~Camera()
-{
 }
 
 void Camera::rotateCam(const glm::vec3& rotation)
@@ -99,8 +68,13 @@ void Camera::updateCamera()
 	glUniform3f(camPos, getPosition().x, getPosition().y, getPosition().z);
 }
 
-void Camera::draw() const
+void Camera::draw(Shader* overrideShader, GLenum drawMode) const
 {
+}
+
+void Camera::update(float deltaTime)
+{
+
 }
 
 void Camera::setViewDirection(const glm::vec3& viewDirection)
@@ -109,19 +83,19 @@ void Camera::setViewDirection(const glm::vec3& viewDirection)
 	//updateCamera();
 }
 
-void Camera::cameraController(GLFWwindow* window, int winX, int winY)
+void Camera::cameraController(GLFWwindow* window, int winX, int winY, float deltaTime)
 {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		translate(getViewDirection() * cameraSpeed);
+		translate(getViewDirection() * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		translate(-getViewDirection() * cameraSpeed);
+		translate(-getViewDirection() * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		translate(-rightVector * cameraSpeed);
+		translate(-rightVector * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		translate(rightVector * cameraSpeed);
+		translate(rightVector * cameraSpeed * deltaTime);
 	}
 
 	//consider using delta mouse position instead

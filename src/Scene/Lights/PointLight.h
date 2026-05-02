@@ -1,5 +1,6 @@
 #pragma once
 #include "Light.h"
+#include "../../Renderer/Cubemap.h"
 
 class PointLight : public Light
 {
@@ -26,10 +27,16 @@ public:
 	float getLinear() const { return data.linear; }
 	float getQuadratic() const { return data.quadratic; }*/
 
+	const Cubemap& getShadowCubemap() const { return shadowCubemap; }
+	float getShadowNear() const { return shadowNear; }
+	float getShadowFar() const { return shadowFar; }
+
 	const PointLightData* getData() const;
-	void sendToShader(unsigned shaderProgram, unsigned lightIndex) const override;
-	virtual BaseObject* clone() const override { return new PointLight(*this); }
-	virtual void draw() const override;
+	void sendToShader(const Shader& shaderProgram, unsigned lightIndex) const override;
+	void sendShadowDataToShader(const Shader& shaderProgram, unsigned lightIndex) const override;
+	BaseObject* clone() const override { return new PointLight(*this); }
+	void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const override;
+	void update(float deltaTime) override;
 
 	PointLight();
 	PointLight(const std::string name);
@@ -39,5 +46,10 @@ public:
 
 private:
 	PointLightData data;
+
+	Cubemap shadowCubemap;
+	glm::mat4 shadowMatrices[6];
+	float shadowNear = 0.01f;
+	float shadowFar = 25.0f;
 };
 

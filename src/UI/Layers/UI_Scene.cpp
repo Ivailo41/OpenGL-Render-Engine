@@ -10,13 +10,9 @@ UI_Scene::~UI_Scene()
 
 }
 
-UI_Scene::UI_Scene(Window* window) : window(window), fbuffer(2, false), viewMode(false), operation(ImGuizmo::OPERATION::TRANSLATE)
+UI_Scene::UI_Scene(Window* window, Renderer* renderer) : window(window), renderer(renderer), viewMode(false), operation(ImGuizmo::OPERATION::TRANSLATE)
 {
-    //create framebuffer that will project the context from the main window to the UI window
-
-    fbuffer.genFrameBuffer(window->getWidth(), window->getHeight());
-
-	layerName = "Scene";
+    layerName = "Scene";
 }
 
 void UI_Scene::renderLayer()
@@ -26,9 +22,9 @@ void UI_Scene::renderLayer()
     //Fix for the stretching when resizing the window problem, but the camera updates every frame, no idea if I would want that
     windowSpace = ImGui::GetContentRegionAvail();
     //windowSpace = ImGui::GetWindowSize();;
-    Camera* activeCamera = Scene::activeScene->getActiveCamera();
-    activeCamera->setAspectRatio(windowSpace.x, windowSpace.y);
-    activeCamera->updateCamera();
+    //Camera* activeCamera = Scene::activeScene->getActiveCamera();
+    //activeCamera->setAspectRatio(windowSpace.x, windowSpace.y);
+    //activeCamera->updateCamera();
 
     if(ImGui::IsMouseDown(1) && ImGui::IsWindowHovered() && !viewMode)
     {
@@ -42,14 +38,14 @@ void UI_Scene::renderLayer()
         glfwSetInputMode(window->getGLWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
-    if(viewMode)
+    /*if(viewMode)
     {
         Camera::CursorData data(windowSpace.x, windowSpace.y, 0, 0, 0, 0);
         activeCamera->cameraController(window->getGLWindow(), windowSpace.x, windowSpace.y);
-    }
+    }*/
 
     ImGui::Image(
-        (ImTextureID)fbuffer[0],
+        (ImTextureID)renderer->getScreneFrameBuffer()[0],
         windowSpace,
         ImVec2(0, 1),
         ImVec2(1, 0)

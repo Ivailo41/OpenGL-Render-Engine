@@ -12,12 +12,11 @@ float FrameQuad::quadVertices[] = {
 };
 
 bool FrameQuad::initialised = false;
-const Shader* FrameQuad::frameQuadShader = nullptr;
 
 GLuint FrameQuad::quadVAO = 0;
 GLuint FrameQuad::quadVBO = 0;
 
-void FrameQuad::initFrameQuad(const Shader* frameQuadShader)
+void FrameQuad::initFrameQuad()
 {
     if(!initialised)
     {
@@ -39,8 +38,6 @@ void FrameQuad::initFrameQuad(const Shader* frameQuadShader)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
-        FrameQuad::frameQuadShader = frameQuadShader;
-
         initialised = true;
     }
 }
@@ -56,16 +53,8 @@ void FrameQuad::drawQuad()
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void FrameQuad::drawFrameQuad(GLuint drawTexture, const FrameBuffer& frameBuffer, float gamma, float exposure)
+void FrameQuad::drawFrameQuad(GLuint drawTexture)
 {
-    frameBuffer.bind();
-
-    frameQuadShader->use();
-    frameQuadShader->setInt("scene", 0);
-    frameQuadShader->setFloat("exposure", exposure);
-    frameQuadShader->setFloat("gamma", gamma);
-    //get values for exp and gamma from the UI_Settings layer
-
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, drawTexture);
 

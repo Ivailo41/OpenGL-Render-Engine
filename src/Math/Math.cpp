@@ -1,6 +1,6 @@
 #include "Math.h"
 
-namespace Engine::Math {
+namespace Math {
 
 	//=========THIS SEGMENT IS FROM THE CHERNO'S HAZEL ENGINE=========//
 	//cut version of the glm decompose function to eliminate calculations that we dont need

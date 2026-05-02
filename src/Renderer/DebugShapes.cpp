@@ -38,24 +38,13 @@ void DebugShapes::drawBox(Point topLeftBack, Point bottomRightFront, Color color
 
 }
 
-void DebugShapes::drawDebugShapes(Camera* camera)
+void DebugShapes::drawDebugShapes()
 {
-	//bind shader
-	debugShader->use();
-	
-	camera->updateCamera();
-
 	unsigned size = containers.size();
 	for (size_t i = 0; i < size; i++)
 	{
 		containers[i].drawLines(glm::mat4(1));
 	}
-}
-
-DebugShapes::DebugShapes()
-{
-	//pass the shader in the constructor 
-	debugShader = &Shader::shadersList.find("DebugShader").operator*().second;
 }
 
 LinesContainer& DebugShapes::getContainerWithColor(const Color& color)

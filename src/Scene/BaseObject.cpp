@@ -1,44 +1,20 @@
 #include "BaseObject.h"
 
-BaseObject::BaseObject() : parentPtr(nullptr)
+BaseObject::BaseObject() : parentPtr(nullptr), moved(false)
 {
 	name = "New Object";
 	setPosition(glm::vec3(0.0f));
 	setRotation(glm::vec3(0.0f));
 	setScale(glm::vec3(1.0f));
-	//modelMatrix = glm::mat4(1.0f);
 }
 
-BaseObject::BaseObject(const std::string& name) : parentPtr(nullptr)
+BaseObject::BaseObject(const std::string& name) : parentPtr(nullptr), moved(false)
 {
 	this->name = name;
 	setPosition(glm::vec3(0.0f));
 	setRotation(glm::vec3(0.0f));
 	setScale(glm::vec3(1.0f));
-	//modelMatrix = glm::mat4(1.0f);
 }
-
-//BaseObject::BaseObject(const BaseObject& other)
-//{
-//	name = other.name;
-//	transform = other.transform;
-//	modelMatrix = other.modelMatrix;
-//	children = other.children;
-//	parentPtr = other.parentPtr;
-//}
-//
-//BaseObject& BaseObject::operator=(const BaseObject& other)
-//{
-//	if (this != &other)
-//	{
-//		name = other.name;
-//		transform = other.transform;
-//		modelMatrix = other.modelMatrix;
-//		children = other.children;
-//		parentPtr = other.parentPtr;
-//	}
-//	return *this;
-//}
 
 BaseObject::~BaseObject()
 {
@@ -52,48 +28,24 @@ void BaseObject::setName(const std::string& name)
 
 void BaseObject::translate(const glm::vec3& position)
 {
-	transform.position += position;
-	updateModelMat();
-
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].translate(position);
-	}*/	
+	setPosition(transform.position += position);
 }
 
 void BaseObject::rotate(const glm::vec3& rotation)
 {
-	transform.rotation += rotation;
-	updateModelMat();
-
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].rotate(rotation);
-	}*/
+	setRotation(transform.rotation += rotation);
 }
 
 void BaseObject::scale(const glm::vec3& scale)
 {
-	transform.scale *= scale;
-	updateModelMat();
-
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].scale(scale);
-	}*/
+	setScale(transform.scale *= scale);
 }
 
 void BaseObject::setPosition(const glm::vec3& position)
 {
-	//glm::vec3 translation = position - transform.position;
-	//transform.position += translation;
 	transform.position = position;
+	moved = true;
 	updateModelMat();
-
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].setPosition(position);
-	}*/
 }
 
 void BaseObject::setPosition(float x, float y, float z)
@@ -101,37 +53,22 @@ void BaseObject::setPosition(float x, float y, float z)
 	transform.position.x = x;
 	transform.position.y = y;
 	transform.position.z = z;
+	moved = true;
 	updateModelMat();
-
-	//TO DO: dont update the children location but multiply their matrices with parent's
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].setPosition(x, y, z);
-	}*/
 }
 
 void BaseObject::setRotation(const glm::vec3& rotation)
 {
-	//glm::quat rotationAmount = rotation - transform.rotation;
-	//transform.rotation += rotationAmount;
 	transform.rotation = rotation;
+	moved = true;
 	updateModelMat();
-
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].rotate(rotationAmount);
-	}*/
 }
 
 void BaseObject::setScale(const glm::vec3& scale)
 {
 	transform.scale = scale;
+	moved = true;
 	updateModelMat();
-
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].setScale(scale);
-	}*/
 }
 
 const Transform& BaseObject::getTransform() const
@@ -173,26 +110,24 @@ void BaseObject::setTransform(const Transform& otherTransform)
 	setPosition(otherTransform.position);
 	setRotation(otherTransform.rotation);
 	setScale(otherTransform.scale);
-
-	/*for (size_t i = 0; i < children.getSize(); i++)
-	{
-		children[i].setTransform(otherTransform);
-	}*/
 }
 
 void BaseObject::setTransform(const glm::mat4& transformMat)
 {
 	//A lot of calculations here, consider a better way
 	glm::vec3 rotation;
-	Engine::Math::DecomposeMatrix(transformMat, transform.position, rotation, transform.scale);
+	Math::DecomposeMatrix(transformMat, transform.position, rotation, transform.scale);
 
 	transform.rotation.x = glm::degrees(rotation.x);
 	transform.rotation.y = glm::degrees(rotation.y);
 	transform.rotation.z = glm::degrees(rotation.z);
+
+	moved = true;
 }
 
 void BaseObject::updateModelMat()
 {
+	//EVERY TIME THE MATRIX IS RECONSTRUCTED, THINK OF CHANGING THAT
 	//update the matrix with the current transform
 	transform.modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
 
@@ -296,11 +231,27 @@ bool BaseObject::isChildOf(const BaseObject* object) const
 	return parentPtr->isChildOf(object);
 }
 
-void BaseObject::draw() const
+void BaseObject::draw(Shader* overrideShader, GLenum drawMode) const
 {
 	unsigned meshesCount = children.size();
 	for (size_t i = 0; i < meshesCount; i++)
 	{
-		children[i]->draw();
+		children[i]->draw(overrideShader, drawMode);
 	}
+}
+
+void BaseObject::update(float deltaTime)
+{
+	unsigned meshesCount = children.size();
+	for (size_t i = 0; i < meshesCount; i++)
+	{
+		if (moved)
+		{
+			children[i]->moved = true;
+			updateModelMat();
+			children[i]->updateModelMat();
+		}
+		children[i]->update(deltaTime);
+	}
+	moved = false;
 }

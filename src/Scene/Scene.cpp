@@ -1,55 +1,36 @@
 #include "Scene.h"
-//#include "../FileManager.h"
+#include <queue>
 
 Scene* Scene::activeScene = nullptr;
 
-Scene::Scene() : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr),  root("Scene")
+Scene::Scene(const ResourceManager& resourceManager) : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr),  root("Scene"), resourceManager(resourceManager)
 {
 	//nothing to do here
 }
 
-Scene::Scene(const std::string& sceneName) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr), root("Scene")
+Scene::Scene(const std::string& sceneName, const ResourceManager& resourceManager) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr), root("Scene"), resourceManager(resourceManager)
 {
 	//nothing to do here
 }
 
 Scene::~Scene()
 {
-	//unsigned sceneOjectsCount = sceneObjects.size();
-	unsigned sceneOjectsCount = root.getChildrenCount();
-	for (size_t i = 0; i < sceneOjectsCount; i++)
+	//unsigned sceneObjectsCount = sceneObjects.size();
+	unsigned sceneObjectsCount = root.getChildrenCount();
+	for (size_t i = 0; i < sceneObjectsCount; i++)
 	{
-		//this will cause error trying to delete objects allocated on the stack
 		//delete sceneObjects[i];
 	}
 }
-
-//bool Scene::loadObject(const std::string& path)
-//{
-//
-//	Object* object = FileManager::readOBJ(path);
-//	if (object == nullptr)
-//	{
-//		return false;
-//	}
-//
-//	sceneObjects.push_back(object);
-//	return true;
-//}
 
 void Scene::setSelectedObject(BaseObject* object)
 {
 	selectedObject = object;
 }
 
-void Scene::drawObjects() const
+void Scene::updateObjects(float deltaTime)
 {
-	activeCamera->updateCamera();
-	root.draw();
-	/*for (size_t i = 0; i < sceneObjects.size(); i++)
-	{
-		sceneObjects[i]->draw();
-	}*/
+	root.update(deltaTime);
 }
 
 void Scene::setName(const std::string& name)
@@ -67,53 +48,83 @@ void Scene::setActiveCamera(Camera* camera)
 	activeCamera = camera;
 }
 
-//OLD CODE
-
-//void Scene::removeObject(unsigned index)
-//{
-//	sceneObjects.removeObject(index);
-//}
-
-bool Scene::addObject(BaseObject* object)
+bool Scene::instanceModel(const std::string& modelName)
 {
+	const Model* model = resourceManager.getModel(modelName);
+	if (model == nullptr) {
+		LOG_ERROR("Scene could not find model \"" + modelName + "\"");
+		return false;
+	}
+
+	auto object = new BaseObject(model->getName());
+	const std::vector<std::unique_ptr<Mesh>>& meshes = model->getMeshes();
+
+	std::queue<RawModelNode> nodesQueue;
+	nodesQueue.push(model->getRoot());
+
+	//This BFS implementation skips adding mesh for the root node but as the models are implemented they don't have meshes at root
+	//This could be changed by making RawModelNode store vector of children instead root.
+	while (!nodesQueue.empty()) {
+		RawModelNode currentNode = nodesQueue.front();
+		nodesQueue.pop();
+
+		for (const RawModelNode& child : currentNode.children) {
+			//make mesh and attach to object
+			nodesQueue.push(child);
+			for (unsigned index : child.meshIndices) {
+				const auto objectMesh = new ObjectMesh(meshes[index]->getName(), meshes[index].get()); //Carefully with mesh.get()
+				objectMesh->attachTo(object);
+			}
+		}
+	}
+
+	root.addChild(object);
+	return true;
+}
+
+bool Scene::addObject(BaseObject *object) {
+
 	if (object == nullptr)
 		return false;
 
 	//sceneObjects.push_back(object);
+	Light* light = dynamic_cast<Light*>(object);
+	if (light != nullptr)
+	{
+		lights.push_back(light);
+	}
+
 	root.addChild(object);
 	return true;
 }
 
 void Scene::removeObject(BaseObject* object)
 {
+	if (object == nullptr)
+		return;
+
+	Light* light = dynamic_cast<Light*>(object);
+	if (light != nullptr)
+	{
+		for (size_t i = 0; i < lights.size(); i++)
+		{
+			if (lights[i] == light)
+			{
+				lights.erase(lights.begin() + i);
+				break;
+			}
+		}
+	}
+
 	if (selectedObject == object)
 	{
 		selectedObject = nullptr;
 	}
 
 	root.removeChild(object);
-	/*for (size_t i = 0; i < root.size(); i++)
-	{
-		if(sceneObjects[i] == object)
-		{
-			sceneObjects.erase(sceneObjects.begin() + i);
-			delete object;
-			return;
-		}
-	}*/
 }
 	
 BaseObject* Scene::getSelectedObject() const
 {
 	return selectedObject;
 }
-
-//BaseObject* Scene::addObject(BaseObject& object)
-//{
-//	return sceneObjects.addObject(object);
-//}
-
-//void Scene::addObject(BaseObject* object)
-//{
-//	sceneObjects.addObject(object);
-//}
