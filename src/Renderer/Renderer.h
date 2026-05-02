@@ -6,7 +6,7 @@
 #include "../Core/Window.h"
 #include "../Core/Logger.h"
 #include "FrameBuffer.h"
-#include "Shader.h"
+#include "../Resources/Shader.h"
 #include "DebugShapes.h"
 #include "FrameQuad.h"
 

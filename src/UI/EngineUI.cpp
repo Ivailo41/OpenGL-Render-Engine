@@ -1,4 +1,6 @@
 #include "EngineUI.h"
+
+#include "IconsFontAwesome7.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -7,16 +9,18 @@
 //#include <windows.h>
 //#include <shobjidl.h>
 
+
 bool EngineUI::isUIOpen = false;
 
-EngineUI::EngineUI(Window* window, FileManager* fileman, Renderer* renderer) : window(window), fileman(fileman), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(fileman, renderer)
+EngineUI::EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer)
+: window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer, resourceManager), uiAssetBrowser(resourceManager), uiMaterials(resourceManager)
 {
 
 }
 
 bool EngineUI::init()
 {
-    if(!window->isRunning() || !fileman->isRunning() || !renderer->isRunning())
+    if(!window->isRunning() || !renderer->isRunning())
     {
         return false;
     }
@@ -44,6 +48,15 @@ bool EngineUI::init()
     ImGui_ImplGlfw_InitForOpenGL(window->getGLWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
+    io.Fonts->AddFontDefault();
+
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = 13.0f;
+    static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+    io.Fonts->AddFontFromFileTTF("../assets/fonts/icons_font.otf", 50.0f, &config, icon_ranges);
+    io.Fonts->Build();
+
     //Create default UI layers
     addUILayer(&uiSceneTree);
     addUILayer(&uiObjectProperties);
@@ -51,6 +64,8 @@ bool EngineUI::init()
     addUILayer(&uiSceneLayer);
     addUILayer(&uiSettingsLayer);
 	addUILayer(&uiConsole);
+    addUILayer(&uiAssetBrowser);
+    addUILayer(&uiMaterials);
 
     return true;
 }
@@ -164,16 +179,16 @@ void EngineUI::renderUI()
             {
 				std::string filePath = OpenFolderDialog();
                 //check path correctnes
-				fileman->loadOBJ(filePath);
+				resourceManager->loadModel(filePath);
 
             }
             if (ImGui::MenuItem("Import Texture"))
             {
                 std::string path = OpenFolderDialog();
-                std::vector<std::string> paths;
+                std::vector<std::filesystem::path> paths;
                 paths.push_back(path);
                 //check path correctnes
-                fileman->loadTextures(paths);
+                resourceManager->loadTexture(paths);
             }
             ImGui::EndMenu();
         }
@@ -217,71 +232,6 @@ void EngineUI::renderUI()
 
 std::string EngineUI::OpenFolderDialog()
 {
-	/*// Initialize COM
-	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-	std::wstring filePath;
-
-	if (SUCCEEDED(hr))
-	{
-		IFileDialog* pFileDialog = NULL;
-
-		// Create the FileOpenDialog object.
-		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileDialog, reinterpret_cast<void**>(&pFileDialog));
-
-		if (SUCCEEDED(hr))
-		{
-			// Set the options for a file picker (default behavior)
-			DWORD dwOptions;
-			pFileDialog->GetOptions(&dwOptions);
-			pFileDialog->SetOptions(dwOptions | FOS_FORCEFILESYSTEM); // Ensure we're working with files in the filesystem.
-
-			// Optional: Set the file type filters
-			// Define file types
-			COMDLG_FILTERSPEC rgSpec[] =
-			{
-				//{ L"OBJ Files", L"*.obj" },
-				{ L"All Files", L"*.*" }
-			};
-			// Set file types in the dialog (2 filters)
-			pFileDialog->SetFileTypes(ARRAYSIZE(rgSpec), rgSpec);
-			pFileDialog->SetFileTypeIndex(1); // Selects the second filter as the default
-			pFileDialog->SetDefaultExtension(L"txt"); // Set a default extension
-
-			// Show the dialog
-			hr = pFileDialog->Show(NULL);
-
-			// If the user selects a file
-			if (SUCCEEDED(hr))
-			{
-				IShellItem* pItem;
-				hr = pFileDialog->GetResult(&pItem);
-				if (SUCCEEDED(hr))
-				{
-					// Retrieve the file path
-					PWSTR pszFilePath = NULL;
-					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-
-					// Save the file path to a wstring.
-					if (SUCCEEDED(hr))
-					{
-						filePath = pszFilePath;
-						CoTaskMemFree(pszFilePath); // Free memory allocated for the path
-					}
-					pItem->Release();
-				}
-			}
-			pFileDialog->Release();
-		}
-		CoUninitialize();
-	}
-
-	std::string str;
-	size_t size;
-	str.resize(filePath.length());
-	wcstombs_s(&size, &str[0], str.size() + 1, filePath.c_str(), filePath.size());
-
-	return str;*/
-
 	// Show a folder picker dialog
 	const char* path = tinyfd_openFileDialog("Select OBJ file", "", 0, nullptr, "path", 0);
 

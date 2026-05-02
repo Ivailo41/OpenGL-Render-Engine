@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+#include "../Resources/ResourceManager.h"
+
 bool Engine::init()
 {
     Logger::getInstance().addSink(std::make_shared<ConsoleLogSink>());
@@ -19,14 +21,14 @@ bool Engine::init()
 
     fileManager.createDirectory("../assets");
 
-    fileManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl");
-    fileManager.loadShader("BloomShader", "../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl", "../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl");
-    fileManager.loadShader("BlurShader", "../assets/Shaders/PostProcess/Blur/blurVertex.glsl", "../assets/Shaders/PostProcess/Blur/blurFrag.glsl");
-    fileManager.loadShader("DebugShader", "../assets/Shaders/Debug/debugVertex.glsl", "../assets/Shaders/Debug/debugFrag.glsl");
-    fileManager.loadShader("FramequadShader", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl");
-    fileManager.loadShader("SkyboxShader", "../assets/Shaders/Skybox/SkyboxVertex.glsl", "../assets/Shaders/Skybox/SkyboxFrag.glsl");
-    fileManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
-    fileManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
+    resourceManager.loadShader("PBRShader", "../assets/Shaders/Main/vertexShader.glsl", "../assets/Shaders/Main/fragShader.glsl", "");
+    resourceManager.loadShader("BloomShader", "../assets/Shaders/PostProcess/Bloom/bloomVertex.glsl", "../assets/Shaders/PostProcess/Bloom/bloomFrag.glsl", "");
+    resourceManager.loadShader("BlurShader", "../assets/Shaders/PostProcess/Blur/blurVertex.glsl", "../assets/Shaders/PostProcess/Blur/blurFrag.glsl", "");
+    resourceManager.loadShader("DebugShader", "../assets/Shaders/Debug/debugVertex.glsl", "../assets/Shaders/Debug/debugFrag.glsl", "");
+    resourceManager.loadShader("FramequadShader", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadVertex.glsl", "../assets/Shaders/PostProcess/FrameQuad/FrameQuadFrag.glsl", "");
+    resourceManager.loadShader("SkyboxShader", "../assets/Shaders/Skybox/SkyboxVertex.glsl", "../assets/Shaders/Skybox/SkyboxFrag.glsl", "");
+    resourceManager.loadShader("ShadowShader", "../assets/Shaders/Shadow/shadowVertex.glsl", "../assets/Shaders/Shadow/shadowFrag.glsl", "../assets/Shaders/Shadow/shadowGeometry.glsl");
+    resourceManager.loadShader("TangentShader", "../assets/Shaders/Debug/tangentVertex.glsl", "../assets/Shaders/Debug/tangentFrag.glsl", "../assets/Shaders/Debug/tangentGeometry.glsl");
 
     if (!renderer.init(&window))
     {
@@ -49,7 +51,7 @@ bool Engine::init()
 
     //SCENE CREATION ABSTRACT THIS PART LATER INTO SCENE MANAGER OR SCENE LOADER
     //this getting of pointer causes sometimes the scene to be a deleted pointer!!
-    scenes.push_back(Scene());
+    scenes.push_back(Scene(resourceManager));
     Scene* mainScene = &scenes[0];
     Scene::activeScene = mainScene;
 
@@ -87,9 +89,9 @@ bool Engine::init()
     //Loading textures and setting materials
     {
         // dynamically loaded object
-        if (fileManager.loadOBJ("../assets/AK203/AK203.obj"))
+        if (resourceManager.loadModel("../assets/AK203/ak203.obj"))
         {
-            std::vector<std::string> texturePaths = {
+            std::vector<std::filesystem::path> texturePaths = {
                                                 "../assets/AK203/Set1_Base.png",
                                                 "../assets/AK203/Set1_ORM.png",
                                                 "../assets/AK203/Set1_Normal.png",
@@ -103,29 +105,27 @@ bool Engine::init()
                                                 "../assets/AK203/Set4_ORM.png",
                                                 "../assets/AK203/Set4_Normal.png" };
 
-            fileManager.loadTextures(texturePaths);
+            resourceManager.loadTexture(texturePaths);
 
-            mainScene->materials[2]->setTexture(mainScene->textures[0], 0);
-            mainScene->materials[2]->setTexture(mainScene->textures[1], 1);
-            mainScene->materials[2]->setTexture(mainScene->textures[2], 2);
-
-            mainScene->materials[0]->setTexture(mainScene->textures[3], 0);
-            mainScene->materials[0]->setTexture(mainScene->textures[4], 1);
-            mainScene->materials[0]->setTexture(mainScene->textures[5], 2);
-
-            mainScene->materials[3]->setTexture(mainScene->textures[6], 0);
-            mainScene->materials[3]->setTexture(mainScene->textures[7], 1);
-            mainScene->materials[3]->setTexture(mainScene->textures[8], 2);
-
-            mainScene->materials[1]->setTexture(mainScene->textures[9], 0);
-            mainScene->materials[1]->setTexture(mainScene->textures[10], 1);
-            mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
-        }
-
-        if (fileManager.loadOBJ("../assets/sponzaS.obj")) {
-
+            // mainScene->materials[2]->setTexture(mainScene->textures[0], 0);
+            // mainScene->materials[2]->setTexture(mainScene->textures[1], 1);
+            // mainScene->materials[2]->setTexture(mainScene->textures[2], 2);
+            //
+            // mainScene->materials[0]->setTexture(mainScene->textures[3], 0);
+            // mainScene->materials[0]->setTexture(mainScene->textures[4], 1);
+            // mainScene->materials[0]->setTexture(mainScene->textures[5], 2);
+            //
+            // mainScene->materials[3]->setTexture(mainScene->textures[6], 0);
+            // mainScene->materials[3]->setTexture(mainScene->textures[7], 1);
+            // mainScene->materials[3]->setTexture(mainScene->textures[8], 2);
+            //
+            // mainScene->materials[1]->setTexture(mainScene->textures[9], 0);
+            // mainScene->materials[1]->setTexture(mainScene->textures[10], 1);
+            // mainScene->materials[1]->setTexture(mainScene->textures[11], 2);
         }
     }
+
+    mainScene->instanceModel("ak203.obj");
 
     //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
     mainScene->getActiveCamera()->rotateCam(glm::vec3(0, 0, 0));
@@ -194,9 +194,8 @@ void Engine::frameBufferResizeCallback(GLFWwindow* window, int width, int height
     }
 }
 
-Engine::Engine() : engineUI(&window, &fileManager, &renderer)
+Engine::Engine() : resourceManager(fileManager), engineUI(&window, &resourceManager, &renderer)
 {
-
 }
 
 void Engine::setCallbacks()

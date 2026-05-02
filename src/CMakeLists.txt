@@ -1,4 +1,17 @@
-add_executable(Application)
+add_executable(Application
+		Resources/ResourceManager.cpp
+		Resources/ResourceManager.h
+		Resources/Mesh.cpp
+		Resources/Mesh.h
+		Resources/Raw/RawStructs.cpp
+		Resources/Raw/RawStructs.h
+		Resources/Model.cpp
+		Resources/Model.h
+		UI/Layers/UI_AssetBrowser.cpp
+		UI/Layers/UI_AssetBrowser.h
+		UI/IconsFontAwesome7.h
+		UI/Layers/UI_Materials.h
+		UI/Layers/UI_Materials.cpp)
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 
@@ -12,12 +25,12 @@ target_sources(
         "Scene/Camera.cpp"
         "Core/FileManager.cpp"
         "Main.cpp"
-        "Renderer/Material.cpp"
-        "Renderer/Shader.cpp"
-        "Renderer/Texture.cpp"
+        "Resources/Material.cpp"
+        "Resources/Shader.cpp"
+        "Resources/Texture.cpp"
         "UI/EngineUI.cpp"
         "Scene/Lights/Light.cpp"
-        "Scene/Mesh.cpp"
+        "Scene/ObjectMesh.cpp"
         "Scene/Lights/PointLight.cpp"
         "Scene/Scene.cpp"
         "UI/Layers/UI_CameraProperties.cpp"

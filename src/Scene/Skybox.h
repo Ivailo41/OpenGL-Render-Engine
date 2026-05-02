@@ -1,6 +1,6 @@
 #pragma once
 #include "../Renderer/Cubemap.h"
-#include "../Renderer/Shader.h"
+#include "../Resources/Shader.h"
 #include "../Renderer/Primitives.h"
 
 class Skybox

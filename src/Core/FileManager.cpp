@@ -34,34 +34,24 @@ void FileManager::stop()
 	}
 }
 
-bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
+RawModel FileManager::loadOBJ(const std::filesystem::path& filePath) const
 {
 	assert(running);
 
-	if (!scene)
-	{
-		scene = Scene::activeScene;
-		if(!scene)
-		{
-			LOG_ERROR("No active scene found to load the object into!");
-			return false;
-		}
-	}
-
-	std::ifstream objFile(fileName, std::ios::in);
+	std::ifstream objFile(filePath, std::ios::in);
 	if (!objFile.is_open())
 	{
-		LOG_ERROR("Could not open mesh file for read: " + fileName);
-		return false;
+		LOG_ERROR("Could not open mesh file for read: " + filePath.string());
+		throw std::runtime_error("Could not open mesh file for read: " + filePath.string());
 	}
 
 
 	//Get the name of the file without its extention to name the object
-	std::string objectName = fileName;
-	std::replace(objectName.begin(), objectName.end(), '\\', '/'); //replace backslash with forward slash for compatibility
-	size_t substrStart = objectName.find_last_of('/') + 1;
-	size_t substrEnd = objectName.find_last_of('.');
-	objectName = objectName.substr(substrStart, substrEnd - substrStart);
+	std::string objectName = filePath.filename().generic_string();
+	//std::replace(objectName.begin(), objectName.end(), '\\', '/'); //replace backslash with forward slash for compatibility
+	//size_t substrStart = objectName.find_last_of('/') + 1;
+	//size_t substrEnd = objectName.find_last_of('.');
+	//objectName = objectName.substr(substrStart, substrEnd - substrStart);
 
 	char buffer[2048];
 	char prefix[7];
@@ -75,7 +65,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
 
-	std::vector<MaterialGroup> materialGroups;
+	std::vector<RawMaterialGroup> materialGroups;
 
 	std::vector<char*> tokens;
 	tokens.reserve(10); //reserve space for 10 tokens, can be adjusted based on expected face size
@@ -90,7 +80,8 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 	unsigned vtOffset = 0;
 	unsigned vnOffset = 0;
 
-	BaseObject* object = new BaseObject(objectName);
+	RawModel object;
+	object.name = objectName;
 
 	while (!objFile.eof())
 	{
@@ -114,8 +105,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 				if (inputs != 2)
 				{
 					LOG_ERROR("Model has incorrect vertex textures");
-					delete object;
-					return false;
+					throw std::runtime_error("Model has incorrect vertex textures");
 				}
 
 				vertTextureList.push_back(glm::vec2(x,-y));
@@ -128,8 +118,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 				if (inputs != 3)
 				{
 					LOG_ERROR("Model has incorrect vertex normals");
-					delete object;
-					return false;
+					throw std::runtime_error("Model has incorrect vertex normals");
 				}
 
 				vertNormalList.push_back(glm::vec3(x, y, z));
@@ -142,8 +131,7 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 				if (inputs != 3)
 				{
 					LOG_ERROR("Model has incorrect vertex coordinates");
-					delete object;
-					return false;
+					throw std::runtime_error("Model has incorrect vertex coordinates");
 				}
 
 				vertPosList.push_back(glm::vec3(x, y, z));
@@ -203,17 +191,6 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 					hasNormalData = true;
 				}
 
-				//This method allows to not have duplicate vertices but takes longer time to load a model
-				/*unsigned Indx;
-				if (vertTable.find(face) == vertTable.end())
-				{
-					vertTable[face] = vertices.size();
-					vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
-				}
-				Indx = vertTable[face];
-				faceVertIndices[i] = Indx;*/
-
-				//This method allows to have duplicate vertices but is faster to load a model
 				vertices.push_back(Vertex(vertPos, vertTexture, vertNormal));
 				faceVertIndices[i] = vertices.size() - 1;
 			}
@@ -288,7 +265,9 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 				indices.push_back(I2);
 				indices.push_back(I3);
 
-				materialGroups.back().indicesCount += 3;
+				if (materialGroups.size() > 0) {
+					materialGroups.back().indicesCount += 3;
+				}
 			}
 		}
 		else if (prefix[0] == 'o')
@@ -303,8 +282,15 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 			}
 
 			//if we read the prefix 'o' we create a new mesh with the vertices we have read.
-			Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
-			mesh->attachTo(object);
+			if (materialGroups.empty()) {
+				materialGroups.emplace_back(0, indices.size(), "Default");
+			}
+			RawMesh mesh = {vertices, indices, currentMeshName, materialGroups};
+			RawModelNode modelNode;
+			modelNode.meshIndices.push_back(object.meshes.size());
+
+			object.meshes.push_back(mesh);
+			object.root.children.push_back(modelNode);
 
 			currentMeshName = tokens[1];
 
@@ -327,32 +313,29 @@ bool FileManager::loadOBJ(const std::string& fileName, Scene* scene)
 			tokens.clear();
 			unsigned inputs = tokenizeOBJFaceLine(tokens, buffer);
 
-			materialGroups.push_back(MaterialGroup());
+			materialGroups.emplace_back();
 			materialGroups.back().offset = indices.size();
 
-			std::string name = tokens[1];
-			if (isMaterialInList(name))
-			{
-				materialGroups.back().material = getMaterial(name);
-			}
-			else
-			{
-				materialGroups.back().material = addMaterial(name);
-			}
+			materialGroups.back().materialName = tokens[1];
 		}
 	}
 
 	objFile.close();
 	//At the end add the final mesh with the last vertices and close the file
-	Mesh* mesh = createMesh(vertices, indices, currentMeshName, materialGroups);
-	mesh->attachTo(object);
+	if (materialGroups.empty()) {
+		materialGroups.emplace_back(0, indices.size(), "Default");
+	}
+	RawMesh mesh = {vertices, indices, currentMeshName, materialGroups};
+	RawModelNode modelNode;
+	modelNode.meshIndices.push_back(object.meshes.size());
 
-	scene->root.addChild(object);
-	return true;
+	object.meshes.push_back(mesh);
+	object.root.children.push_back(modelNode);
+
+	return object;
 }
 
-void FileManager::createDirectory(const std::string& path)
-{
+void FileManager::createDirectory(const std::string& path) const {
 	assert(running);
 
 	struct stat info;
@@ -364,211 +347,89 @@ void FileManager::createDirectory(const std::string& path)
 	}
 }
 
-inline bool FileManager::checkFileExistance(const std::string& name)
+inline bool FileManager::checkFileExistence(const std::filesystem::path& name)
 {
 	struct stat buffer;
-	return (stat(name.c_str(), &buffer) == 0);
+	return (stat((char*)name.c_str(), &buffer) == 0);
 }
 
-void FileManager::loadTextures(const std::vector<std::string>& texturesPaths)
-{
+std::vector<RawTexture> FileManager::loadTextures(const std::vector<std::filesystem::path>& texturesPaths) const {
 	assert(running);
 
-	std::mutex textureMutex;
-	//will store the API calls to OpenGL that will be executed on the main thread
-	std::vector<std::function<void()>> commandVector;
-
-	std::vector<Texture*>& textures = Scene::activeScene->textures;
-	//alocating the needed size for the textures
-	unsigned texturesSize = textures.size();
 	unsigned texturesToAdd = 0;
 
 	//Check if the paths are valid files before resizing the vector to avoid creating invalid textures
 	for (size_t i = 0; i < texturesPaths.size(); i++)
 	{
-		if(checkFileExistance(texturesPaths[i]))
+		if(checkFileExistence(texturesPaths[i]))
 		{
 			texturesToAdd++;
 		}
 		else
 		{
-			LOG_ERROR("Texture not found: " + texturesPaths[i]);
+			LOG_ERROR("Texture not found: " + texturesPaths[i].string());
 		}
 	}
 
-	textures.resize(texturesSize + texturesToAdd);
+	std::vector<RawTexture> rawTextures(texturesToAdd);
 
 	{
 		std::vector<std::future<void>> futures;
 		for (unsigned i = 0; i < texturesToAdd; i++)
 		{
 			//We store the returned future objects in a vector, when they are destructed the program should wait untill the end of the async function
-			futures.push_back(std::async(std::launch::async, [&texturesPaths, i, &textureMutex, &commandVector, &textures, texturesSize]()
+			futures.push_back(std::async(std::launch::async, [&texturesPaths, i, &rawTextures]()
 				{
 					//Will carry the i index so we return the textures in order, since they are loaded asynchronous
 					int width, height, nrChannels;
-					unsigned char* data = stbi_load(texturesPaths[i].c_str(), &width, &height, &nrChannels, 0);
-					if (data)
+					if (unsigned char* data = stbi_load(texturesPaths[i].string().c_str(), &width, &height, &nrChannels, 0))
 					{
-
-						std::lock_guard<std::mutex> lock(textureMutex);
-						//OpenGL API calls should be made ONLY on the main thread, so we are storing them in a vector to call them later
-						commandVector.push_back([data, i, width, height, &textures, texturesSize, &texturesPaths]()
-						{
-							textures[texturesSize + i] = new Texture(data, width, height, texturesPaths[i].c_str());
-							stbi_image_free(data);
-						});
+						rawTextures[i] = {data, width, height, nrChannels};
 					}
 					else
 					{
-						std::lock_guard<std::mutex> lock(textureMutex);
-						commandVector.push_back([data, i, &texturesPaths]() 
-						{
-							LOG_ERROR("Failed to load texture: " + texturesPaths[i]);
-							stbi_image_free(data);
-						});
+						LOG_ERROR("Failed to load texture: " + texturesPaths[i].string());
 					}
 				}));
 		}
 	}
-	
-	std::lock_guard<std::mutex> lock(textureMutex);
-
-	for(unsigned i = 0; i < commandVector.size(); i++)
-	{
-		auto command = commandVector[i];
-		command();
-	}
+	return rawTextures;
 }
 
-//Change it to create Shader object that will be put in a hashmap, make other function that will return the wanted shader from the map
-std::string FileManager::loadShader(const std::string& shaderPath)
-{
-	assert(running);
-
-	std::ifstream shaderFile(shaderPath, std::ios::in);
-	if (!shaderFile.is_open())
-	{
-		return "";
-	}
-
-	std::string shaderSource;
-	std::string line;
-
-	while (!shaderFile.eof())
-	{
-		std::getline(shaderFile, line);
-		shaderSource += line + "\n";
-	}
-
-	shaderFile.close();
-	return shaderSource;
-}
-
-bool FileManager::loadShader(const std::string& shaderName, const std::string& vertexShaderPath, const std::string& fragShaderPath, const std::string& geometryShader) const
+std::vector<std::string> FileManager::loadShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath, const std::filesystem::path& geometryPath) const
 {
 	assert(running);
 
 	//check if shader exists in map and return it if so
-
-	const std::string* paths[] = { &vertexShaderPath , &fragShaderPath, &geometryShader};
-	std::string result[3];
+	std::filesystem::path paths[] = {vertexPath, fragmentPath, geometryPath};
+	std::vector<std::string> result(3);
 
 	for (size_t i = 0; i < 3; i++)
 	{
-		if (paths[i]->empty())
+		if (paths[i].empty())
 		{
 			result[i] = "";
 			continue;
 		}
 
-		std::ifstream saderFile(*paths[i], std::ios::in);
-		if (!saderFile.is_open())
+		std::ifstream shaderFile(paths[i], std::ios::in);
+		if (!shaderFile.is_open())
 		{
-			return false;
+			throw std::runtime_error("Failed to open shader file: " + paths[i].string());
 		}
 
 		std::string line;
 
-		while (!saderFile.eof())
+		while (!shaderFile.eof())
 		{
-			std::getline(saderFile, line);
+			std::getline(shaderFile, line);
 			result[i] += line + "\n";
 		}
 
-		saderFile.close();
+		shaderFile.close();
 	}
 
-	//create a shader, if the shader cannot be created print the throw message
-	//the shader constructor adds it to the shader map
-	try
-	{
-		Shader shader(shaderName, result[0], result[1], result[2]);
-	}
-	catch(std::exception error)
-	{
-		LOG_ERROR(error.what());
-		return false;
-	}
-
-	return true;
-}
-
-Material* const FileManager::getMaterial(const std::string& name)
-{
-	unsigned materialsCount = Scene::activeScene->materials.size();
-	for (size_t i = 0; i < materialsCount; i++)
-	{
-		if (Scene::activeScene->materials[i]->name == name)
-		{
-			return Scene::activeScene->materials[i];
-		}
-	}
-
-	return nullptr;
-}
-
-unsigned FileManager::isMaterialInList(const std::string& name)
-{
-	unsigned timesFound = 0;
-	unsigned materialsCount = Scene::activeScene->materials.size();
-	for (size_t i = 0; i < materialsCount; i++)
-	{
-		if (Scene::activeScene->materials[i]->name.substr(0, Scene::activeScene->materials[i]->name.find_last_of('_') - 1) == name)
-		{
-			timesFound++;
-		}
-	}
-	return timesFound;
-}
-
-Material* FileManager::addMaterial(const std::string name)
-{
-	Material* material = new Material(name);
-	Scene::activeScene->materials.push_back(material);
-	return material;
-}
-
-bool FileManager::removeMaterial(const std::string name)
-{
-	unsigned materialsCount = Scene::activeScene->materials.size();
-	for (size_t i = 0; i < materialsCount; i++)
-	{
-		if (Scene::activeScene->materials[i]->name == name)
-		{
-			delete Scene::activeScene->materials[i];
-			Scene::activeScene->materials.erase(Scene::activeScene->materials.begin() + i);
-			return true;
-		}
-	}
-	return false;
-}
-
-Mesh* FileManager::createMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, const std::string& name, const std::vector<MaterialGroup>& matGroups)
-{
-	Mesh* mesh = new Mesh(vertices, indices, name, matGroups);
-
-	return mesh;
+	return result;
 }
 
 unsigned FileManager::tokenizeOBJFaceLine(std::vector<char*>& tokens, char* line)

@@ -1,4 +1,4 @@
-#include "Material.h"
+#include "../Resources/Material.h"
 #include <iostream>
 
 void Material::setTexture(Texture* texture, unsigned index)

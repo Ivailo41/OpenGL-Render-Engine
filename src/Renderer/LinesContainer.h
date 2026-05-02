@@ -3,7 +3,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include "../Renderer/Primitives.h"
-#include "../Renderer/Shader.h"
+#include "../Resources/Shader.h"
 #include "../glm/gtc/type_ptr.hpp"
 
 class LinesContainer

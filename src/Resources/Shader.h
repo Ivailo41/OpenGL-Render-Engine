@@ -34,14 +34,14 @@ public:
 	static const Shader* activeShader;
 	static Shader* findShader(const std::string& shaderName);
 
-	friend class FileManager;
+public:
+	Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource = "");
 
 protected:
 	void createShaderProgram(const unsigned vertexShader, const unsigned fragmentShader,const unsigned geometryShader = 0);
 	unsigned createShader(const std::string& shaderSource, const unsigned type);
 
 	Shader();
-	Shader(const std::string& shaderName, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource = "");
 	//Shader(const unsigned vertexShader, const unsigned fragmentShader);
 
 	std::string name = "";

@@ -27,6 +27,7 @@ private:
 private:
 	Window window;
 	FileManager fileManager;
+	ResourceManager resourceManager;
 	Renderer renderer;
 	EngineUI engineUI;
 

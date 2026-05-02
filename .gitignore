@@ -2,7 +2,10 @@ out/*
 .vs/*
 assets/*
 !assets/Shaders
+!assets/fonts/
 *.exe
 *.pdb
 *.ilk
 .idea
+
+*.drawio*

@@ -22,8 +22,6 @@ public:
 
 	const std::string& getName() const { return name; }
 
-	friend class FileManager;
-
 	//TEMP
 	void setRoughness(float rough)
 	{
@@ -37,14 +35,13 @@ public:
 		sendToShader();
 	}
 
+	Material();
+	Material(const std::string& name);
+
 public:
 	bool hasDiffuse;
 	bool useNormalTexture;
 	bool useORM;
-
-private:
-	Material();
-	Material(const std::string& name);
 
 private:
 	static const char TEXTURES_COUNT = 3;

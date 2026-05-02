@@ -2,7 +2,7 @@
 //TEMP INCLUDES FOR TESTING
 #include "../../Scene/BaseObject.h"
 
-#include "../../Renderer/Material.h"
+#include "../../Resources/Material.h"
 
 UI_CameraProperties::UI_CameraProperties() : UILayer("Camera Properties")
 {
@@ -38,16 +38,6 @@ void UI_CameraProperties::renderLayer()
         Scene::activeScene->getActiveCamera()->setFar(far);
     }
 
-    //TEMPORARY
-    ImGui::Text("Controls the default material settings, for test purposes");
-    if (ImGui::SliderFloat("roughness", &roughness, 0.01f, 1))
-    {
-        Scene::activeScene->materials[0]->setRoughness(roughness);
-    }
-    if (ImGui::SliderFloat("Metalic", &metalic, 0.01f, 1))
-    {
-        Scene::activeScene->materials[0]->setMetalic(metalic);
-    }
     
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

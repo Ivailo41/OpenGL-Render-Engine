@@ -1,4 +1,4 @@
-#include "Texture.h"
+#include "../Resources/Texture.h"
 #include <GL/glew.h>
 
 #include <stb_image.h>
@@ -8,12 +8,12 @@
 //	//nothing to do here
 //}
 
-Texture::Texture(const char* path)
+Texture::Texture(const std::filesystem::path& path)
 {
 	textureId = 0;
 	int width, height, nrChannels;
 	//stbi_load uses malloc to allocate memory
-	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &nrChannels, 0);
 
 	if(data)
 	{
@@ -35,7 +35,7 @@ Texture::Texture(const char* path)
 	stbi_image_free(data);
 }
 
-Texture::Texture(unsigned char* data, int width, int height, const char* path) : path(path)
+Texture::Texture(unsigned char* data, int width, int height, const std::filesystem::path& path) : path(path)
 {
 	textureId = 0;
 	glGenTextures(1, &textureId);

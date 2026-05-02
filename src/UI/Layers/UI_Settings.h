@@ -1,10 +1,7 @@
 #pragma once
 #include "UILayer.h"
-#include "../../Renderer/Shader.h"
 #include "../../Renderer/Renderer.h"
-
-//temp
-#include "../../Core/FileManager.h"
+#include "../../Resources/ResourceManager.h"
 
 class UI_Settings : public UILayer
 {
@@ -13,10 +10,9 @@ public:
 	virtual UI_Settings* clone() override;
 
 public:
-	UI_Settings(FileManager* fileman, Renderer* renderer);
+	UI_Settings(Renderer* renderer, ResourceManager* resourceManager);
 
 private:
-	//temp code for the model importing
-	FileManager* fileman;
 	Renderer* renderer;
+	ResourceManager* resourceManager;
 };
