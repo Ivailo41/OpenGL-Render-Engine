@@ -12,12 +12,11 @@ void Camera::setFOV(float fov)
 	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far); //FIX ASPECT RATIO
 }
 
-Camera::Camera() : BaseObject("New Camera"), near(0.1f), far(100.0f), aspectRatio(4.0f/3.0f)
+Camera::Camera() : BaseObject("New Camera"), near(0.1f), far(100.0f), aspectRatio(4.0f/3.0f), viewDirection(0.0f, 0.0f, -1.0f),
+	rightVector(1.0f, 0.0f, 0.0f)
 {
-	setFOV(90.0f);
-	viewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-	rightVector = glm::vec3(1.0f, 0.0f, 0.0f);
 	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
+	viewMat = glm::lookAt(transform.position, transform.position + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::rotateCam(const glm::vec3& rotation)
@@ -47,14 +46,10 @@ void Camera::rotateCam(const glm::vec3& rotation)
 
 	// (Optional) Recalculate up vector for orthogonality
 	glm::vec3 recalculatedUpVector = glm::normalize(glm::cross(rightVector, viewDirection));
-
-	//updateCamera();
 }
 
 void Camera::updateCamera()
 {
-	viewMat = glm::lookAt(transform.position, transform.position + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
-
 	unsigned int directionLoc = glGetUniformLocation(Shader::activeShader->getShaderProgram(), "viewDirection");
 	glUniform3f(directionLoc, getViewDirection().x, getViewDirection().y, getViewDirection().z);
 
@@ -107,7 +102,7 @@ void Camera::cameraController(GLFWwindow* window, int winX, int winY, float delt
 	float verticalAngle = 0.001f * float(winY / 2 - ypos);
 
 	rotateCam(glm::vec3(verticalAngle, horizontalAngle, 0));
-	//updateCamera();
+	viewMat = glm::lookAt(transform.position, transform.position + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::setSpeed(float speed)

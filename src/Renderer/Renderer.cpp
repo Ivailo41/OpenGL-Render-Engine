@@ -125,7 +125,6 @@ void Renderer::renderScene(Scene* scene, Window* window)
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     //END OF SCENE OBJECTS RENDERING - PUT THAT IN THE FUNCTION
 
-    //debugShapes.drawDebugShapes(mainScene.getActiveCamera());
 	debugShader->use();
 	scene->getActiveCamera()->updateCamera();
     debugShapes.drawDebugShapes();
