@@ -1,5 +1,5 @@
 #pragma once
-#include "../BaseObject.h"
+#include "../SceneNode.h"
 #include "../ObjectMesh.h"
 #include "../../Resources/Shader.h"
 
@@ -11,7 +11,7 @@ enum class LightType
 	UNDEFINED = -1
 };
 
-class Light : public BaseObject
+class Light : public SceneNode
 {
 public:
 	Light();

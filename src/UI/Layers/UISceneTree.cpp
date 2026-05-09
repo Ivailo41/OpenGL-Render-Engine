@@ -10,14 +10,14 @@ UI_SceneTree::UI_SceneTree(const char* layerName) : UILayer(layerName)
 
 }
 
-void UI_SceneTree::renderElement(BaseObject* object, const ImGuiTextFilter& filter)
+void UI_SceneTree::renderElement(SceneNode* object, const ImGuiTextFilter& filter)
 {
 	//If the object doesnt pass the filter, search for its children
 	if(!filter.PassFilter(object->getName().c_str()))
 	{
 		for (size_t i = 0; i < object->getChildrenCount(); i++)
 		{
-			BaseObject* child = object->children[i];
+			SceneNode* child = object->children[i];
 			if (child != nullptr)
 			{
 				renderElement(child, filter);
@@ -86,7 +86,7 @@ void UI_SceneTree::renderElement(BaseObject* object, const ImGuiTextFilter& filt
 	{
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("_TREENODE"))
 		{
-			BaseObject** droppedObject = (BaseObject**)payload->Data;
+			SceneNode** droppedObject = (SceneNode**)payload->Data;
 			//Prevent attaching a parent to its children
 			if(!object->isChildOf(*droppedObject))
 			{
@@ -102,7 +102,7 @@ void UI_SceneTree::renderElement(BaseObject* object, const ImGuiTextFilter& filt
 	{
 		for (size_t i = 0; i < object->getChildrenCount(); i++)
 		{
-			BaseObject* child = object->children[i];
+			SceneNode* child = object->children[i];
 			if (child != nullptr)
 			{
 				renderElement(child, filter);
@@ -120,7 +120,7 @@ void UI_SceneTree::renderLayer()
 	static ImGuiTextFilter filter;
 	filter.Draw("Seach");
 
-	BaseObject* root = &Scene::activeScene->root;
+	SceneNode* root = &Scene::activeScene->root;
 	//dont create a node but pass the parameters to the renderElement function
 	renderElement(root, filter);
 

@@ -78,9 +78,9 @@ struct Transform
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
-    glm::mat4 modelMatrix;
+    //glm::mat4 modelMatrix;
 
-    Transform() : position(0), rotation(0), scale(1), modelMatrix(1.0f)
+    Transform() : position(0), rotation(0), scale(1)
     {
         //nothing to do here
     }

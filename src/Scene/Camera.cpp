@@ -12,40 +12,49 @@ void Camera::setFOV(float fov)
 	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far); //FIX ASPECT RATIO
 }
 
-Camera::Camera() : BaseObject("New Camera"), near(0.1f), far(100.0f), aspectRatio(4.0f/3.0f), viewDirection(0.0f, 0.0f, -1.0f),
+Camera::Camera() : SceneNode("New Camera"), near(0.1f), far(100.0f), aspectRatio(4.0f/3.0f), viewDirection(0.0f, 0.0f, -1.0f),
 	rightVector(1.0f, 0.0f, 0.0f)
 {
 	perspectiveMat = glm::perspective(glm::radians(FOV), aspectRatio, near, far);
-	viewMat = glm::lookAt(transform.position, transform.position + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
+	viewMat = glm::lookAt(transformComponentPtr.getPosition(), transformComponentPtr.getPosition() + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::rotateCam(const glm::vec3& rotation)
 {
-	BaseObject::rotate(rotation);
+	// rotation.x = deltaPitch (degrees), rotation.y = deltaYaw (degrees)
+	glm::vec3 currentRot = transformComponentPtr.getRotation();
 
-	//locking camera vertical movement, implement quaternions later
-	if(transform.rotation.x >= 1.5)
-	{
-		transform.rotation.x = 1.5;
-	}
-	if(transform.rotation.x <= -1.5)
-	{
-		transform.rotation.x = -1.5;
-	}
+	// clamp pitch (x) to avoid gimbal flip. Use degrees here (TransformComponent stores degrees).
+	const float maxPitch = 89.0f;
+	float desiredPitch = currentRot.x + rotation.x;
+	if (desiredPitch > maxPitch) desiredPitch = maxPitch;
+	if (desiredPitch < -maxPitch) desiredPitch = -maxPitch;
 
-	float horizontalAngle = transform.rotation.y;
-	float verticalAngle = transform.rotation.x;
+	// compute deltas we will actually apply (apply rotation exactly once)
+	float appliedDeltaPitch = desiredPitch - currentRot.x;
+	float appliedDeltaYaw = rotation.y;
 
-	setViewDirection(glm::vec3(
-		cos(verticalAngle) * sin(horizontalAngle),
-		sin(verticalAngle),
-		cos(verticalAngle) * cos(horizontalAngle)));
+	// Apply rotation once (we assume TransformComponent::rotate accepts degrees deltas)
+	transformComponentPtr.rotate(glm::vec3(appliedDeltaPitch, appliedDeltaYaw, 0.0f));
 
-	glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-	rightVector = glm::normalize(glm::cross(viewDirection, upVector));
+	// Recompute view direction from yaw (horizontal) and pitch (vertical).
+	// Convert stored degrees -> radians for trig.
+	float yawRad = glm::radians(transformComponentPtr.getRotation().y);
+	float pitchRad = glm::radians(transformComponentPtr.getRotation().x);
 
-	// (Optional) Recalculate up vector for orthogonality
-	glm::vec3 recalculatedUpVector = glm::normalize(glm::cross(rightVector, viewDirection));
+	// standard spherical to Cartesian conversion (adjust signs/order to taste)
+	glm::vec3 dir;
+	dir.x = cos(pitchRad) * sin(yawRad);
+	dir.y = sin(pitchRad);
+	dir.z = cos(pitchRad) * cos(yawRad);
+
+	setViewDirection(glm::normalize(dir));
+
+	// right and up vectors
+	const glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	rightVector = glm::normalize(glm::cross(viewDirection, worldUp));
+	// optional: recompute orthonormal up if needed
+	// glm::vec3 recalculatedUp = glm::normalize(glm::cross(rightVector, viewDirection));
 }
 
 void Camera::updateCamera()
@@ -60,7 +69,7 @@ void Camera::updateCamera()
 	glUniformMatrix4fv(perspectiveMatLoc, 1, GL_FALSE, glm::value_ptr(perspectiveMat));
 
 	unsigned int camPos = glGetUniformLocation(Shader::activeShader->getShaderProgram(), "camPos");
-	glUniform3f(camPos, getPosition().x, getPosition().y, getPosition().z);
+	glUniform3f(camPos, transformComponentPtr.getPosition().x, transformComponentPtr.getPosition().y, transformComponentPtr.getPosition().z);
 }
 
 void Camera::draw(Shader* overrideShader, GLenum drawMode) const
@@ -75,34 +84,39 @@ void Camera::update(float deltaTime)
 void Camera::setViewDirection(const glm::vec3& viewDirection)
 {
 	this->viewDirection = viewDirection;
-	//updateCamera();
 }
 
 void Camera::cameraController(GLFWwindow* window, int winX, int winY, float deltaTime)
 {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		translate(getViewDirection() * cameraSpeed * deltaTime);
+		transformComponentPtr.translate(getViewDirection() * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		translate(-getViewDirection() * cameraSpeed * deltaTime);
+		transformComponentPtr.translate(-getViewDirection() * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		translate(-rightVector * cameraSpeed * deltaTime);
+		transformComponentPtr.translate(-rightVector * cameraSpeed * deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		translate(rightVector * cameraSpeed * deltaTime);
+		transformComponentPtr.translate(rightVector * cameraSpeed * deltaTime);
 	}
 
-	//consider using delta mouse position instead
+	// Read cursor and re-center it
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 	glfwSetCursorPos(window, winX / 2, winY / 2);
 
-	float horizontalAngle = 0.001f * float(winX / 2 - xpos);
-	float verticalAngle = 0.001f * float(winY / 2 - ypos);
+	// Sensitivity: degrees per pixel.
+	const float sensitivity = 0.1f; // 0.1 degree per pixel
 
-	rotateCam(glm::vec3(verticalAngle, horizontalAngle, 0));
-	viewMat = glm::lookAt(transform.position, transform.position + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
+	float deltaYawDeg = sensitivity * float((winX / 2) - xpos);   // horizontal mouse movement
+	float deltaPitchDeg = sensitivity * float((winY / 2) - ypos); // vertical mouse movement
+
+	// Pass deltas in degrees
+	rotateCam(glm::vec3(deltaPitchDeg, deltaYawDeg, 0.0f));
+
+	// Update view matrix after rotation/movement
+	viewMat = glm::lookAt(transformComponentPtr.getPosition(), transformComponentPtr.getPosition() + viewDirection, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::setSpeed(float speed)

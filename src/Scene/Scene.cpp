@@ -23,7 +23,7 @@ Scene::~Scene()
 	}
 }
 
-void Scene::setSelectedObject(BaseObject* object)
+void Scene::setSelectedObject(SceneNode* object)
 {
 	selectedObject = object;
 }
@@ -56,7 +56,7 @@ bool Scene::instanceModel(const std::string& modelName)
 		return false;
 	}
 
-	auto object = new BaseObject(model->getName());
+	auto object = new SceneNode(model->getName());
 	const std::vector<std::unique_ptr<Mesh>>& meshes = model->getMeshes();
 
 	std::queue<RawModelNode> nodesQueue;
@@ -82,7 +82,7 @@ bool Scene::instanceModel(const std::string& modelName)
 	return true;
 }
 
-bool Scene::addObject(BaseObject *object) {
+bool Scene::addObject(SceneNode *object) {
 
 	if (object == nullptr)
 		return false;
@@ -98,7 +98,7 @@ bool Scene::addObject(BaseObject *object) {
 	return true;
 }
 
-void Scene::removeObject(BaseObject* object)
+void Scene::removeObject(SceneNode* object)
 {
 	if (object == nullptr)
 		return;
@@ -124,7 +124,7 @@ void Scene::removeObject(BaseObject* object)
 	root.removeChild(object);
 }
 	
-BaseObject* Scene::getSelectedObject() const
+SceneNode* Scene::getSelectedObject() const
 {
 	return selectedObject;
 }

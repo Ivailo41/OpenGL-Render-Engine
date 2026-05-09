@@ -11,7 +11,7 @@ add_executable(Application
 		UI/Layers/UI_AssetBrowser.h
 		UI/IconsFontAwesome7.h
 		UI/Layers/UI_Materials.h
-		UI/Layers/UI_Materials.cpp)
+		UI/Layers/UI_Materials.cpp "Scene/TransformComponent.h" "Scene/TransformComponent.cpp")
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 
@@ -21,7 +21,7 @@ target_link_libraries(Application PUBLIC external glew_s glfw)
 target_sources(
     Application 
     PRIVATE
-        "Scene/BaseObject.cpp"
+        "Scene/SceneNode.cpp"
         "Scene/Camera.cpp"
         "Core/FileManager.cpp"
         "Main.cpp"

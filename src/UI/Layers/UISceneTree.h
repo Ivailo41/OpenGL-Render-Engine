@@ -13,7 +13,7 @@ public:
 	UI_SceneTree(const char* name);
 
 private:
-	void renderElement(BaseObject* object, const ImGuiTextFilter& filter);
+	void renderElement(SceneNode* object, const ImGuiTextFilter& filter);
 
 };
 

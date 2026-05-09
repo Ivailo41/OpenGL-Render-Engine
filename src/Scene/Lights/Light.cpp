@@ -3,14 +3,14 @@
 uint16_t Light::SHADOW_WIDTH = 1024;
 uint16_t Light::SHADOW_HEIGHT = 1024;
 
-Light::Light() : BaseObject("New Light")
+Light::Light() : SceneNode("New Light")
 {
 	lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	intensity = 1.0f;
 	ambientStrength = 0.1f;
 }
 
-Light::Light(const std::string name) : BaseObject(name)
+Light::Light(const std::string name) : SceneNode(name)
 {
 	lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	intensity = 1.0f;

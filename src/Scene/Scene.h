@@ -1,6 +1,6 @@
 #pragma once
 #include "Camera.h"
-#include "BaseObject.h"
+#include "SceneNode.h"
 #include "Lights/Light.h"
 #include <string>
 #include <vector>
@@ -11,11 +11,11 @@ class Scene
 {
 public:
 	bool instanceModel(const std::string& name);
-	bool addObject(BaseObject* object);
-	void removeObject(BaseObject* object);
+	bool addObject(SceneNode* object);
+	void removeObject(SceneNode* object);
 
-	BaseObject* getSelectedObject() const;
-	void setSelectedObject(BaseObject* object);
+	SceneNode* getSelectedObject() const;
+	void setSelectedObject(SceneNode* object);
 
 	void updateObjects(float deltaTime);
 
@@ -34,7 +34,7 @@ public:
 
 public:
 	static Scene* activeScene;
-	BaseObject root;
+	SceneNode root;
 	//add container for cameras
 	std::vector<Light*> lights;
 
@@ -43,7 +43,7 @@ public:
 private:
 	std::string name;
 	Camera* activeCamera;
-	BaseObject* selectedObject;
+	SceneNode* selectedObject;
 
 	const ResourceManager& resourceManager;
 };

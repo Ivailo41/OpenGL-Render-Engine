@@ -1,7 +1,7 @@
 #include "ObjectMesh.h"
 #define STB_IMAGE_IMPLEMENTATION
 
-ObjectMesh::ObjectMesh(const std::string& name, const Mesh* mesh) : BaseObject()
+ObjectMesh::ObjectMesh(const std::string& name, const Mesh* mesh) : SceneNode()
 {
 	setName(name);
 	this->mesh = mesh;
@@ -9,7 +9,7 @@ ObjectMesh::ObjectMesh(const std::string& name, const Mesh* mesh) : BaseObject()
 
 void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
 {
-	BaseObject::draw(overrideShader);
+	SceneNode::draw(overrideShader);
 
 	for (auto materialGroup : mesh->getMaterialGroups())
 	{
@@ -18,14 +18,14 @@ void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
 		//this binds the shader asigned to the material
 		if (overrideShader != nullptr)
 		{
-			overrideShader->setMat4("transform", transform.modelMatrix);
+			overrideShader->setMat4("transform", getGlobalModelMat());  //think of caching the global matrix
 			//overrideShader->use();
 		}
 		else
 		{
 			unsigned shaderProgram = materialGroup.material->getShaderProgram();
 			glUseProgram(shaderProgram);
-			materialGroup.material->getShader()->setMat4("transform", transform.modelMatrix);
+			materialGroup.material->getShader()->setMat4("transform", getGlobalModelMat());
 
 			//this might go to the pbr material class
 			if(materialGroup.material != nullptr)
@@ -41,5 +41,5 @@ void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
 
 void ObjectMesh::update(float deltaTime)
 {
-	BaseObject::update(deltaTime);
+	SceneNode::update(deltaTime);
 }

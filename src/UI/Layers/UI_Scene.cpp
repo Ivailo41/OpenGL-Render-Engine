@@ -53,7 +53,7 @@ void UI_Scene::renderLayer()
 
 
     //Gizmos
-    BaseObject* selectedObject = Scene::activeScene->getSelectedObject();
+    SceneNode* selectedObject = Scene::activeScene->getSelectedObject();
 
     //move the imput logic to an imput class
     if(glfwGetKey(window->getGLWindow(), GLFW_KEY_W))
@@ -91,7 +91,7 @@ void UI_Scene::renderLayer()
         {
             //convert global coordinates to local, because the transforms work in local space
             glm::mat4 globalToLocalMatrix = selectedObject->globalToLocalMat(transformMat);
-            selectedObject->setTransform(globalToLocalMatrix);
+            selectedObject->transformComponentPtr.setTransform(globalToLocalMatrix);
             //glm::vec3 position, rotation, scale;
             //Engine::Math::DecomposeMatrix(globalToLocalMatrix, position, rotation, scale);
             //selectedObject->setPosition(glm::vec3(globalToLocalMatrix[3]));

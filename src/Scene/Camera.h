@@ -1,9 +1,9 @@
 #pragma once
-#include "BaseObject.h"
+#include "SceneNode.h"
 #include <GLFW/glfw3.h>
 #include <gtc/type_ptr.hpp>
 
-class Camera : public BaseObject
+class Camera : public SceneNode
 {
 public:
 	struct CursorData
@@ -41,7 +41,7 @@ public:
 
 	void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const override;
 	void update(float deltaTime);
-	BaseObject* clone() const override { return new Camera(*this);}
+	SceneNode* clone() const override { return new Camera(*this);}
 
 	void updateCamera();
 
