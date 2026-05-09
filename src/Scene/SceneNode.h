@@ -58,12 +58,12 @@ public:
 	LinesContainer debugLinesContainer;
 	std::vector<SceneNode*> children;
 
-	TransformComponent* transformComponentPtr;
-	MeshComponent* meshComponentPtr;
-
 protected:
 	std::string name;
 	SceneNode* parentPtr;
+
+	TransformComponent* transformComponentPtr;
+	MeshComponent* meshComponentPtr;
 };
 
 template<>

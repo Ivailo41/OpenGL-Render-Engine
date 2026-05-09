@@ -24,11 +24,8 @@ const PointLight::PointLightData* PointLight::getData() const
 
 void PointLight::sendToShader(const Shader& shaderProgram, unsigned lightIndex) const
 {
-	unsigned posLoc = glGetUniformLocation(shaderProgram, ("pointLights[" + std::to_string(lightIndex) + "].position").c_str());
-	glUniform3f(posLoc, transformComponentPtr->getPosition().x, transformComponentPtr->getPosition().y, transformComponentPtr->getPosition().z);
-
-	unsigned intLoc = glGetUniformLocation(shaderProgram, ("pointLights[" + std::to_string(lightIndex) + "].intensity").c_str());
-	glUniform1f(intLoc, getIntensity());
+	shaderProgram.setVec3(std::string("pointLights[" + std::to_string(lightIndex) + "].position").c_str(), transformComponentPtr->getPosition());
+	shaderProgram.setFloat(std::string("pointLights[" + std::to_string(lightIndex) + "].intensity").c_str(), getIntensity());
 }
 
 void PointLight::sendShadowDataToShader(const Shader& shaderProgram, unsigned lightIndex) const

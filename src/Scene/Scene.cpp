@@ -15,12 +15,10 @@ Scene::Scene(const std::string& sceneName, const ResourceManager& resourceManage
 
 Scene::~Scene()
 {
-	//unsigned sceneObjectsCount = sceneObjects.size();
-	//unsigned sceneObjectsCount = root.getChildrenCount();
-	//for (size_t i = 0; i < sceneObjectsCount; i++)
-	//{
-	//	//delete sceneObjects[i];
-	//}
+	for(SceneNode* object : sceneObjects)
+	{
+		delete object;
+	}
 }
 
 void Scene::setSelectedObject(SceneNode* object)
@@ -84,7 +82,6 @@ bool Scene::instanceModel(const std::string& modelName)
 		}
 	}
 
-	//root.addChild(sceneNode);
 	sceneObjects.push_back(sceneNode);
 	return true;
 }
@@ -94,14 +91,12 @@ bool Scene::addObject(SceneNode *object) {
 	if (object == nullptr)
 		return false;
 
-	//sceneObjects.push_back(object);
 	Light* light = dynamic_cast<Light*>(object);
 	if (light != nullptr)
 	{
 		lights.push_back(light);
 	}
 
-	//root.addChild(object);
 	sceneObjects.push_back(object);
 	return true;
 }
@@ -129,7 +124,6 @@ void Scene::removeObject(SceneNode* object)
 		selectedObject = nullptr;
 	}
 
-	//root.removeChild(object);
 	sceneObjects.erase(std::remove(sceneObjects.begin(), sceneObjects.end(), object), sceneObjects.end());
 }
 	

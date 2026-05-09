@@ -79,7 +79,6 @@ void Renderer::renderScene(Scene* scene, Window* window)
         for (SceneNode* child : scene->sceneObjects) {
 			child->draw(shadowShader); //draws object to the shadow map
         }
-        //scene->root.draw(shadowShader); //draws object to the shadow map
         //draw scene from each light perspective
     }
     shadowFrameBuffer.unbind(); //unbind the shadow framebuffer
@@ -120,10 +119,10 @@ void Renderer::renderScene(Scene* scene, Window* window)
     }
 
     scene->getActiveCamera()->updateCamera();
+
     for (SceneNode* child : scene->sceneObjects) {
         child->draw(pbrShader); //draws object
     }
-    //scene->root.draw(); //draws object
 
     glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh
     //sinse debug doesnt use VAO and doesnt bind one
@@ -139,7 +138,6 @@ void Renderer::renderScene(Scene* scene, Window* window)
     for (SceneNode* child : scene->sceneObjects) {
         child->drawDebug();
     }
-    //scene->root.drawDebug();
 
     //visualise tangents, normals and bitangents
     if(drawTangents)
@@ -151,7 +149,6 @@ void Renderer::renderScene(Scene* scene, Window* window)
         for (SceneNode* child : scene->sceneObjects) {
             child->draw(tangentShader, GL_POINTS); //draws object with tangent shader, used for debugging tangents
         }
-        //scene->root.draw(tangentShader, GL_POINTS); //draws object with tangent shader, used for debugging tangents
     }
 
     //make skybox member of scene

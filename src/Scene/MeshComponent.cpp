@@ -23,11 +23,12 @@ void MeshComponent::draw(const glm::mat4& globalMat, Shader* overrideShader, GLe
 			glUseProgram(shaderProgram);
 			materialGroup.material->getShader()->setMat4("transform", globalMat);
 
-			//this might go to the pbr material class
-			if (materialGroup.material != nullptr)
-			{
-				materialGroup.material->sendToShader();
-			}
+		}
+
+		//this might go to the pbr material class
+		if (materialGroup.material != nullptr)
+		{
+			materialGroup.material->sendToShader();
 		}
 
 		glDrawElements(drawMode, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));

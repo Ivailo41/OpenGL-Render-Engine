@@ -91,7 +91,7 @@ void UI_Scene::renderLayer()
         {
             //convert global coordinates to local, because the transforms work in local space
             glm::mat4 globalToLocalMatrix = selectedObject->globalToLocalMat(transformMat);
-            selectedObject->transformComponentPtr->setTransform(globalToLocalMatrix);
+            selectedObject->getComponent<TransformComponent>()->setTransform(globalToLocalMatrix);
             //glm::vec3 position, rotation, scale;
             //Engine::Math::DecomposeMatrix(globalToLocalMatrix, position, rotation, scale);
             //selectedObject->setPosition(glm::vec3(globalToLocalMatrix[3]));
