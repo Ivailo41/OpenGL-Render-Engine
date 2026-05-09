@@ -1,16 +1,12 @@
-#include "ObjectMesh.h"
-#define STB_IMAGE_IMPLEMENTATION
+#include "MeshComponent.h"
 
-ObjectMesh::ObjectMesh(const std::string& name, const Mesh* mesh) : SceneNode()
+
+MeshComponent::MeshComponent(const Mesh* mesh) : mesh(mesh)
 {
-	setName(name);
-	this->mesh = mesh;
 }
 
-void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
+void MeshComponent::draw(const glm::mat4& globalMat, Shader* overrideShader, GLenum drawMode)
 {
-	SceneNode::draw(overrideShader);
-
 	for (auto materialGroup : mesh->getMaterialGroups())
 	{
 		glBindVertexArray(mesh->getVAO());
@@ -18,17 +14,17 @@ void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
 		//this binds the shader asigned to the material
 		if (overrideShader != nullptr)
 		{
-			overrideShader->setMat4("transform", getGlobalModelMat());  //think of caching the global matrix
+			overrideShader->setMat4("transform", globalMat);
 			//overrideShader->use();
 		}
 		else
 		{
 			unsigned shaderProgram = materialGroup.material->getShaderProgram();
 			glUseProgram(shaderProgram);
-			materialGroup.material->getShader()->setMat4("transform", getGlobalModelMat());
+			materialGroup.material->getShader()->setMat4("transform", globalMat);
 
 			//this might go to the pbr material class
-			if(materialGroup.material != nullptr)
+			if (materialGroup.material != nullptr)
 			{
 				materialGroup.material->sendToShader();
 			}
@@ -37,9 +33,4 @@ void ObjectMesh::draw(Shader* overrideShader, GLenum drawMode) const
 		glDrawElements(drawMode, materialGroup.indicesCount, GL_UNSIGNED_INT, (void*)(materialGroup.offset * sizeof(unsigned)));
 		glBindVertexArray(0);
 	}
-}
-
-void ObjectMesh::update(float deltaTime)
-{
-	SceneNode::update(deltaTime);
 }

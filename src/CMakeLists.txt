@@ -11,7 +11,7 @@ add_executable(Application
 		UI/Layers/UI_AssetBrowser.h
 		UI/IconsFontAwesome7.h
 		UI/Layers/UI_Materials.h
-		UI/Layers/UI_Materials.cpp "Scene/TransformComponent.h" "Scene/TransformComponent.cpp")
+		UI/Layers/UI_Materials.cpp "Scene/TransformComponent.h" "Scene/TransformComponent.cpp" "Scene/MeshComponent.h" "Scene/MeshComponent.cpp")
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 
@@ -30,7 +30,7 @@ target_sources(
         "Resources/Texture.cpp"
         "UI/EngineUI.cpp"
         "Scene/Lights/Light.cpp"
-        "Scene/ObjectMesh.cpp"
+        
         "Scene/Lights/PointLight.cpp"
         "Scene/Scene.cpp"
         "UI/Layers/UI_CameraProperties.cpp"

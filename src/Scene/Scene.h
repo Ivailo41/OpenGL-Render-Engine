@@ -34,7 +34,8 @@ public:
 
 public:
 	static Scene* activeScene;
-	SceneNode root;
+	//SceneNode root;
+	std::vector<SceneNode*> sceneObjects;
 	//add container for cameras
 	std::vector<Light*> lights;
 

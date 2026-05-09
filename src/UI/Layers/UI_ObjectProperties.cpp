@@ -17,7 +17,7 @@ void UI_ObjectProperties::renderLayer()
 
     if(Scene::activeScene != nullptr && Scene::activeScene->getSelectedObject() != nullptr)
     {
-        transform = Scene::activeScene->getSelectedObject()->transformComponentPtr.getTransform();
+        transform = Scene::activeScene->getSelectedObject()->transformComponentPtr->getTransform();
 
         ImGui::Text("selected mesh: %s", Scene::activeScene->getSelectedObject()->getName().c_str());
 
@@ -25,15 +25,15 @@ void UI_ObjectProperties::renderLayer()
 
         if (ImGui::DragFloat3("Move", &transform.position.x, moveSpeed))
         {
-            Scene::activeScene->getSelectedObject()->transformComponentPtr.setPosition(transform.position);
+            Scene::activeScene->getSelectedObject()->transformComponentPtr->setPosition(transform.position);
         }
         if (ImGui::DragFloat3("Rotate", &transform.rotation.x, moveSpeed))
         {
-            Scene::activeScene->getSelectedObject()->transformComponentPtr.setRotation(transform.rotation);
+            Scene::activeScene->getSelectedObject()->transformComponentPtr->setRotation(transform.rotation);
         }
         if (ImGui::DragFloat3("Scale", &transform.scale.x, moveSpeed))
         {
-            Scene::activeScene->getSelectedObject()->transformComponentPtr.setScale(transform.scale);
+            Scene::activeScene->getSelectedObject()->transformComponentPtr->setScale(transform.scale);
         }
     }
     ImGui::End();

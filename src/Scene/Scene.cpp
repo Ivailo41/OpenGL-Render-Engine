@@ -3,12 +3,12 @@
 
 Scene* Scene::activeScene = nullptr;
 
-Scene::Scene(const ResourceManager& resourceManager) : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr),  root("Scene"), resourceManager(resourceManager)
+Scene::Scene(const ResourceManager& resourceManager) : name("New Scene"), activeCamera(nullptr), selectedObject(nullptr), resourceManager(resourceManager)
 {
 	//nothing to do here
 }
 
-Scene::Scene(const std::string& sceneName, const ResourceManager& resourceManager) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr), root("Scene"), resourceManager(resourceManager)
+Scene::Scene(const std::string& sceneName, const ResourceManager& resourceManager) : name(sceneName), activeCamera(nullptr), selectedObject(nullptr), resourceManager(resourceManager)
 {
 	//nothing to do here
 }
@@ -16,11 +16,11 @@ Scene::Scene(const std::string& sceneName, const ResourceManager& resourceManage
 Scene::~Scene()
 {
 	//unsigned sceneObjectsCount = sceneObjects.size();
-	unsigned sceneObjectsCount = root.getChildrenCount();
-	for (size_t i = 0; i < sceneObjectsCount; i++)
-	{
-		//delete sceneObjects[i];
-	}
+	//unsigned sceneObjectsCount = root.getChildrenCount();
+	//for (size_t i = 0; i < sceneObjectsCount; i++)
+	//{
+	//	//delete sceneObjects[i];
+	//}
 }
 
 void Scene::setSelectedObject(SceneNode* object)
@@ -30,7 +30,11 @@ void Scene::setSelectedObject(SceneNode* object)
 
 void Scene::updateObjects(float deltaTime)
 {
-	root.update(deltaTime);
+	//root.update(deltaTime);
+	for(SceneNode* object : sceneObjects)
+	{
+		object->update(deltaTime);
+	}
 }
 
 void Scene::setName(const std::string& name)
@@ -56,7 +60,7 @@ bool Scene::instanceModel(const std::string& modelName)
 		return false;
 	}
 
-	auto object = new SceneNode(model->getName());
+	auto sceneNode = new SceneNode(model->getName());
 	const std::vector<std::unique_ptr<Mesh>>& meshes = model->getMeshes();
 
 	std::queue<RawModelNode> nodesQueue;
@@ -72,13 +76,16 @@ bool Scene::instanceModel(const std::string& modelName)
 			//make mesh and attach to object
 			nodesQueue.push(child);
 			for (unsigned index : child.meshIndices) {
-				const auto objectMesh = new ObjectMesh(meshes[index]->getName(), meshes[index].get()); //Carefully with mesh.get()
-				objectMesh->attachTo(object);
+				const auto meshNode = new SceneNode(meshes[index]->getName()); //Carefully with mesh.get()
+				meshNode->addComponent<MeshComponent>();
+				meshNode->getComponent<MeshComponent>()->setMesh(meshes[index].get());
+				meshNode->attachTo(sceneNode);
 			}
 		}
 	}
 
-	root.addChild(object);
+	//root.addChild(sceneNode);
+	sceneObjects.push_back(sceneNode);
 	return true;
 }
 
@@ -94,7 +101,8 @@ bool Scene::addObject(SceneNode *object) {
 		lights.push_back(light);
 	}
 
-	root.addChild(object);
+	//root.addChild(object);
+	sceneObjects.push_back(object);
 	return true;
 }
 
@@ -121,7 +129,8 @@ void Scene::removeObject(SceneNode* object)
 		selectedObject = nullptr;
 	}
 
-	root.removeChild(object);
+	//root.removeChild(object);
+	sceneObjects.erase(std::remove(sceneObjects.begin(), sceneObjects.end(), object), sceneObjects.end());
 }
 	
 SceneNode* Scene::getSelectedObject() const

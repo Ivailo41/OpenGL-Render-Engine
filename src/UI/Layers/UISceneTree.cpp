@@ -40,46 +40,43 @@ void UI_SceneTree::renderElement(SceneNode* object, const ImGuiTextFilter& filte
 	bool isOpen = ImGui::TreeNodeEx((void*)object, flags, object->getName().c_str());
 
 	//Igonre click events on the root
-	if (object->getParent() != nullptr)
+	if (ImGui::IsItemClicked())
 	{
-		if (ImGui::IsItemClicked())
+		Scene::activeScene->setSelectedObject(object);
+	}
+
+	else if (ImGui::IsItemClicked(1))
+	{
+		ImGui::OpenPopup("my_select_popup");
+	}
+
+	if (ImGui::BeginPopup("my_select_popup"))
+	{
+		ImGui::SeparatorText(object->getName().c_str());
+		if(ImGui::MenuItem("Copy"))
+		{
+
+		}
+		if (ImGui::MenuItem("Paste"))
+		{
+
+		}
+		if (ImGui::MenuItem("Select"))
 		{
 			Scene::activeScene->setSelectedObject(object);
 		}
-
-		else if (ImGui::IsItemClicked(1))
+		if(ImGui::MenuItem("Delete"))
 		{
-			ImGui::OpenPopup("my_select_popup");
+			Scene::activeScene->removeObject(object);
 		}
+		ImGui::EndPopup();
+	}
 
-		if (ImGui::BeginPopup("my_select_popup"))
-		{
-			ImGui::SeparatorText(object->getName().c_str());
-			if(ImGui::MenuItem("Copy"))
-			{
-
-			}
-			if (ImGui::MenuItem("Paste"))
-			{
-
-			}
-			if (ImGui::MenuItem("Select"))
-			{
-				Scene::activeScene->setSelectedObject(object);
-			}
-			if(ImGui::MenuItem("Delete"))
-			{
-				Scene::activeScene->removeObject(object);
-			}
-			ImGui::EndPopup();
-		}
-
-		if (ImGui::BeginDragDropSource())
-		{
-				ImGui::SetDragDropPayload("_TREENODE", &object, sizeof(object));
-				ImGui::Text(object->getName().c_str());
-				ImGui::EndDragDropSource();
-		}
+	if (ImGui::BeginDragDropSource())
+	{
+			ImGui::SetDragDropPayload("_TREENODE", &object, sizeof(object));
+			ImGui::Text(object->getName().c_str());
+			ImGui::EndDragDropSource();
 	}
 
 	if (ImGui::BeginDragDropTarget())
@@ -120,9 +117,13 @@ void UI_SceneTree::renderLayer()
 	static ImGuiTextFilter filter;
 	filter.Draw("Seach");
 
-	SceneNode* root = &Scene::activeScene->root;
+	//SceneNode* root = &Scene::activeScene->root;
 	//dont create a node but pass the parameters to the renderElement function
-	renderElement(root, filter);
+	for(SceneNode* object : Scene::activeScene->sceneObjects)
+	{
+		renderElement(object, filter);
+	}
+	//renderElement(root, filter);
 
 	ImGui::End();
 

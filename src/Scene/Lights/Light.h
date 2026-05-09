@@ -1,6 +1,5 @@
 #pragma once
 #include "../SceneNode.h"
-#include "../ObjectMesh.h"
 #include "../../Resources/Shader.h"
 
 enum class LightType

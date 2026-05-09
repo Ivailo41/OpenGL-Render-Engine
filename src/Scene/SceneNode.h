@@ -10,6 +10,7 @@
 #include "../Renderer/LinesContainer.h"
 
 #include "TransformComponent.h"
+#include "MeshComponent.h"
 
 class SceneNode
 {
@@ -32,10 +33,16 @@ public:
 
 	bool isChildOf(const SceneNode* object) const;
 
+	template<typename T, typename... Args>
+	T* addComponent(Args&&... args);
+
+	template<typename T>
+	T* getComponent() const;
+
 public:
 	SceneNode();
 	SceneNode(const std::string& name);
-	virtual ~SceneNode() = default;
+	virtual ~SceneNode();
 
 public:
 	void addChild(SceneNode& child);
@@ -51,10 +58,42 @@ public:
 	LinesContainer debugLinesContainer;
 	std::vector<SceneNode*> children;
 
-	TransformComponent transformComponentPtr;
+	TransformComponent* transformComponentPtr;
+	MeshComponent* meshComponentPtr;
 
 protected:
 	std::string name;
 	SceneNode* parentPtr;
 };
 
+template<>
+inline TransformComponent* SceneNode::addComponent<TransformComponent>()
+{
+	if (!meshComponentPtr)
+	{
+		transformComponentPtr = new TransformComponent();
+	}
+	return transformComponentPtr;
+}
+
+template<>
+inline MeshComponent* SceneNode::addComponent<MeshComponent>()
+{
+	if(!meshComponentPtr)
+	{
+		meshComponentPtr = new MeshComponent();
+	}
+	return meshComponentPtr;
+}
+
+template<>
+inline TransformComponent* SceneNode::getComponent<TransformComponent>() const
+{
+	return transformComponentPtr;
+}
+
+template<>
+inline MeshComponent* SceneNode::getComponent<MeshComponent>() const
+{
+	return meshComponentPtr;
+}

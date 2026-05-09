@@ -1,13 +1,23 @@
 #include "SceneNode.h"
 
-SceneNode::SceneNode() : parentPtr(nullptr)
+SceneNode::SceneNode() : parentPtr(nullptr), transformComponentPtr(nullptr), meshComponentPtr(nullptr)
 {
 	name = "New Object";
+	addComponent<TransformComponent>();
 }
 
-SceneNode::SceneNode(const std::string& name) : parentPtr(nullptr)
+SceneNode::SceneNode(const std::string& name) : parentPtr(nullptr), transformComponentPtr(nullptr), meshComponentPtr(nullptr)
 {
 	this->name = name;
+	addComponent<TransformComponent>();
+}
+
+SceneNode::~SceneNode()
+{
+	if(transformComponentPtr)
+		delete transformComponentPtr;
+	if(meshComponentPtr)
+		delete meshComponentPtr;
 }
 
 void SceneNode::setName(const std::string& name)
@@ -17,7 +27,7 @@ void SceneNode::setName(const std::string& name)
 
 const glm::mat4 SceneNode::getGlobalModelMat() const
 {
-	return parentPtr ? parentPtr->getGlobalModelMat() * transformComponentPtr.getModelMatrix() : transformComponentPtr.getModelMatrix();
+	return parentPtr ? parentPtr->getGlobalModelMat() * transformComponentPtr->getModelMatrix() : transformComponentPtr->getModelMatrix();
 }
 
 const glm::mat4 SceneNode::globalToLocalMat(const glm::mat4& matrix) const
@@ -67,7 +77,7 @@ void SceneNode::drawDebug() const
 {
 	if(!debugLinesContainer.isEmpty())
 	{
-		debugLinesContainer.drawLines(transformComponentPtr.getModelMatrix());
+		debugLinesContainer.drawLines(transformComponentPtr->getModelMatrix());
 	}
 
 	for (size_t i = 0; i < children.size(); i++)
@@ -97,7 +107,7 @@ void SceneNode::attachTo(SceneNode* parent)
 	parent->addChild(this);
 	parentPtr = parent;
 
-	transformComponentPtr.setTransform(globalToLocalMat(globalMat));
+	transformComponentPtr->setTransform(globalToLocalMat(globalMat));
 }
 
 //Check if this object is a direct or indirect child of the given object
@@ -121,6 +131,12 @@ bool SceneNode::isChildOf(const SceneNode* object) const
 
 void SceneNode::draw(Shader* overrideShader, GLenum drawMode) const
 {
+
+	if(meshComponentPtr)
+	{
+		meshComponentPtr->draw(getGlobalModelMat(), overrideShader, drawMode);
+	}
+
 	unsigned meshesCount = children.size();
 	for (size_t i = 0; i < meshesCount; i++)
 	{
