@@ -1,5 +1,4 @@
 #pragma once
-#include "Camera.h"
 #include "SceneNode.h"
 #include "Lights/Light.h"
 #include <string>
@@ -22,8 +21,8 @@ public:
 	void setName(const std::string& name);
 	std::string getName() const;
 
-	void setActiveCamera(Camera* camera);
-	Camera* getActiveCamera() const { return activeCamera; }
+	void setActiveCamera(SceneNode* camera);
+	SceneNode* getActiveCamera() const { return activeCamera; }
 
 	//void clear();
 
@@ -42,7 +41,7 @@ public:
 
 private:
 	std::string name;
-	Camera* activeCamera;
+	SceneNode* activeCamera;
 	SceneNode* selectedObject;
 
 	const ResourceManager& resourceManager;

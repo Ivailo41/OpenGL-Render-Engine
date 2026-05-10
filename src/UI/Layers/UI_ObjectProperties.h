@@ -13,8 +13,6 @@ public:
 	UI_ObjectProperties(const char*);
 
 private:
-	Transform transform;
-
 	float moveSpeed;
 };
 

@@ -11,6 +11,7 @@
 
 #include "TransformComponent.h"
 #include "MeshComponent.h"
+#include "CameraComponent.h"
 
 class SceneNode
 {
@@ -64,6 +65,7 @@ protected:
 
 	TransformComponent* transformComponentPtr;
 	MeshComponent* meshComponentPtr;
+	CameraComponent* cameraComponentPtr;
 };
 
 template<>
@@ -87,6 +89,16 @@ inline MeshComponent* SceneNode::addComponent<MeshComponent>()
 }
 
 template<>
+inline CameraComponent* SceneNode::addComponent<CameraComponent>()
+{
+	if (!cameraComponentPtr)
+	{
+		cameraComponentPtr = new CameraComponent();
+	}
+	return cameraComponentPtr;
+}
+
+template<>
 inline TransformComponent* SceneNode::getComponent<TransformComponent>() const
 {
 	return transformComponentPtr;
@@ -96,4 +108,10 @@ template<>
 inline MeshComponent* SceneNode::getComponent<MeshComponent>() const
 {
 	return meshComponentPtr;
+}
+
+template<>
+inline CameraComponent* SceneNode::getComponent<CameraComponent>() const
+{
+	return cameraComponentPtr;
 }

@@ -55,12 +55,13 @@ bool Engine::init()
     Scene* mainScene = &scenes[0];
     Scene::activeScene = mainScene;
 
-    Camera* mainCamera = new Camera;
-    mainScene->addObject(mainCamera);
-    mainScene->setActiveCamera(mainCamera);
+    //Camera* mainCamera = new Camera;
 
-    Camera* otherCamera = new Camera;
-    mainScene->addObject(otherCamera);
+	SceneNode* cameraNode = new SceneNode("Camera");
+	cameraNode->addComponent<CameraComponent>();
+
+    mainScene->addObject(cameraNode);
+    mainScene->setActiveCamera(cameraNode);
 
     //Could go to a JSON file that wil be used to load the scene
     std::string cubemapPaths[6] =
@@ -76,9 +77,8 @@ bool Engine::init()
     Skybox* skybox = new Skybox(cubemapPaths);
     mainScene->activeSkybox = skybox;
 
-    mainCamera->setFOV(90.0f);
-    mainCamera->getComponent<TransformComponent>()->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
-    otherCamera->setFOV(30.0f);
+    cameraNode->getComponent<CameraComponent>()->setFOV(90.0f);
+    cameraNode->getComponent<TransformComponent>()->setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
 
     //Hard coded lights
     for (size_t i = 0; i < 4; i++)
@@ -128,7 +128,7 @@ bool Engine::init()
     mainScene->instanceModel("ak203.obj");
 
     //that will fix the snap after entering camera controll, would need to set some values in the constructors to notuse this line
-    mainScene->getActiveCamera()->rotateCam(glm::vec3(0, 0, 0));
+    cameraNode->getComponent<CameraComponent>()->update(cameraNode->getComponent<TransformComponent>()->getTransform());
 
     /*Bloom bloomPP(blurShader, bloomShader);
     bloomPP.setSteps(20);*/
@@ -156,11 +156,61 @@ void Engine::run()
         {
             ImVec2 windowSpace = engineUI.getSceneLayer().getWindowSpace();
 
-            activeScene->getActiveCamera()->setAspectRatio(windowSpace.x, windowSpace.y);
-            activeScene->getActiveCamera()->updateCamera();
+            GLFWwindow* glWindow = window.getGLWindow();
+            SceneNode* activeCamera = activeScene->getActiveCamera();
+            CameraComponent* cameraComp = activeCamera->getComponent<CameraComponent>();
+            TransformComponent* transformComp = activeCamera->getComponent<TransformComponent>();
 
-            Camera::CursorData data(windowSpace.x, windowSpace.y, 0, 0, 0, 0);
-            activeScene->getActiveCamera()->cameraController(window.getGLWindow(), windowSpace.x, windowSpace.y, deltaTime);
+            cameraComp->setAspectRatio(windowSpace.x, windowSpace.y);
+            cameraComp->sendToShader(transformComp->getPosition());
+
+            //CAMERA CONTROLLER
+            if (glfwGetKey(glWindow, GLFW_KEY_W) == GLFW_PRESS) {
+                transformComp->translate(cameraComp->getViewDirection() * cameraComp->getSpeed() * deltaTime);
+            }
+            if (glfwGetKey(glWindow, GLFW_KEY_S) == GLFW_PRESS) {
+                transformComp->translate(-cameraComp->getViewDirection() * cameraComp->getSpeed() * deltaTime);
+            }
+            if (glfwGetKey(glWindow, GLFW_KEY_A) == GLFW_PRESS) {
+                transformComp->translate(-cameraComp->getRightVector() * cameraComp->getSpeed() * deltaTime);
+            }
+            if (glfwGetKey(glWindow, GLFW_KEY_D) == GLFW_PRESS) {
+                transformComp->translate(cameraComp->getRightVector() * cameraComp->getSpeed() * deltaTime);
+            }
+
+            // Read cursor and re-center it
+            double xpos, ypos;
+            glfwGetCursorPos(glWindow, &xpos, &ypos);
+            glfwSetCursorPos(glWindow, windowSpace.x / 2, windowSpace.y / 2);
+
+            // Sensitivity: degrees per pixel.
+            const float sensitivity = 0.1f; // 0.1 degree per pixel
+
+            float deltaYawDeg = sensitivity * float((windowSpace.x / 2) - xpos);   // horizontal mouse movement
+            float deltaPitchDeg = sensitivity * float((windowSpace.y / 2) - ypos); // vertical mouse movement
+
+            // Pass deltas in degrees
+            //activeCamera->rotateCam(glm::vec3(deltaPitchDeg, deltaYawDeg, 0.0f));
+
+            glm::vec3 rotation(deltaPitchDeg, deltaYawDeg, 0.0f);
+
+            // rotation.x = deltaPitch (degrees), rotation.y = deltaYaw (degrees)
+            glm::vec3 currentRot = transformComp->getRotation();
+
+            // clamp pitch (x) to avoid gimbal flip. Use degrees here (TransformComponent stores degrees).
+            const float maxPitch = 89.0f;
+            float desiredPitch = currentRot.x + rotation.x;
+            if (desiredPitch > maxPitch) desiredPitch = maxPitch;
+            if (desiredPitch < -maxPitch) desiredPitch = -maxPitch;
+
+            // compute deltas we will actually apply (apply rotation exactly once)
+            float appliedDeltaPitch = desiredPitch - currentRot.x;
+            float appliedDeltaYaw = rotation.y;
+
+            // Apply rotation once (we assume TransformComponent::rotate accepts degrees deltas)
+            transformComp->rotate(glm::vec3(appliedDeltaPitch, appliedDeltaYaw, 0.0f));
+
+            cameraComp->update(transformComp->getTransform());
         }
 
         engineUI.renderUI();

@@ -4,19 +4,6 @@
 
 class PointLight : public Light
 {
-public:
-	struct PointLightData
-	{
-		glm::vec3 position;
-		/*float constant;
-		float linear;
-		float quadratic;*/
-
-		PointLightData() : position(0)
-		{
-			//nothing to do here
-		}
-	};
 
 public:
 	/*void setConstant(float constant);
@@ -31,7 +18,6 @@ public:
 	float getShadowNear() const { return shadowNear; }
 	float getShadowFar() const { return shadowFar; }
 
-	const PointLightData* getData() const;
 	void sendToShader(const Shader& shaderProgram, unsigned lightIndex) const override;
 	void sendShadowDataToShader(const Shader& shaderProgram, unsigned lightIndex) const override;
 	SceneNode* clone() const override { return new PointLight(*this); }
@@ -40,13 +26,9 @@ public:
 
 	PointLight();
 	PointLight(const std::string name);
-	//PointLight(const PointLight& other);
-	//PointLight& operator=(const PointLight& other);
-	~PointLight();
+	~PointLight() override;
 
 private:
-	PointLightData data;
-
 	Cubemap shadowCubemap;
 	glm::mat4 shadowMatrices[6];
 	float shadowNear = 0.01f;

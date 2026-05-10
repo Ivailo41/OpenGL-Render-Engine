@@ -45,9 +45,11 @@ std::string Scene::getName() const
 	return name;
 }
 
-void Scene::setActiveCamera(Camera* camera)
+void Scene::setActiveCamera(SceneNode* camera)
 {
-	activeCamera = camera;
+	if (camera->getComponent<CameraComponent>()) {
+		activeCamera = camera;
+	}
 }
 
 bool Scene::instanceModel(const std::string& modelName)

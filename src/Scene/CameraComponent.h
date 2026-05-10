@@ -1,22 +1,14 @@
 #pragma once
-#include "SceneNode.h"
+#include "../Resources/Shader.h"
+#include "../Renderer/Primitives.h"
 #include <GLFW/glfw3.h>
 #include <gtc/type_ptr.hpp>
 
-class Camera : public SceneNode
+class CameraComponent
 {
 public:
-	struct CursorData
-	{
-		int winX, winY, winOffsetX, winOffsetY, mouseX, mouseY;
-		CursorData(int winX, int winY, int winOffsetX, int winOffsetY, int mouseX, int mouseY)
-			: winX(winX), winY(winY), winOffsetX(winOffsetX), winOffsetY(winOffsetY), mouseX(mouseX), mouseY(mouseY)
-		{}
-	};
-
 	glm::vec3 getViewDirection() { return viewDirection; }
 
-	//might make the camera properties public, there is no need of these getters
 	float getFOV() const { return FOV; }
 	glm::vec3 getViewDirection() const { return viewDirection; }
 	glm::vec3 getRightVector() const { return rightVector; }
@@ -25,32 +17,22 @@ public:
 	float getAspectRatio() const { return aspectRatio; }
 	glm::mat4 getViewMat() const { return viewMat; }
 	glm::mat4 getPerspectiveMat() const { return perspectiveMat; }
-
 	float getSpeed() const { return cameraSpeed; }
 
 	void setFOV(float fov);
-	void setSpeed(float speed);
 	void setViewDirection(const glm::vec3& viewDirection);
+	void setSpeed(float speed);
 	void setNear(float near);
 	void setFar(float far);
 	void setAspectRatio(float width, float height);
 
-	void rotateCam(const glm::vec3& rotation);
+	void update(const Transform& transform);
 
-	void cameraController(GLFWwindow* window, int winX, int winY, float deltaTime);
-
-	void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const override;
-	void update(float deltaTime);
-	SceneNode* clone() const override { return new Camera(*this);}
-
-	void updateCamera();
+	//TEMP
+	void sendToShader(const glm::vec3& position);
 
 public:
-	Camera();
-	virtual ~Camera() = default;
-
-private:
-
+	CameraComponent();
 
 private:
 	glm::vec3 viewDirection;
@@ -65,4 +47,3 @@ private:
 	float far;
 	float aspectRatio;
 };
-

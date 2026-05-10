@@ -60,7 +60,6 @@ bool EngineUI::init()
     //Create default UI layers
     addUILayer(&uiSceneTree);
     addUILayer(&uiObjectProperties);
-    addUILayer(&uiCameraProperties);
     addUILayer(&uiSceneLayer);
     addUILayer(&uiSettingsLayer);
 	addUILayer(&uiConsole);

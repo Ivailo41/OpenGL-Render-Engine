@@ -11,7 +11,7 @@ add_executable(Application
 		UI/Layers/UI_AssetBrowser.h
 		UI/IconsFontAwesome7.h
 		UI/Layers/UI_Materials.h
-		UI/Layers/UI_Materials.cpp "Scene/TransformComponent.h" "Scene/TransformComponent.cpp" "Scene/MeshComponent.h" "Scene/MeshComponent.cpp")
+		UI/Layers/UI_Materials.cpp "Scene/TransformComponent.h" "Scene/TransformComponent.cpp" "Scene/MeshComponent.h" "Scene/MeshComponent.cpp" "Scene/CameraComponent.h" "Scene/CameraComponent.cpp")
 
 include_directories("../external/glew/include" "../external/glfw/include" "../external/glm" "../external/stb_image" "../external/ImGui_Beta")
 
@@ -22,7 +22,7 @@ target_sources(
     Application 
     PRIVATE
         "Scene/SceneNode.cpp"
-        "Scene/Camera.cpp"
+        
         "Core/FileManager.cpp"
         "Main.cpp"
         "Resources/Material.cpp"
@@ -33,7 +33,7 @@ target_sources(
         
         "Scene/Lights/PointLight.cpp"
         "Scene/Scene.cpp"
-        "UI/Layers/UI_CameraProperties.cpp"
+        
         "UI/Layers/UI_ObjectProperties.cpp"
         "UI/Layers/UILayer.cpp"
         "UI/Layers/UISceneTree.cpp"

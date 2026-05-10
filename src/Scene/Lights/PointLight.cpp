@@ -17,11 +17,6 @@ PointLight::~PointLight()
 
 }
 
-const PointLight::PointLightData* PointLight::getData() const
-{
-	return &data;
-}
-
 void PointLight::sendToShader(const Shader& shaderProgram, unsigned lightIndex) const
 {
 	shaderProgram.setVec3(std::string("pointLights[" + std::to_string(lightIndex) + "].position").c_str(), transformComponentPtr->getPosition());

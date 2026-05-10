@@ -4,7 +4,6 @@
 #include "Layers/UI_Scene.h"
 #include "Layers/UI_Settings.h"
 #include "Layers/UI_ObjectProperties.h"
-#include "Layers/UI_CameraProperties.h"
 #include "Layers/UI_Console.h"
 #include "../Resources/ResourceManager.h"
 #include "../Core/Window.h"
@@ -49,7 +48,6 @@ private:
 	UI_Settings uiSettingsLayer;
 	UI_SceneTree uiSceneTree;
 	UI_ObjectProperties uiObjectProperties;
-	UI_CameraProperties uiCameraProperties;
 	UI_Console uiConsole;
 	UI_AssetBrowser uiAssetBrowser;
 	UI_Materials uiMaterials;

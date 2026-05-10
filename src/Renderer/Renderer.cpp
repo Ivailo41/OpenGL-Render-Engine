@@ -118,7 +118,11 @@ void Renderer::renderScene(Scene* scene, Window* window)
         pbrShader->setInt(std::string("depthMap[" + std::to_string(i) + "]").c_str(), 3 + i); //bind the shadow map texture to the shader
     }
 
-    scene->getActiveCamera()->updateCamera();
+	SceneNode* activeCamera = scene->getActiveCamera();
+	CameraComponent* cameraComp = activeCamera->getComponent<CameraComponent>();
+	TransformComponent* transformComp = activeCamera->getComponent<TransformComponent>();
+
+    cameraComp->sendToShader(transformComp->getPosition());
 
     for (SceneNode* child : scene->sceneObjects) {
         child->draw(pbrShader); //draws object
@@ -132,7 +136,7 @@ void Renderer::renderScene(Scene* scene, Window* window)
     //END OF SCENE OBJECTS RENDERING - PUT THAT IN THE FUNCTION
 
 	debugShader->use();
-	scene->getActiveCamera()->updateCamera();
+    cameraComp->sendToShader(transformComp->getPosition());
     debugShapes.drawDebugShapes();
 
     for (SceneNode* child : scene->sceneObjects) {
@@ -144,7 +148,7 @@ void Renderer::renderScene(Scene* scene, Window* window)
     {
         tangentShader->use();
         tangentShader->setFloat("lineWidth", tangentLength); //set the line width for the tangent shader
-        scene->getActiveCamera()->updateCamera();
+        cameraComp->sendToShader(transformComp->getPosition());
         glLineWidth(3.0f);
         for (SceneNode* child : scene->sceneObjects) {
             child->draw(tangentShader, GL_POINTS); //draws object with tangent shader, used for debugging tangents
@@ -153,9 +157,9 @@ void Renderer::renderScene(Scene* scene, Window* window)
 
     //make skybox member of scene
     skyboxShader->use();
-    glm::mat4 view = glm::mat4(glm::mat3(scene->getActiveCamera()->getViewMat()));
+    glm::mat4 view = glm::mat4(glm::mat3(cameraComp->getViewMat()));
     skyboxShader->setMat4("view", view);
-    skyboxShader->setMat4("projection", scene->getActiveCamera()->getPerspectiveMat());
+    skyboxShader->setMat4("projection", cameraComp->getPerspectiveMat());
     scene->activeSkybox->render();
 
     //apply bloom effect, currently the bloom is performance heavy, search for another approach

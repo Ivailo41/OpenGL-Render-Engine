@@ -80,11 +80,11 @@ void UI_Scene::renderLayer()
 
         ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-        //camera
-        const Camera* camera = Scene::activeScene->getActiveCamera();
+        const SceneNode* camera = Scene::activeScene->getActiveCamera();
+		CameraComponent* cameraComp = camera->getComponent<CameraComponent>();
         glm::mat4 transformMat = selectedObject->getGlobalModelMat();
 
-        ImGuizmo::Manipulate(glm::value_ptr(camera->getViewMat()), glm::value_ptr(camera->getPerspectiveMat()),
+        ImGuizmo::Manipulate(glm::value_ptr(cameraComp->getViewMat()), glm::value_ptr(cameraComp->getPerspectiveMat()),
             operation, ImGuizmo::LOCAL, glm::value_ptr(transformMat));
 
         if(ImGuizmo::IsUsing())
