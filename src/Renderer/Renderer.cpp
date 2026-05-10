@@ -34,13 +34,13 @@ bool Renderer::init(Window* window)
 	screneFrameBuffer.genFrameBuffer(window->getWidth(), window->getHeight());
     shadowFrameBuffer.genFrameBuffer(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-    FrameQuad::initFrameQuad();
-
     //TEMP
     for (size_t i = 0; i < 4; i++)
     {
         shadowCubemap[i].generateCubemap(SHADOW_WIDTH, SHADOW_HEIGHT, CubemapType::SHADOW_MAP);
     }
+
+    FrameQuad::initFrameQuad();
 
     running = true;
     return true;
@@ -81,12 +81,10 @@ void Renderer::renderScene(Scene* scene, Window* window)
         //attach each cubemap to the framebuffer
 		if (lightComp->getLightType() != LightType::POINT)
 			continue; //skip non-point lights for shadow mapping
-		//PointLight* pointLight = dynamic_cast<PointLight*>(scene->lights[i]);
 
         shadowFrameBuffer.attachCubemap(shadowCubemap[i]);
         glClear(GL_DEPTH_BUFFER_BIT); //clear the depth buffer for the shadow map
         shadowShader->use();
-        //scene->lights[i]->sendShadowDataToShader(*shadowShader, i);
 
         float aspect = (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT;
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, lightComp->getShadowNear(), lightComp->getShadowFar());
@@ -102,7 +100,7 @@ void Renderer::renderScene(Scene* scene, Window* window)
         GLuint shadowMatricesLoc = glGetUniformLocation(shadowShader->getShaderProgram(), "shadowMatrices");
         glUniformMatrix4fv(shadowMatricesLoc, 6, GL_FALSE, glm::value_ptr(shadowMatrices[i][0]));
 
-        shadowShader->setVec3("lightPosition", scene->lights[i]->getComponent<TransformComponent>()->getPosition());
+        shadowShader->setVec3("lightPosition", lightPos);
         shadowShader->setFloat("far_plane", lightComp->getShadowFar());
 
         for (SceneNode* child : scene->sceneObjects) {
@@ -136,6 +134,7 @@ void Renderer::renderScene(Scene* scene, Window* window)
     for (unsigned i = 0; i < scene->lights.size(); i++)
     {
         LightComponent* lightComp = scene->lights[i]->getComponent<LightComponent>();
+		TransformComponent* lightTransform = scene->lights[i]->getComponent<TransformComponent>();
         //!!!MAXIMUM OF 16 TEXTURES CAN BE BOUND AT ONCE, MAKE SURE TO NOT EXCEED THE LIMIT, LATER ON FIND BETTER APPROACH!!!
         if (lightComp->getLightType() != LightType::POINT)
             continue; //skip non-point lights for shadow mapping
@@ -144,7 +143,7 @@ void Renderer::renderScene(Scene* scene, Window* window)
         glActiveTexture(GL_TEXTURE0 + 3 + i);
         glBindTexture(GL_TEXTURE_CUBE_MAP, shadowCubemap[i]);
         //scene->lights[i]->sendToShader(*pbrShader, i);
-        pbrShader->setVec3(std::string("pointLights[" + std::to_string(i) + "].position").c_str(), scene->lights[i]->getComponent<TransformComponent>()->getPosition());
+        pbrShader->setVec3(std::string("pointLights[" + std::to_string(i) + "].position").c_str(), lightTransform->getPosition());
         pbrShader->setFloat(std::string("pointLights[" + std::to_string(i) + "].intensity").c_str(), lightComp->getIntensity());
 
         pbrShader->setFloat(std::string("far_plane[" + std::to_string(i) + "]").c_str(), lightComp->getShadowFar());
@@ -158,7 +157,7 @@ void Renderer::renderScene(Scene* scene, Window* window)
     cameraComp->sendToShader(transformComp->getPosition());
 
     for (SceneNode* child : scene->sceneObjects) {
-        child->draw(pbrShader); //draws object
+		child->draw(); //Passing pbr shader as override will break the rendering, fix it
     }
 
     glBindVertexArray(0); //unbind the last vertex array object which belongs to the last rendered mesh
