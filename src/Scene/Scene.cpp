@@ -93,10 +93,10 @@ bool Scene::addObject(SceneNode *object) {
 	if (object == nullptr)
 		return false;
 
-	Light* light = dynamic_cast<Light*>(object);
-	if (light != nullptr)
+	LightComponent* lightComp = object->getComponent<LightComponent>();
+	if (lightComp != nullptr)
 	{
-		lights.push_back(light);
+		lights.push_back(object);
 	}
 
 	sceneObjects.push_back(object);
@@ -108,12 +108,12 @@ void Scene::removeObject(SceneNode* object)
 	if (object == nullptr)
 		return;
 
-	Light* light = dynamic_cast<Light*>(object);
-	if (light != nullptr)
+	LightComponent* lightComp = object->getComponent<LightComponent>();
+	if (lightComp != nullptr)
 	{
 		for (size_t i = 0; i < lights.size(); i++)
 		{
-			if (lights[i] == light)
+			if (lights[i] == object)
 			{
 				lights.erase(lights.begin() + i);
 				break;

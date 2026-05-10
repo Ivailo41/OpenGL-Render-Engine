@@ -1,12 +1,12 @@
 #include "SceneNode.h"
 
-SceneNode::SceneNode() : parentPtr(nullptr), transformComponentPtr(nullptr), meshComponentPtr(nullptr), cameraComponentPtr(nullptr)
+SceneNode::SceneNode() : parentPtr(nullptr), transformComponentPtr(nullptr), meshComponentPtr(nullptr), cameraComponentPtr(nullptr), lightComponentPtr(nullptr)
 {
 	name = "New Object";
 	addComponent<TransformComponent>();
 }
 
-SceneNode::SceneNode(const std::string& name) : parentPtr(nullptr), transformComponentPtr(nullptr), meshComponentPtr(nullptr), cameraComponentPtr(nullptr)
+SceneNode::SceneNode(const std::string& name) : parentPtr(nullptr), transformComponentPtr(nullptr), meshComponentPtr(nullptr), cameraComponentPtr(nullptr), lightComponentPtr(nullptr)
 {
 	this->name = name;
 	addComponent<TransformComponent>();

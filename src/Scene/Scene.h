@@ -1,6 +1,5 @@
 #pragma once
 #include "SceneNode.h"
-#include "Lights/Light.h"
 #include <string>
 #include <vector>
 #include "Skybox.h"
@@ -35,7 +34,7 @@ public:
 	static Scene* activeScene;
 	std::vector<SceneNode*> sceneObjects;
 	//add container for cameras
-	std::vector<Light*> lights;
+	std::vector<SceneNode*> lights;
 
 	Skybox* activeSkybox = nullptr;
 

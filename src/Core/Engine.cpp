@@ -83,7 +83,10 @@ bool Engine::init()
     //Hard coded lights
     for (size_t i = 0; i < 4; i++)
     {
-        mainScene->addObject(new PointLight(std::string("PointLight_" + std::to_string(i))));
+		SceneNode* lightNode = new SceneNode("PointLight_" + std::to_string(i));
+		lightNode->addComponent<LightComponent>();
+
+        mainScene->addObject(lightNode);
     }
 
     //Loading textures and setting materials

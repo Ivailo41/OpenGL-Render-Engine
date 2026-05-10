@@ -12,6 +12,7 @@
 #include "TransformComponent.h"
 #include "MeshComponent.h"
 #include "CameraComponent.h"
+#include "LightComponent.h"
 
 class SceneNode
 {
@@ -22,9 +23,8 @@ public:
 	const glm::mat4 getGlobalModelMat() const;
 	const glm::mat4 globalToLocalMat(const glm::mat4& matrix) const;
 
-	virtual void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const;
-	virtual void update(float deltaTime);
-	virtual SceneNode* clone() const { return new SceneNode(*this); }
+	void draw(Shader* overrideShader = nullptr, GLenum drawMode = GL_TRIANGLES) const;
+	void update(float deltaTime);
 
 	void setParent(SceneNode* parent);
 	SceneNode* getParent() const { return parentPtr; }
@@ -66,6 +66,7 @@ protected:
 	TransformComponent* transformComponentPtr;
 	MeshComponent* meshComponentPtr;
 	CameraComponent* cameraComponentPtr;
+	LightComponent* lightComponentPtr;
 };
 
 template<>
@@ -99,6 +100,16 @@ inline CameraComponent* SceneNode::addComponent<CameraComponent>()
 }
 
 template<>
+inline LightComponent* SceneNode::addComponent<LightComponent>()
+{
+	if (!lightComponentPtr)
+	{
+		lightComponentPtr = new LightComponent();
+	}
+	return lightComponentPtr;
+}
+
+template<>
 inline TransformComponent* SceneNode::getComponent<TransformComponent>() const
 {
 	return transformComponentPtr;
@@ -114,4 +125,10 @@ template<>
 inline CameraComponent* SceneNode::getComponent<CameraComponent>() const
 {
 	return cameraComponentPtr;
+}
+
+template<>
+inline LightComponent* SceneNode::getComponent<LightComponent>() const
+{
+	return lightComponentPtr;
 }

@@ -1,14 +1,13 @@
 #pragma once
 #include "../Scene/Scene.h"
 #include "../Scene/Skybox.h"
-#include "../Scene/Lights/Light.h"
-#include "../Scene/Lights/PointLight.h"
 #include "../Core/Window.h"
 #include "../Core/Logger.h"
 #include "FrameBuffer.h"
 #include "../Resources/Shader.h"
 #include "DebugShapes.h"
 #include "FrameQuad.h"
+#include "../glm/gtc/type_ptr.hpp"
 
 class Renderer
 {
@@ -39,6 +38,10 @@ public:
 	bool drawTangents = false; //default tangent drawing state
 	float tangentLength = 0.1f; //default tangent length
 
+public:
+	static uint16_t SHADOW_WIDTH;
+	static uint16_t SHADOW_HEIGHT;
+
 protected:
 	ShadowFrameBuffer shadowFrameBuffer;
 	FrameBuffer colorFrameBuffer;
@@ -53,4 +56,8 @@ protected:
 
 	GLuint sceneTexture = 0; //texture for the scene
 	bool running = false;
+
+	//Temp
+	Cubemap shadowCubemap[4];
+	glm::mat4 shadowMatrices[4][6];
 };

@@ -65,6 +65,37 @@ void UI_ObjectProperties::renderLayer()
             }
         }
 
+		LightComponent* lightComp = Scene::activeScene->getSelectedObject()->getComponent<LightComponent>();
+        if (lightComp != nullptr) {
+            
+			float intensity = lightComp->getIntensity();
+			float ambient = lightComp->getAmbientStrength();
+			glm::vec3 lightColor = lightComp->getLightColor();
+			float shadowNear = lightComp->getShadowNear();
+			float shadowFar = lightComp->getShadowFar();
+
+            if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 20.0f))
+            {
+                lightComp->setIntensity(intensity);
+            }
+            if (ImGui::SliderFloat("Ambient", &ambient, 0.0f, 20.0f))
+            {
+                lightComp->setAmbientStrength(ambient);
+            }
+            if(ImGui::ColorEdit3("Light Color", (float*)&lightColor))
+            {
+                lightComp->setLightColor(lightColor.r, lightColor.g, lightColor.b);
+			}
+            if (ImGui::SliderFloat("Shadow Near", &shadowNear, 0.0f, 500.0f))
+            {
+                lightComp->setShadowNear(shadowNear);
+            }
+            if (ImGui::SliderFloat("Shadow Far", &shadowFar, 0.0f, 500.0f))
+            {
+                lightComp->setShadowFar(shadowFar);
+            }
+        }
+
     }
     ImGui::End();
 }
