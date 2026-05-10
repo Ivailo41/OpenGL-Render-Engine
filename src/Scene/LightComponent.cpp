@@ -27,7 +27,7 @@ void LightComponent::setAmbientStrength(float ambientStrength)
 	this->ambientStrength = ambientStrength;
 }
 
-void LightComponent::setLightColor(char r, char g, char b)
+void LightComponent::setLightColor(float r, float g, float b)
 {
 	lightColor = glm::vec3(r, g, b);
 }

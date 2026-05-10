@@ -57,7 +57,9 @@ protected:
 	GLuint sceneTexture = 0; //texture for the scene
 	bool running = false;
 
+	static const unsigned MAX_POINT_LIGHTS = 5;
+
 	//Temp
-	Cubemap shadowCubemap[4];
-	glm::mat4 shadowMatrices[4][6];
+	Cubemap shadowCubemap[MAX_POINT_LIGHTS];
+	glm::mat4 shadowMatrices[MAX_POINT_LIGHTS][6];
 };

@@ -22,7 +22,7 @@ public:
 
 	void setIntensity(float intensity);
 	void setAmbientStrength(float ambientStrength);
-	void setLightColor(char r, char g, char b);
+	void setLightColor(float r, float g, float b);
 	void setLightType(LightType type) { this->type = type; }
 	void setShadowNear(float shadowNear) { this->shadowNear = shadowNear; }
 	void setShadowFar(float shadowFar) { this->shadowFar = shadowFar; }

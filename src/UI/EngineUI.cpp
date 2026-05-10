@@ -15,7 +15,7 @@ bool EngineUI::isUIOpen = false;
 EngineUI::EngineUI(Window* window, ResourceManager* resourceManager, Renderer* renderer)
 : window(window), resourceManager(resourceManager), renderer(renderer), uiSceneLayer(window, renderer), uiSettingsLayer(renderer, resourceManager), uiAssetBrowser(resourceManager), uiMaterials(resourceManager)
 {
-
+	UIElements.reserve(10);
 }
 
 bool EngineUI::init()

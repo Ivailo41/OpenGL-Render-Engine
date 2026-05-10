@@ -17,8 +17,8 @@
         struct PointLight
         {
             vec3 position;
-
             float intensity;
+            vec3 color;
 
             vec3 ambient;
             vec3 diffuse;
@@ -205,8 +205,8 @@
                 // Apply shadow: (1.0 - shadow) means 1 in light, 0 in shadow
                 //lightResult += (1.0 - shadow) * ((kD * diffuseTexture / PI + specular) * attenuation * NdotL);
                 float shadow = ShadowCalculation(fs_in.FragPos, i);
-                vec3 ambient = vec3(0.01) * diffuseTexture;
-                lightResult += ((kD * diffuseTexture / PI + specular) * (ambient + (1- shadow)) * attenuation * NdotL * diffuseTexture * ORM.r);
+                vec3 ambient = vec3(0.05) * diffuseTexture;
+                lightResult += ((kD * diffuseTexture / PI + specular) * (ambient + (1- shadow)) * attenuation * NdotL * diffuseTexture * ORM.r * pointLights[i].color);
             }
             //vec3 color = ambient * lightResult + vec3(0.003,0.003,0.003) * diffuseTexture;
             vec3 color = lightResult;
